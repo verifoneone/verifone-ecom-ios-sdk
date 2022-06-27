@@ -1,2 +1,2 @@
-binary "https://github.com/verifoneone/verifone-ecom-ios-sdk/blob/main/Frameworks/Cardinal/CardinalMobile.json" == 2.2.5-2
-binary "https://github.com/verifoneone/verifone-ecom-ios-sdk/blob/main/Frameworks/Gopenpgp/Gopenpgp.json" == 1.0
+binary "https://raw.githubusercontent.com/verifoneone/verifone-ecom-ios-sdk/main/Frameworks/Cardinal/CardinalMobile.json" == 2.2.5-2
+binary "https://raw.githubusercontent.com/verifoneone/verifone-ecom-ios-sdk/main/Frameworks/Gopenpgp/Gopenpgp.json" == 1.0
