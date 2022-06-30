@@ -63,9 +63,9 @@ class ProductDetailsViewController: UITableViewController {
             showCardSaveSwitch: showCardSave,
             allowedPaymentMethods: Array(MerchantAppConfig.shared.allowedPaymentMethods))
         threedsConfiguration = VerifoneSDK.ThreedsConfiguration(environment: .staging)
-        applePayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "merchant.com.verifone.connectors", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.5)])
+        applePayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.5)])
         
-        verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration, applepayConfiguration: applePayConfiguration)
+        verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration)
         verifoneThreedsManager = Verifone3DSecureManager(threedsConfiguration: threedsConfiguration)
         
         
@@ -383,14 +383,14 @@ extension ProductDetailsViewController: KlarnaVCDelegate {
         let request = RequestTransaction(amount: product.price * 100,
                                          authType: "FINAL_AUTH",
                                          captureNow: false,
-                                         customer: "00cf8716-ef21-4267-b267-6ec7c3608c6c",
-                                         redirectUrl: "http://2coconnectors.ddns.net/test",
-                                         entityId: "0323cb15-b9c6-4f4c-b915-c533247fe60a",
+                                         customer: "",
+                                         redirectUrl: "",
+                                         entityId: "",
                                          purchaseCountry: "SE",
                                          currencyCode: "SEK",
                                          dynamicDescriptor: "TEST AUTOMATION ECOM",
                                          merchantReference: "5678",
-                                         paymentProviderContract: "f7bf9644-51e4-4718-be0c-2516ca1eb6f8",
+                                         paymentProviderContract: "",
                                          shopperInteraction: "",
                                          locale: AppLocale(countryCode: "SE", language: "en"),
                                          lineItems: [LineItem(

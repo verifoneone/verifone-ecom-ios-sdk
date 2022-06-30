@@ -57,7 +57,7 @@ public class VerifonePaymentForm {
     private var applepayConfiguration: VerifoneSDK.ApplePayMerchantConfiguration?
     private var completion: ((Result< VerifoneFormResult, Error>) -> Void)?
     
-    public init(paymentConfiguration: VerifoneSDK.PaymentConfiguration?, applepayConfiguration: VerifoneSDK.ApplePayMerchantConfiguration?, verifoneTheme: VerifoneSDK.Theme = .defaultTheme) {
+    public init(paymentConfiguration: VerifoneSDK.PaymentConfiguration?, applepayConfiguration: VerifoneSDK.ApplePayMerchantConfiguration? = nil, verifoneTheme: VerifoneSDK.Theme = .defaultTheme) {
         self.paymentConfiguration = paymentConfiguration
         self.applepayConfiguration = applepayConfiguration
         self.defultTheme = verifoneTheme
