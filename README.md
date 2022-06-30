@@ -25,7 +25,7 @@ VerifoneSDK is available through either CocoaPods and Carthage.
 
 ##### CocoaPods
 
-1. Add the following line to your Podfile: `pod 'VerifoneSDK'`
+1. Add the following line to your Podfile: `pod 'VerifoneSDK', :git => 'https://github.com/verifoneone/verifone-ecom-ios-sdk.git'`
 2. Run `pod install`
 
 ##### Carthage
