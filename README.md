@@ -32,9 +32,9 @@ VerifoneSDK is available through either CocoaPods and Carthage.
 
 To integrate the VerifoneSDK into your Xcode project using Carthage, proceed with the following steps:
 
-1. Add the following line to your Cartfile: `github "/"`
+1. Add the following line to your Cartfile: `github "verifoneone/verifone-ecom-ios-sdk" "main"`
 2. Run `carthage update --use-xcframeworks`
-3. Link the framework with your target as described in [Carthage Readme](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application).
+3. Link the frameworks with your target as described in [Carthage Readme](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application).
 
 ## Usage
 
