@@ -48,7 +48,7 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
     var bundle: Bundle!
     private var _font: UIFont?
     private var _allowedPaymentMethods: [VerifoneSDKPaymentTypeValue]? = []
-    private var _allPaymentMethods: [VerifoneSDKPaymentTypeValue] = [.creditCard, .paypal]
+    private var _allPaymentMethods: [VerifoneSDKPaymentTypeValue] = [.creditCard, .paypal, .applePay]
     
     public var font: UIFont {
         set {
@@ -80,7 +80,7 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
                         }
                     }
             } else {
-                _allowedPaymentMethods = [.creditCard, .paypal]
+                _allowedPaymentMethods = [.creditCard, .paypal, .applePay]
             }
             
             return _allowedPaymentMethods!
