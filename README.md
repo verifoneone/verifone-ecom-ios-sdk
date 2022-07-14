@@ -2,8 +2,7 @@
 
 Verifone SDKs provide the ability to encrypt and validate card payments, handles 3D Secure verification and interacts with alternative payment methods.
 
-<img width="210" src="screens/1.png" />      
-<img width="210" src="screens/2.png" />     
+<img width="210" src="screens/1.png" /> <img width="210" src="screens/2.png" />     
 
 ### Requirements
 
@@ -41,10 +40,10 @@ Required Parameters to setup the SDK.
 
 ```swift
 let paymentConfiguration = VerifoneSDK.PaymentConfiguration(
- cardEncryptionPublicKey: "card_encryption_public_key",
+ cardEncryptionPublicKey: "YOUR_CARD_ENCRYPTION_KEY",
  paymentPanelStoreTitle: "store_name", showCardSaveSwitch: "bool", allowedPaymentMethods: [.creditCard, .paypal, .applePay])
 
-let applepayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "merchant.com.verifone.connectors", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.0)])
+let applepayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "YOUR_MERCHANT_ID", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.0)])
 
 let verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration, applepayConfiguration: applepayConfiguration)
 
