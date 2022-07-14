@@ -1,12 +1,9 @@
 # Verifone iOS SDK
 
-The VerifoneSDK provides encrypting credit cards and 3D Secure verification.
+Verifone SDKs provide the ability to encrypt and validate card payments, handles 3D Secure verification and interacts with alternative payment methods.
 
 <img width="210" src="screens/1.png" />      
-<img width="210" src="screens/2.png" />    
-<img width="210"  src="screens/3.png" />  
-<img width="210"  src="screens/5.png" />  
-<img width="210"  src="screens/6.png" />  
+<img width="210" src="screens/2.png" />     
 
 ### Requirements
 
@@ -15,11 +12,11 @@ The VerifoneSDK provides encrypting credit cards and 3D Secure verification.
 
 ### Suppported Payment Methods
 
-- Credit Cards
+- Credit Cards (with 3D Secure support)
 - Paypal
-- ThreeDSecure
+- Apple Pay
 
-##### Installation
+### Installation
 
 VerifoneSDK is available through either CocoaPods and Carthage.
 
@@ -36,20 +33,138 @@ To integrate the VerifoneSDK into your Xcode project using Carthage, proceed wit
 2. Run `carthage update --use-xcframeworks`
 3. Link the frameworks with your target as described in [Carthage Readme](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application).
 
+
 ## Usage
 
 Required Parameters to setup the SDK.
 
+
 ```swift
 let paymentConfiguration = VerifoneSDK.PaymentConfiguration(
  cardEncryptionPublicKey: "card_encryption_public_key",
- paymentPanelStoreTitle: "store_name", showCardSaveSwitch: "bool", allowedPaymentMethods: [.creditCard, .paypal])
+ paymentPanelStoreTitle: "store_name", showCardSaveSwitch: "bool", allowedPaymentMethods: [.creditCard, .paypal, .applePay])
 
-let verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration)
-verifonePaymentForm.displayPaymentForm(from: self) { [weak self] result in
-            self?.didCardEncrypted(result)
+let applepayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "merchant.com.verifone.connectors", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.0)])
+
+let verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration, applepayConfiguration: applepayConfiguration)
+
+verifonePaymentForm.displayPaymentForm(from: self) { result in
+            // handle result based on payment method selected by the customer
 }
 ```
+
+
+###### Transaction flow without threed secure.
+
+A simple completion handler for encrypted card data looks like this. Here we will check ```verifoneResult.paymentMethodType``` which payment method was selected. 
+
+If the customer selected credit card, the sdk will return the encrypted card data to perform transaction request to the merchant server.
+
+If the customer selected PayPal, you will have to do a create transaction API call, and then pass to the sdk the "approvalUrl" and "id". The sdk will display the confirmation PaypPal screen inside a webview and provide you with the details necessary to perform the confirmation API call.
+
+```swift
+verifonePaymentForm.displayPaymentForm(from: self) { result in
+                switch result {
+                case .success(let verifoneResult):
+                    switch verifoneResult.paymentMethodType {
+                        case .creditCard:
+                        print(verifoneResult)
+                        // verifoneResult.cardData: String
+                        // verifoneResult.cardBrand: String
+                        // verifoneResult.cardHolder: String
+                        // verifoneResult.saveCard: Bool
+                        // You can then use the verifoneResult.cardData to make an encrypted card payment request or create a reuse token to create a transaction later.
+                        // https://verifone.cloud/api-catalog/verifone-ecommerce-api#operation/saleTransaction
+                        // https://verifone.cloud/api-catalog/verifone-ecommerce-api#operation/createUpdateToken
+                        case .paypal:
+                            print(verifoneResult)
+                            // Verify that the payment was redirected to the expected URL
+                            // and make an authorization API call.
+                            // If the redirect URL is nil, make an API call to get the approval URL.
+                            if (verifoneResult.paymentAuthorizingResult != nil) {
+                                // verifoneResult.paymentAuthorizingResult.redirectedUrl: URL
+                                // verifoneResult.paymentAuthorizingResult.queryStringDictionary: NSMutableDictionary
+                                // You can then use the verifoneResult.paymentAuthorizingResult.queryStringDictionary to authorize or capture the transaction
+                                // https://verifone.cloud/api-catalog/paypal-ecomm-api#operation/postTransactionsIdAuthorize
+                                // https://verifone.cloud/api-catalog/paypal-ecomm-api#operation/postTransactionsIdCapture
+                            } else {
+                                // make the server side PayPal transaction API call
+                                // https://verifone.cloud/api-catalog/paypal-ecomm-api#operation/postTransactions
+                                let paypalUrl = URL(string: "paypal url returned from initiate API call")!
+                                let expectedRedirectUrl = URLComponents(string: "https://verifone.cloud")!
+                                let expectedCancelUrl = URLComponents(string: "https://verifone.cloud")!
+                                PaymentAuthorizingWithURL.shared.load(webConfig: VFWebConfig(url: paypalUrl, expectedRedirectUrl: [expectedRedirectUrl], expectedCancelUrl: [expectedCancelUrl]))
+                            }
+                        default: break
+                    }
+                case .failure(let error):
+                    let error = error as NSError?
+                    // Here we can catch all possible errors
+                    switch error {
+                        case VerifoneError.cancel:
+                            print("The form closed or cancelled by user")
+                        case VerifoneError.invalidCardData:
+                            print("Missing card encryption public Key")
+                        default:
+                            print(error!)
+                        }
+                }            
+}
+```
+
+Transaction flow with threed secure.
+
+1. Initialize threeds manager.
+2. Create the threeds JWT.
+3. Use the JWT to setup the threeds, on completion threeds our sdk returns the device ID.
+4. Use the device ID and encrypted card to perform lookup request.
+5. Continue the threed secure authentication, using the payload and transaction ID returned from the lookup request.
+6. If the authentication is successfull, we can validate the JWT and perform the transaction.
+
+```swift
+let verifoneThreedsManager = Verifone3DSecureManager(environment: Environment.sandbox) // use Environment.production for production
+
+verifonePaymentForm.displayPaymentForm(from: self) { result in
+                switch result {
+                case .success(let verifoneResult):
+                    switch verifoneResult.paymentMethodType {
+                        case .creditCard:
+                        print(verifoneResult)
+                        // verifoneResult.cardData: String
+                        // verifoneResult.cardBrand: String
+                        // verifoneResult.cardHolder: String
+                        // verifoneResult.saveCard: Bool
+                        // Use the verifoneResult.cardData to make the JWT and lookup API calls
+                        // https://verifone.cloud/api-catalog/3d-secure-api#operation/postV2JwtCreate
+                        // https://verifone.cloud/api-catalog/3d-secure-api#operation/postV2Lookup
+                        verifoneThreedsManager.setup(with: "jwt", completion: { deviceID in
+                        // Set transaction id and payload parameters to continue session
+                        verifoneThreedsManager.complete3DSecureValidation(with: "transaction_id", payload:"payload") { serverJwt in
+                            // Validate authorization and request transaction.
+                        } didFailed: {
+                            // Handle failure
+                        }
+                    }, failure: { cardinalResponse in
+                        // Handle cardinal setup failure.
+                    })
+                    }
+                case .failure(let error):
+                    let error = error as NSError?
+                    // Here we can catch all possible errors
+                    switch error {
+                        case VerifoneError.cancel:
+                            print("The form closed or cancelled by user")
+                        case VerifoneError.invalidCardData:
+                            print("Missing card encryption public Key")
+                        default:
+                            print(error!)
+                        }
+                }            
+}
+```
+
+
+### Customization
 
 ###### Localization
 
@@ -67,115 +182,7 @@ Set font in code. By default SDK will use system font.
 VerifoneSDK.defaultTheme.font = UIFont(name: "Helvetica", size: 15)
 ```
 
-###### Transaction flow without threed secure.
-
-A simple completion handler for encrypted card data looks like this. Here we will check ```verifoneResult.paymentMethodType``` which payment method was selected and  if it's credit card type, get encrypted card data to perform transaction request to the merchant server
-
-```swift
-func didCardEncrypted(_ result: Result<VerifoneFormResult, Error>) {
-        switch result {
-        case .success(let verifoneResult):
-            switch verifoneResult.paymentMethodType {
-                case .creditCard:
-                    // verifoneResult.cardData: String
-                    // verifoneResult.cardBrand: String
-                    // verifoneResult.cardHolder: String
-                    // verifoneResult.saveCard: Bool
-                    // Perform transaction request here
-                case .paypal:
-                    //
-                    // Pay by link payment method selected.
-                    // Verify that the payment was redirected to the expected URL 
-                    // and make an authorization API call.
-                    // If the redirect URL is nil, make an API call to get the approval URL.
-                    //
-                    if (verifoneResult.paymentAuthorizingResult != nil) {
-                        // verifoneResult.paymentAuthorizingResult.redirectedUrl: URL
-                        // verifoneResult.paymentAuthorizingResult.queryStringDictionary: NSMutableDictionary
-                    } else {
-                    }
-                default: break
-            }
-        case .failure(let error):
-            verifonePaymentForm = nil
-            let error = error as NSError?
-            // Here we can catch all possible errors
-            switch error {
-            case VerifoneError.cancel:
-                print("The form closed or cancelled by user")
-            case VerifoneError.invalidCardData:
-                print("Missing card encryption public Key")
-            default:
-                self.stopAnimation()
-                print(error!)
-            }
-        }
-    }
-```
-
-Transaction flow with threed secure.
-
-1. Initialize threeds manager.
-2. Create the threeds JWT.
-3. Use the JWT to setup the threeds, on completion threeds our sdk returns the device ID.
-4. Use the device ID and encrypted card to perform lookup request.
-5. Continue the threed secure authentication, using the payload and transaction ID returned from the lookup request.
-6. If the authentication is successfull, we can validate the JWT and perform the transaction.
-
-```swift
-let verifoneThreedsManager = Verifone3DSecureManager(environment: Environment.sandbox)
-
-func didCardEncrypted(_ result: Result<VerifoneFormResult, Error>) {
-        switch result {
-        case .success(let verifoneResult):
-             switch verifoneResult.paymentMethodType {
-                case .creditCard:
-                    // verifoneResult.cardData: String
-                    // verifoneResult.cardBrand: String
-                    // verifoneResult.cardHolder: String
-                    // verifoneResult.saveCard: Bool
-                    self.verifoneThreedsManager.setup(with: "jwt", completion: { deviceID in
-                        // Set transaction id and payload parameters to continue session
-                        self.verifoneThreedsManager.complete3DSecureValidation(with: "transaction_id", payload:"payload") { serverJwt in
-                            // Validate authorization and request transaction.
-                        } didFailed: {
-                            // Handle failure
-                        }
-                    }, failure: { cardinalResponse in
-                        // Handle cardinal setup failure.
-                    })
-                case .paypal:
-                    //
-                    // Pay by link payment method selected.
-                    // Verify that the payment was redirected to the expected URL
-                    // and make an authorization API call.
-                    // If the redirect URL is nil, make an API call to get the approval URL.
-                    //
-                    if (verifoneResult.paymentAuthorizingResult != nil) {
-                        // verifoneResult.paymentAuthorizingResult.redirectedUrl: URL
-                        // verifoneResult.paymentAuthorizingResult.queryStringDictionary: NSMutableDictionary
-                    } else {
-                    }
-                default: break
-            }
-        case .failure(let error):
-            verifonePaymentForm = nil
-            let error = error as NSError?
-            // Here we can catch all possible errors
-            switch error {
-            case VerifoneError.cancel:
-                print("The form closed or cancelled by user")
-            case VerifoneError.invalidCardData:
-                print("Missing card encryption public Key")
-            default:
-                self.stopAnimation()
-                print(error!)
-            }
-        }
-    }
-```
-
-### Customize the card form
+##### Customize the card form
 
 Configure default theme properties for a credit card form.
 
