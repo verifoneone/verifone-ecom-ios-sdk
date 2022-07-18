@@ -94,6 +94,10 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
                                 let expectedCancelUrl = URLComponents(string: "https://verifone.cloud")!
                                 PaymentAuthorizingWithURL.shared.load(webConfig: VFWebConfig(url: paypalUrl, expectedRedirectUrl: [expectedRedirectUrl], expectedCancelUrl: [expectedCancelUrl]))
                             }
+                        case .applePay:
+                            print(verifoneResult.paymentApplePayResult!.token.paymentData)
+                            // make the server side wallet transaction API call using the 'token.paymentData' as the wallet payload
+                            // https://verifone.cloud/api-catalog/verifone-ecommerce-api#operation/walletTransaction
                         default: break
                     }
                 case .failure(let error):

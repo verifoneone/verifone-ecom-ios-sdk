@@ -63,9 +63,9 @@ class ProductDetailsViewController: UITableViewController {
             showCardSaveSwitch: showCardSave,
             allowedPaymentMethods: Array(MerchantAppConfig.shared.allowedPaymentMethods))
         threedsConfiguration = VerifoneSDK.ThreedsConfiguration(environment: .staging)
-        applePayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.5)])
+        applePayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "YOUR_APPLE_PAY_MERCHANT_ID", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.5)])
         
-        verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration)
+        verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration, applepayConfiguration: applePayConfiguration)
         verifoneThreedsManager = Verifone3DSecureManager(threedsConfiguration: threedsConfiguration)
         
         
