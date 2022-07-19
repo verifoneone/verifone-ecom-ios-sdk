@@ -22,7 +22,7 @@ public class CardEncryption: NSObject {
         super.init()
     }
     
-    func getEncryptedData(completion: @escaping CardEncryptionResultCallback) {
+    public func getEncryptedData(completion: @escaping CardEncryptionResultCallback) {
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
