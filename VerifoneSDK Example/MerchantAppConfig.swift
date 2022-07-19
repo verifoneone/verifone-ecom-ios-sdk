@@ -42,6 +42,8 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
     public var threedsContractID: String!
     public var cardEncryptionPublicKey: String!
     public var publicKeyAlias: String!
+    public var tokenScopeAlias: String!
+    public var entityId: String!
     public static var expectedSuccessURL = "https://verifone.cloud"
     public static var expectedCancellURL = "https://verifone.cloud"
     
@@ -98,6 +100,8 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
         self.threedsContractID = Credentials.threedsContractID
         self.publicKeyAlias = Credentials.publicKeyAlias
         self.cardEncryptionPublicKey = Credentials.cardEncryptionPublicKey
+        self.tokenScopeAlias = Credentials.tokenScopeAlias
+        self.entityId = Credentials.entityId
         //disable constraints warnings
         UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         bundle = Bundle.main
@@ -109,8 +113,10 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
         public static var paymentProviderContract = "{CARD_PAYMENT_PROVIDER_CONTRACT_ID}"
         public static var paypalPaymentProviderContract = "{PAYPAL_PAYMENT_PROVIDER_CONTRACT_ID}"
         public static var threedsContractID = "{3DS_CONTRACT_ID}"
+        public static var tokenScopeAlias = "{TOKEN_SCOPE_ALIAS}"
         public static var publicKeyAlias = "{PUBLIC_KEY_ALIAS}"
         public static var cardEncryptionPublicKey =  "{PUBLIC_KEY}"
+        public static var entityId =  "{ENTITY_ID}"
     }
     
     public mutating func setLang(lang: String) {

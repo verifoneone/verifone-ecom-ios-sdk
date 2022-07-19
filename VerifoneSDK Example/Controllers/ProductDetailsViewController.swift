@@ -164,9 +164,9 @@ extension ProductDetailsViewController {
 
 extension ProductDetailsViewController {
     func createReuseToken(encryptedCard: String, completion: @escaping (Bool, ResponseReuseToken?, String?) -> Void) {
-        let request = RequestReuseToken(tokenScope: "d19619ab-6a9f-412d-9e5e-c2e3860a7bd9",
+        let request = RequestReuseToken(tokenScope: MerchantAppConfig.Credentials.tokenScopeAlias,
                                         encryptedCard: encryptedCard,
-                                        publicKeyAlias: "K1463",
+                                        publicKeyAlias: MerchantAppConfig.Credentials.publicKeyAlias,
                                         tokenType: "REUSE",
                                         tokenExpiryDate: "2023-08-24")
         ProductsAPI.shared.createReuseToken(request: request) { (token, error) in
@@ -275,7 +275,7 @@ extension ProductDetailsViewController {
                                          currencyCode: "USD",
                                          dynamicDescriptor: "abc123",
                                          merchantReference: "TEST-ECOM123",
-                                         paymentProviderContract: "d5dc07ec-0521-4676-ba75-96be6754eb35",
+                                         paymentProviderContract: MerchantAppConfig.Credentials.paymentProviderContract,
                                          shopperInteraction: "ECOMMERCE",
                                          walletType: "APPLE_PAY",
                                          walletPayload: applePayToken,
@@ -383,14 +383,14 @@ extension ProductDetailsViewController: KlarnaVCDelegate {
         let request = RequestTransaction(amount: product.price * 100,
                                          authType: "FINAL_AUTH",
                                          captureNow: false,
-                                         customer: "",
+                                         customer: "YOUR_CUSTOMER_ID",
                                          redirectUrl: "",
-                                         entityId: "",
+                                         entityId: MerchantAppConfig.Credentials.entityId,
                                          purchaseCountry: "SE",
                                          currencyCode: "SEK",
                                          dynamicDescriptor: "TEST AUTOMATION ECOM",
                                          merchantReference: "5678",
-                                         paymentProviderContract: "",
+                                         paymentProviderContract: MerchantAppConfig.Credentials.paymentProviderContract,
                                          shopperInteraction: "",
                                          locale: AppLocale(countryCode: "SE", language: "en"),
                                          lineItems: [LineItem(

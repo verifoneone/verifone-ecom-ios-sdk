@@ -33,7 +33,7 @@ To integrate the VerifoneSDK into your Xcode project using Carthage, proceed wit
 3. Link the frameworks with your target as described in [Carthage Readme](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application).
 
 
-## Usage
+### Usage
 
 Required Parameters to setup the SDK.
 
@@ -53,7 +53,7 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
 ```
 
 
-###### Transaction flow without threed secure.
+##### Transaction flow without threed secure.
 
 A simple completion handler for encrypted card data looks like this. Here we will check ```verifoneResult.paymentMethodType``` which payment method was selected. 
 
@@ -115,7 +115,7 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
 }
 ```
 
-Transaction flow with threed secure.
+##### Transaction flow with threed secure.
 
 1. Initialize threeds manager.
 2. Create the threeds JWT.
@@ -166,10 +166,38 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
 }
 ```
 
+##### Card Encryption without UI
+
+```swift
+
+let dateFormatter = DateFormatter()
+dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+let iso8601String = dateFormatter.string(from: Date()) + "Z"
+
+let encryptedData = EncryptedData(cardNumber: "4111111111111111",
+                                                expiryMonth: 12,
+                                                expiryYear: 25,
+                                                cvv: "123",
+                                                captureTime: iso8601String
+   
+let cardData = CardEncryption(publicKey: "YOUR_PUBLIC_ENCRYPTION_KEY", cardData: encryptedData)
+              cardData.getEncryptedData { cardEncryptionResult in
+                  switch cardEncryptionResult {
+                  case let .success(_):
+                      print(cardEncryptionResult)
+
+                  case let .failure(error):
+                      print(error)
+                  }
+              }
+
+```
+
 
 ### Customization
 
-###### Localization
+##### Localization
 
 Set language in code. By default SDK will use system language.
 
@@ -177,7 +205,7 @@ Set language in code. By default SDK will use system language.
 VerifoneSDK.locale = Locale(identifier: "en")
 ```
 
-###### Font
+##### Font
 
 Set font in code. By default SDK will use system font.
 
