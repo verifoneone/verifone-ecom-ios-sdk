@@ -10,11 +10,11 @@ import Foundation
 class RequestValidate: Codable {
     var authenticationId: String
     var jwt: String
-    var threedsContractId: String
-    
+    var threedsContractId: String?
+
     init(authenticationId: String,
          jwt: String,
-         threedsContractId: String) {
+         threedsContractId: String?) {
 
         self.authenticationId = authenticationId
         self.jwt = jwt

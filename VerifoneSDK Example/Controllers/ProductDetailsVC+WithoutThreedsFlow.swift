@@ -12,7 +12,7 @@ import VerifoneSDK
 // Handle without 3ds payment flow, AuthorizingPaymentWebViewControllerDelegate
 //
 extension ProductDetailsViewController {
-    
+
     @objc func purchaseWithout3ds(sender: UIButton) {
         self.setupRequiredTestParams()
         if let cell: BuyButtonCell = sender.superview!.superview as? BuyButtonCell {
@@ -24,13 +24,13 @@ extension ProductDetailsViewController {
             cell.buyButton.isEnabled = false
             cell.activityIndicator.startAnimating()
         }
-        
+
         do {
             let token = try defaults.getObject(forKey: "reuseToken", castTo: ResponseReuseToken.self)
             if GlobalENV != Env.CST_FOR_REUSE_TOKEN {
                 throw VerifoneError.merchantNotSupport3DS
             }
-            if (!isTokenExpired(tokenExpiryDate: token.tokenExpiryDate)) {
+            if !isTokenExpired(tokenExpiryDate: token.tokenExpiryDate) {
                 processWithTokenWithout3ds(reuseToken: token)
             } else {
                 self.alert(title: "Token", message: "The token expired, recreate token.")
@@ -41,40 +41,46 @@ extension ProductDetailsViewController {
             }
         }
     }
-    
+
     func processWithTokenWithout3ds(reuseToken: ResponseReuseToken) {
-        self.cardHolder = ""
-        let request = RequestTransaction(
-            amount: product.price * 100,
-            authType: "FINAL_AUTH",
-            captureNow: true,
-            cardBrand: reuseToken.brand,
-            currencyCode: "USD",
-            dynamicDescriptor: "M.reference",
-            merchantReference: "TEST-ECOM",
-            paymentProviderContract: MerchantAppConfig.shared.paymentProviderContract,
-            publicKeyAlias: MerchantAppConfig.shared.publicKeyAlias,
-            shopperInteraction: "ECOMMERCE",
-            reuseToken: reuseToken.reuseToken)
+        guard let params = Parameters.creditCard else {
+            self.alert(title: "\(missingParams) CreditCard")
+            self.stopAnimation()
+            return
+        }
+
+        var request = RequestTransaction.creditCard
+        request.setupCreditCardWithout3ds(productPrice: product.price,
+                                          cardBrand: reuseToken.brand,
+                                          paymentProviderContract: params.paymentProviderContract!,
+                                          publicKeyAlias: params.publicKeyAlias!,
+                                          reuseToken: params.reuseToken)
+
         ProductsAPI.shared.transaction(request: request) { [weak self] (result, error) in
             self?.stopAnimation()
-            
+
             guard error == nil else {
                 self?.alert(title: "Error transaction", message: "An error has occurred: \(error!)")
                 return
             }
-            self?.showResultPage(merchantReference:"\(result!.merchantReference!)", cardHolder: self!.cardHolder)
+            self?.showResultPage(merchantReference: "\(result!.merchantReference!)")
         }
     }
-    
+
     func didCardEncryptedForWithout3ds(_ result: Result<VerifoneFormResult, Error>) {
         switch result {
         case .success(let verifoneResult):
             switch verifoneResult.paymentMethodType {
             case .creditCard:
-                self.cardHolder = verifoneResult.cardHolder!
                 print("State of save card switch \(verifoneResult.saveCard)")
-                if (verifoneResult.saveCard) {
+                guard let params = Parameters.creditCard else {
+                    self.alert(title: "\(missingParams) CreditCard")
+                    self.stopAnimation()
+                    return
+                }
+                orderData = OrderData.creditCard
+                orderData.setupCreditCard(productPrice: product.price, threedsContractId: params.threedsContractID!, publicKetAlias: params.publicKeyAlias!)
+                if verifoneResult.saveCard {
                     self.createReuseToken(encryptedCard: verifoneResult.cardData!) {
                         [weak self] success, reuseToken, error in
                         if success {
@@ -84,7 +90,7 @@ extension ProductDetailsViewController {
                                 }
                                 token.setCardBrand(brand: verifoneResult.cardBrand!)
                                 try self?.defaults.setObject(token, forKey: "reuseToken")
-                            } catch (let error) {
+                            } catch let error {
                                 print("Error on saving reuse token: \(error)")
                             }
                         } else {
@@ -101,19 +107,25 @@ extension ProductDetailsViewController {
                 // Verify that the payment was redirected to the expected URL and make an authorization API call.
                 // If the paymentAuthorizingResult is nil, make an API call to get the approval URL.
                 //
-                if (verifoneResult.paymentAuthorizingResult != nil) {
-                    self.authorizePaypal(merchantReference: self.merchantReference, transactionID: transactionID!) {[weak self] success, res, error in
+                if verifoneResult.paymentAuthorizingResult != nil {
+                    self.authorizePaypal(merchantReference: self.merchantReference, transactionID: transactionID!) {[weak self] _, res, error in
                         self?.stopAnimation()
                         
                         guard error == nil else {
                             self?.showErrorResultPage(title: "Error transaction", message: error)
                             return
                         }
-                        self?.showResultPage(merchantReference: res!.instoreReference, cardHolder: "\(res!.payer.name.firstName) \(res!.payer.name.lastName)")
+                        self?.showResultPage(merchantReference: self!.merchantReference)
                     }
                 } else {
-                    let req = ProductsAPI.shared.initiatePp(returnUrl: MerchantAppConfig.expectedSuccessURL, cancelURL: MerchantAppConfig.expectedCancellURL, itemName: "\(product.title) test product from iOS SDK", price: Int(product.price) * 100)
-                    self.initiatePaypal(request: req) { success, response, error in
+                    guard let params = Parameters.paypal else {
+                        PaymentAuthorizingWithURL.shared.cancelPayByLink { [weak self] in
+                            self?.presentedViewController?.alert(title: "\(self!.missingParams) Paypal")
+                        }
+                        return
+                    }
+                    let req = ProductsAPI.shared.initiatePaypal(returnUrl: MerchantAppConfig.expectedSuccessURL, cancelURL: MerchantAppConfig.expectedCancellURL, itemName: "\(product.title) test product from iOS SDK", price: Int(product.price) * 100, paymentProviderContract: params.paymentProviderContract!)
+                    self.initiatePaypal(request: req) { _, response, error in
                         DispatchQueue.main.async {
                             guard error == nil else {
                                 PaymentAuthorizingWithURL.shared.cancelPayByLink(completion: {
@@ -137,7 +149,14 @@ extension ProductDetailsViewController {
                 self.initiateWalletPaymet(success: true, cardBrand: "MASTERCARD", error: "", applePayToken: res!.applePayPaymentToken)
             case .klarna:
                 self.initiateKlarna()
-            default: break
+            case .swish:
+                self.initiateSwish()
+            case .vipps:
+                self.initiateVipps()
+            case .mobilePay:
+                self.initiateMobilePay()
+            default:
+                self.stopAnimation()
             }
         case .failure(let error):
             verifonePaymentForm = nil
@@ -147,39 +166,37 @@ extension ProductDetailsViewController {
             case VerifoneError.cancel:
                 self.stopAnimation()
                 print("The form closed or cancelled by user")
-            case VerifoneError.invalidCardData:
+            case VerifoneError.invalidPublicKey, VerifoneError.invalidCardData:
                 self.stopAnimation()
-                print("Missing card encryption public Key")
+                self.alert(title: "Transaction failed", message: "Required parameters are missing or invalid")
             default:
                 self.stopAnimation()
                 print(error!)
             }
         }
     }
-    
+
     func startFlowWithout3ds(verifoneResult: VerifoneFormResult) {
-        let request = RequestTransaction(amount: product.price * 100,
+        let request = RequestTransaction(amount: Int64(product.price * 100),
                                          authType: "FINAL_AUTH",
                                          captureNow: true,
                                          cardBrand: verifoneResult.cardBrand!,
-                                         currencyCode: "USD",
+                                         currencyCode: UserDefaults.standard.getCurrency(fromKey: Keys.currency),
                                          dynamicDescriptor: "M.reference",
                                          encryptedCard: verifoneResult.cardData!,
                                          merchantReference: "TEST-ECOM",
-                                         paymentProviderContract: MerchantAppConfig.shared.paymentProviderContract,
-                                         publicKeyAlias: MerchantAppConfig.shared.publicKeyAlias,
+                                         paymentProviderContract: Parameters.creditCard?.paymentProviderContract,
+                                         publicKeyAlias: Parameters.creditCard?.publicKeyAlias,
                                          shopperInteraction: "ECOMMERCE")
+
         ProductsAPI.shared.transaction(request: request) { [weak self] (result, error) in
             self?.stopAnimation()
-            
+
             guard error == nil else {
                 self?.alert(title: "Error transaction", message: "An error has occurred: \(error!)")
                 return
             }
-            self?.showResultPage(merchantReference:"\(result!.merchantReference!)", cardHolder: self!.cardHolder)
+            self?.showResultPage(merchantReference: "\(result!.merchantReference!)")
         }
     }
 }
-
-
-

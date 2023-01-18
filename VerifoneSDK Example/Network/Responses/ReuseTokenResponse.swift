@@ -28,7 +28,7 @@ struct ResponseReuseToken: Codable {
         case tokenScope = "token_scope"
         case tokenStatus = "token_status"
     }
-    
+
     mutating func setCardBrand(brand: String) {
         self.brand = brand
     }

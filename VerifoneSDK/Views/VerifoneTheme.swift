@@ -10,7 +10,7 @@ import UIKit
 extension VerifoneSDK {
     @objc(VerifoneSDKTheme) public class Theme: NSObject {
         @objc public static let defaultTheme = Theme()
-        
+
         @objc public var primaryBackgorundColor: UIColor = VerifoneThemeDefaultPrimaryBackgroundColor
         @objc public var textfieldBackgroundColor: UIColor = VerifoneThemeDefaultTextfieldBackgroundColor
         @objc public var textfieldTextColor: UIColor = VerifoneThemeDefaultTextfieldTextColor
@@ -20,7 +20,7 @@ extension VerifoneSDK {
         @objc public var payButtonTextColor: UIColor = VerifoneThemeDefaultPayButtonTextColor
         @objc public var labelColor: UIColor = VerifoneThemeDefaultLabelColor
         @objc public var cardTitleColor: UIColor = VerifoneThemeDefaultCardTitleColor
-        
+
         @objc public var font: UIFont {
             set {
                 _font = newValue
@@ -35,7 +35,7 @@ extension VerifoneSDK {
             }
         }
         private var _font: UIFont?
-        
+
         // MARK: Default Font
         private let VerifoneDefaultFont = UIFont.systemFont(ofSize: 17)
     }

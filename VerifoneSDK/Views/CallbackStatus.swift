@@ -11,7 +11,7 @@ import Foundation
 public enum CallbackStatus: Int, CustomStringConvertible, Codable {
     case success
     case cancel
-    
+
     public var description: String {
         switch self {
         case .cancel:

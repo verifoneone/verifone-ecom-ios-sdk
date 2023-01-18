@@ -13,7 +13,7 @@ class RequestReuseToken: Codable {
     var publicKeyAlias: String
     var tokenType: String
     var tokenExpiryDate: String
-    
+
     init(tokenScope: String,
          encryptedCard: String,
          publicKeyAlias: String,
@@ -26,5 +26,5 @@ class RequestReuseToken: Codable {
         self.tokenType = tokenType
         self.tokenExpiryDate = tokenExpiryDate
     }
-    
+
 }

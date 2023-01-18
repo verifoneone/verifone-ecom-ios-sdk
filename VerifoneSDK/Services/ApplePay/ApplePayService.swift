@@ -46,7 +46,7 @@ public class ApplePayService: NSObject {
 }
 
 extension ApplePayService: ApplePayServiceProtocol {
-  
+
     public func isApplePaySupported() -> Bool {
        return paymentViewControllerType.canMakePayments() && haveValidNetworks()
     }

@@ -26,16 +26,16 @@ open class VFCustomTextBox: TextBoxCustomization {}
 public enum CustomButtonType: String {
     /**ButtonTypeVerify Verify button.*/
     case buttonTypeVerify = "ButtonTypeVerify"
-    
+
     /**ButtonTypeContinue Continue button.*/
     case buttonTypeContinue = "ButtonTypeContinue"
-    
+
     /**ButtonTypeNext Next button.*/
     case buttonTypeNext = "ButtonTypeNext"
-    
+
     /**ButtonTypeCancel Cancel button.*/
     case buttonTypeCancel = "ButtonTypeCancel"
-    
+
     /**ButtonTypeResend Resend button.*/
     case buttonTypeResend = "ButtonTypeResend"
 }

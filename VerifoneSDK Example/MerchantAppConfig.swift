@@ -14,44 +14,51 @@ import VerifoneSDK
 //
 public var GlobalENV = Env.CST
 
-public enum Env {
-    public static var CST = "CST"
-    public static var CST_FOR_REUSE_TOKEN = "CST_FOR_REUSE_TOKEN"
+public enum Env: String {
+    case CST = "CST"
+    case US_CST = "US CST"
+    case EMEA_PROD = "EMEA PROD"
+    case US_PROD = "US PROD"
+    case NZ_PROD = "NZ PROD"
+    case CST_FOR_REUSE_TOKEN = "CST_FOR_REUSE_TOKEN"
 }
 
 public enum Keys {
     public static var AppleLanguages = "AppleLanguages"
     public static var Font = "Font"
+    public static var creditCardParams = "creditCardParams"
+    public static var currency = "storedCurrency"
+    public static var environment = "environment"
+    public static var appSwitchNotificationName = Notification.Name("CallbackFromThirdPartyApp")
+    public static var switchedApp = "switchedApp"
 }
 
 public protocol MerchantAppConfigProtocol {
-    var basicAuthUserId: String! { get set }
-    var basicAuthUserKey: String! { get set }
-    var paymentProviderContract: String! { get set }
+    var basicAuthUserId: String? { get set }
+    var basicAuthUserKey: String? { get set }
 }
 
 struct MerchantAppConfig: MerchantAppConfigProtocol {
-    
+
     static var shared = MerchantAppConfig()
-    
-    public static var baseURL =  "https://cst.test-gsc.vfims.com/oidc"
-    public var basicAuthUserId: String!
-    public var basicAuthUserKey: String!
-    public var paymentProviderContract: String!
-    public var paypalPaymentProviderContract: String!
-    public var threedsContractID: String!
-    public var cardEncryptionPublicKey: String!
-    public var publicKeyAlias: String!
-    public var tokenScopeAlias: String!
-    public var entityId: String!
+
+    public var baseURL: String {
+        get {
+            return self.urls[UserDefaults.standard.getEnv(fromKey: Keys.environment)]!
+        }
+    }
+    public var isParamsLoaded: Bool = false
+    public var basicAuthUserId: String?
+    public var basicAuthUserKey: String?
+    public var cardEncryptionPublicKey: String?
     public static var expectedSuccessURL = "https://verifone.cloud"
     public static var expectedCancellURL = "https://verifone.cloud"
-    
+
     var bundle: Bundle!
     private var _font: UIFont?
     private var _allowedPaymentMethods: [VerifoneSDKPaymentTypeValue]? = []
-    private var _allPaymentMethods: [VerifoneSDKPaymentTypeValue] = [.creditCard, .paypal, .applePay]
-    
+    private var _allPaymentMethods: [VerifoneSDKPaymentTypeValue] = [.creditCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
+
     public var font: UIFont {
         set {
             _font = newValue
@@ -68,7 +75,7 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
             }
         }
     }
-    
+
     public var allowedPaymentMethods: [VerifoneSDKPaymentTypeValue] {
         set {
             _allowedPaymentMethods = Array(newValue)
@@ -82,56 +89,44 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
                         }
                     }
             } else {
-                _allowedPaymentMethods = [.creditCard, .paypal, .applePay]
+                _allowedPaymentMethods = [.creditCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
             }
-            
+
             return _allowedPaymentMethods!
         }
     }
-    
-    
-    
+
     init() {
-        self.basicAuthUserId = Credentials.basicAuthUserId
-        self.basicAuthUserKey = Credentials.basicAuthUserKey
-        self.paymentProviderContract = Credentials.paymentProviderContract
-        self.cardEncryptionPublicKey = Credentials.cardEncryptionPublicKey
-        self.paypalPaymentProviderContract = Credentials.paypalPaymentProviderContract
-        self.threedsContractID = Credentials.threedsContractID
-        self.publicKeyAlias = Credentials.publicKeyAlias
-        self.cardEncryptionPublicKey = Credentials.cardEncryptionPublicKey
-        self.tokenScopeAlias = Credentials.tokenScopeAlias
-        self.entityId = Credentials.entityId
-        //disable constraints warnings
+        // disable constraints warnings
         UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         bundle = Bundle.main
+        self.setParams(paymentMethodType: .creditCard)
     }
 
-    public enum Credentials {
-        public static var basicAuthUserId = "{USER_ID}"
-        public static var basicAuthUserKey = "{API_KEY}"
-        public static var paymentProviderContract = "{CARD_PAYMENT_PROVIDER_CONTRACT_ID}"
-        public static var paypalPaymentProviderContract = "{PAYPAL_PAYMENT_PROVIDER_CONTRACT_ID}"
-        public static var threedsContractID = "{3DS_CONTRACT_ID}"
-        public static var tokenScopeAlias = "{TOKEN_SCOPE_ALIAS}"
-        public static var publicKeyAlias = "{PUBLIC_KEY_ALIAS}"
-        public static var cardEncryptionPublicKey =  "{PUBLIC_KEY}"
-        public static var entityId =  "{ENTITY_ID}"
+    mutating func setParams(paymentMethodType: PaymentMethodType) {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.creditCard.rawValue) else {
+            isParamsLoaded = false
+            return
+        }
+        self.basicAuthUserId = params.apiUserID ?? ""
+        self.basicAuthUserKey = params.apiKey ?? ""
+        self.cardEncryptionPublicKey = params.encryptionKey ?? ""
+        self.isParamsLoaded = true
     }
-    
+
     public mutating func setLang(lang: String) {
         var appleLanguages = UserDefaults.standard.object(forKey: Keys.AppleLanguages) as! [String]
         appleLanguages.remove(at: 0)
         appleLanguages.insert(lang, at: 0)
         UserDefaults.standard.set(appleLanguages, forKey: Keys.AppleLanguages)
-        UserDefaults.standard.synchronize() //needs restrat
-        if let languageDirectoryPath = Bundle.main.path(forResource: lang, ofType: "lproj")  {
+        UserDefaults.standard.synchronize() // needs restrat
+        if let languageDirectoryPath = Bundle.main.path(forResource: lang, ofType: "lproj") {
             bundle = Bundle.init(path: languageDirectoryPath)
         } else {
             resetLocalization()
         }
     }
-    
+
     public mutating func getLang() -> Locale {
         let appleLanguages = UserDefaults.standard.object(forKey: Keys.AppleLanguages) as! [String]
         let prefferedLanguage = appleLanguages[0]
@@ -141,26 +136,74 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
         }
         return Locale(identifier: prefferedLanguage)
     }
-    
+
     public mutating func getCurrentLangName() -> String {
         return getLang().localizedString(forIdentifier: getLang().identifier)!.localizedCapitalized
     }
-    
+
     mutating func resetLocalization() {
         bundle = Bundle.main
     }
-    
+
     public mutating func getFontName() -> String {
         return font.familyName
     }
-    
+
     public mutating func getFont() -> UIFont {
         return font
     }
-    
+
     mutating func setFont(familyName: String) {
         UserDefaults.standard.set(familyName, forKey: Keys.Font)
     }
+
+    public var currencies: [String] {
+        get {
+            ["AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD",
+             "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF",
+             "BMD", "BND", "BOB", "BOV", "BRL", "BSD", "BTN", "BWP",
+             "BYR", "BZD", "CAD", "CDF", "CHE", "CHF", "CHW", "CLF",
+             "CLP", "CNY", "COP", "COU", "CRC", "CUC", "CVE", "CZK",
+             "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR",
+             "FJD", "FKP", "GBP", "GEL", "GHS", "GIP", "GMD", "GNF",
+             "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR",
+             "ILS", "INR", "IQD", "IRR", "ISK", "JMD", "JOD", "JPY",
+             "KES", "KGS", "KHR", "KMF", "KPW", "KRW", "KWD", "KYD",
+             "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LTL", "LVL",
+             "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP",
+             "MRO", "MUR", "MVR", "MWK", "MXN", "MXV", "MYR", "MZN",
+             "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB",
+             "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON",
+             "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK",
+             "SGD", "SHP", "SLL", "SOS", "SRD", "SSP", "STD", "SVC",
+             "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY",
+             "TTD", "TWD", "TZS", "UAH", "UGX", "USD", "USN", "USS",
+             "UYI", "UYU", "UZS", "VEF", "VND", "VUV", "WST", "XAF",
+             "XAG", "XAU", "XBA", "XBB", "XBC", "XBD", "XCD", "XDR",
+             "XOF", "XPD", "XPF", "XPT", "XTS", "XXX", "YER", "ZAR", "ZMK", "ZMW", "BTC"]
+        }
+        // swiftlint: disable unused_setter_value
+        set { }
+    }
+
+    public var environments: [String] {
+        get {[
+                Env.CST.rawValue,
+                Env.US_CST.rawValue,
+                Env.EMEA_PROD.rawValue,
+                Env.US_PROD.rawValue,
+                Env.NZ_PROD.rawValue
+            ]
+        }
+    }
+
+    private var urls: [String: String] = [
+        Env.CST.rawValue: "https://cst.test-gsc.vfims.com",
+        Env.US_CST.rawValue: "https://uscst-gb.gsc.vficloud.net",
+        Env.EMEA_PROD.rawValue: "https://gsc.verifone.cloud",
+        Env.US_PROD.rawValue: "https://us.gsc.verifone.cloud",
+        Env.NZ_PROD.rawValue: "https://nz.gsc.verifone.cloud"
+    ]
 }
 
 struct PaymentTypeOrder {

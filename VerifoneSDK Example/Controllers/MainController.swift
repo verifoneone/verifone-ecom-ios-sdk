@@ -15,7 +15,9 @@ protocol ItemsService {
 class MainController: UITableViewController {
 
     private var items: [ItemViewModel] = []
+    private var currency: String = "USD"
     var service: ItemsService?
+    var merchantConfig: MerchantAppConfig!
 
     struct Storyboard {
         static let feedCell = "ProductFeedTableViewCell"
@@ -24,15 +26,40 @@ class MainController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        if #available(iOS 13.0, *) {
+            let barAppearance = UINavigationBarAppearance()
+            navigationItem.standardAppearance = barAppearance
+            navigationItem.scrollEdgeAppearance = barAppearance
+        }
+
         self.title = "feed".localized()
         loadProducts()
+        let currencyChangeButton: UIBarButtonItem = UIBarButtonItem(image: UIImage(named: "ic_currency"), style: .plain, target: self, action: #selector(changeCurrency))
+        self.navigationItem.leftBarButtonItems = [currencyChangeButton]
+
         self.tableView.tableFooterView = UIView()
         self.tableView.estimatedRowHeight = tableView.rowHeight
         self.tableView.rowHeight = UITableView.automaticDimension
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.merchantConfig = MerchantAppConfig.shared
+    }
+
+    @objc func changeCurrency() {
+        let currencyListVC = DropDownVC(items: MerchantAppConfig.shared.currencies, dropDownType: .currency)
+        currencyListVC.selectedItem = {[weak self] currency in
+            self?.currency = currency
+            self?.tableView.reloadData()
+        }
+        present(currencyListVC, animated: true, completion: nil)
+    }
+
     private func loadProducts() {
+        if let currency = UserDefaults.standard.value(forKey: Keys.currency) as? String {
+            self.currency = currency
+        }
         let api = ProductsAPIItemServiceAdapter(api: ProductsAPI.shared, select: { [weak self] item in
             self?.select(product: item)
         }).retry(2)
@@ -50,7 +77,6 @@ class MainController: UITableViewController {
             self.show(error: error)
         }
     }
-
 }
 
 extension MainController {
@@ -65,7 +91,7 @@ extension MainController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Storyboard.feedCell,
                                                  for: indexPath) as! ProductFeedTableViewCell
-        cell.configure(items[indexPath.row])
+        cell.configure(items[indexPath.row], currency: currency)
         return cell
     }
 
@@ -80,7 +106,7 @@ extension MainController {
 
 struct ItemViewModel {
     let title: String
-    let price: Int64
+    let price: Double
     let image: String
     let description: String
     let select: () -> Void

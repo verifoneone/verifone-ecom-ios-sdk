@@ -9,7 +9,7 @@ import Foundation
 
 open class Regex {
     var internalExpression: NSRegularExpression?
-    
+
     /**
     Default constructor
     
@@ -19,7 +19,7 @@ open class Regex {
     public init(pattern: String) {
         self.internalExpression = try? NSRegularExpression(pattern: pattern, options: [])
     }
-    
+
     /**
     Function used to test if an input matches the regular expression
     
@@ -27,10 +27,10 @@ open class Regex {
     
     */
     open func matches(_ input: String) -> Bool {
-        let matches = self.internalExpression!.matches(in: input, options: [], range:NSMakeRange(0, input.count))
-        return matches.count > 0
+        let matches = self.internalExpression!.matches(in: input, options: [], range: NSRange(location: 0, length: input.count))
+        return !matches.isEmpty
     }
-    
+
     /**
     Function used to replace the regular expression in an input by some other characters
     
@@ -40,6 +40,6 @@ open class Regex {
     
     */
     open func replace(_ input: String, template: String) -> String {
-        return self.internalExpression!.stringByReplacingMatches(in: input, options: [], range: NSMakeRange(0, input.count), withTemplate: template)
+        return self.internalExpression!.stringByReplacingMatches(in: input, options: [], range: NSRange(location: 0, length: input.count), withTemplate: template)
     }
 }

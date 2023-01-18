@@ -12,7 +12,7 @@ extension UIViewController {
         let viewc = ProductDetailsViewController()
         show(viewc, sender: self)
     }
-    
+
     func show(error: Error) {
             let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default))
@@ -42,7 +42,7 @@ extension Encodable {
             }
         return dictionary
     }
-    
+
     func toDictConvert() -> [String: Any] {
         let encoder = JSONEncoder()
         guard let enc = try? encoder.encode(self) else {
@@ -59,7 +59,7 @@ protocol FormattableNumeric {}
 extension FormattableNumeric {
     var localized: String {
         guard let number = self as? NSNumber else { return "NaN" }
-        return "$\(number.description(withLocale: Locale.current))"
+        return "\(number.description(withLocale: Locale.current)) \(UserDefaults.standard.getCurrency(fromKey: Keys.currency))"
     }
 }
 extension Int: FormattableNumeric {}
@@ -83,7 +83,7 @@ extension UserDefaults: ObjectSavable {
             throw ObjectSavableError.unableToEncode
         }
     }
-    
+
     func getObject<Object>(forKey: String, castTo type: Object.Type) throws -> Object where Object: Decodable {
         guard let data = data(forKey: forKey) else { throw ObjectSavableError.noValue }
         let decoder = JSONDecoder()
@@ -100,14 +100,14 @@ enum ObjectSavableError: String, LocalizedError {
     case unableToEncode = "Unable to encode object into data"
     case noValue = "No data object found for the given key"
     case unableToDecode = "Unable to decode object into given type"
-    
+
     var errorDescription: String? {
         rawValue
     }
 }
 
 extension String {
-    func localized() ->String {
+    func localized() -> String {
         let bundle = MerchantAppConfig.shared.bundle
         return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
     }
@@ -135,8 +135,8 @@ public extension UIFont {
             return
         }
 
-        var errorRef: Unmanaged<CFError>? = nil
-        if (CTFontManagerRegisterGraphicsFont(font, &errorRef) == false) {
+        var errorRef: Unmanaged<CFError>?
+        if CTFontManagerRegisterGraphicsFont(font, &errorRef) == false {
             print("UIFont+:  Failed to register font - register graphics font failed - this font may have already been registered in the main bundle.")
         }
     }
@@ -152,15 +152,15 @@ extension UIImageView {
                 let data = data, error == nil,
                 let image = UIImage(data: data)
                 else { return }
-            DispatchQueue.main.async() { [weak self] in
+            DispatchQueue.main.async { [weak self] in
                 self?.image = image
             }
         }.resume()
     }
-    
+
     func downloaded(from link: String, contentMode mode: ContentMode = .scaleAspectFit) {
         guard let url = URL(string: link) else { return }
-        
+
         downloaded(from: url, contentMode: mode)
     }
 }

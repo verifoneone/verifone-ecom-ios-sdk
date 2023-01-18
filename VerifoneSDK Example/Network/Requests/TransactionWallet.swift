@@ -132,5 +132,3 @@ class TokenPreference: Codable {
         self.tokenExpiryDate = tokenExpiryDate
     }
 }
-
-

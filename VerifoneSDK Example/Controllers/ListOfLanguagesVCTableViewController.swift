@@ -14,9 +14,9 @@ protocol ListOfLanguagesVCTableViewControllerDelegate: AnyObject {
 class ListOfLanguagesVCTableViewController: UITableViewController {
 
     var langIds: [Locale] = []
-    var languages = [Int:[String: String]]()
+    var languages = [Int: [String: String]]()
     weak var delegate: ListOfLanguagesVCTableViewControllerDelegate?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Select Language"
@@ -41,15 +41,15 @@ class ListOfLanguagesVCTableViewController: UITableViewController {
             return UITableViewCell()
         }
         cell.titleLab.text = "\(lang.first!.value)"
-        if (lang.first!.key == MerchantAppConfig.shared.getLang().identifier) {
+        if lang.first!.key == MerchantAppConfig.shared.getLang().identifier {
             cell.accessoryType = .checkmark
         } else {
             cell.accessoryType = .none
         }
-        
+
         return cell
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let lang: [String: String] = languages[indexPath.row] {
             self.delegate?.didSelectLanguage(selectedLanguageCode: lang.first!.key)

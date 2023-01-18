@@ -24,7 +24,7 @@ public class ResponseLookup: NSObject, Codable {
     public let paresStatus, payload, signatureVerification, threedsVersion: String?
     public let transactionID: String?
     var status: EnrollStatus?
-    
+
     enum CodingKeys: String, CodingKey {
         case acsTransactionID = "acs_transaction_id"
         case acsURL = "acs_url"
@@ -42,7 +42,7 @@ public class ResponseLookup: NSObject, Codable {
         case threedsVersion = "threeds_version"
         case transactionID = "transaction_id"
     }
-    
+
     init(acsTransactionID: String?, acsURL: String?, authenticationID: String?, challengeRequired: String?, cardBrand: String?, dsTransactionID: String?, eciFlag: String?, enrolled: String?, errorNo: String?, orderID: String?, paresStatus: String?, payload: String?, signatureVerification: String?, threedsVersion: String?, transactionID: String?, status: EnrollStatus?) {
         self.acsTransactionID = acsTransactionID
         self.acsURL = acsURL
@@ -62,4 +62,3 @@ public class ResponseLookup: NSObject, Codable {
         self.status = status
     }
 }
-

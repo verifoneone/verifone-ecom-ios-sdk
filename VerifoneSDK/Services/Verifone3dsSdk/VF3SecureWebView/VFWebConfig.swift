@@ -10,7 +10,7 @@ public final class VFWebConfig {
     let termUrl: String?
     let acsUrl: String?
     let mdValue: String?
-    
+
     let url: URL?
     let expectedRedirectUrl: [URLComponents]?
     let expectedCancelUrl: [URLComponents]?
@@ -28,7 +28,7 @@ public final class VFWebConfig {
         request.allHTTPHeaderFields = ["Content-Type": "x-www-form-urlencoded"]
         return request
     }
-    
+
     var authorizingPaymentRequest: URLRequest {
         var request = URLRequest(url: url!)
         request.httpMethod = "POST"
@@ -49,17 +49,17 @@ public final class VFWebConfig {
         self.termUrl = termUrl
         self.acsUrl = acsUrl
         self.mdValue = mdValue
-        
+
         self.url = nil
         self.expectedRedirectUrl = nil
         self.expectedCancelUrl = nil
     }
-    
+
     public init(url: URL, expectedRedirectUrl: [URLComponents], expectedCancelUrl: [URLComponents]) {
         self.url = url
         self.expectedRedirectUrl = expectedRedirectUrl
         self.expectedCancelUrl = expectedCancelUrl
-        
+
         self.payload = nil
         self.termUrl = nil
         self.acsUrl = nil

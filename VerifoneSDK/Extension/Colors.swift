@@ -8,9 +8,9 @@
 import UIKit
 
 extension UIColor {
-    
+
     public enum VF {
-        
+
         public static var defaultBackground: UIColor {
             #if compiler(>=5.1)
             if #available(iOS 13, *) {
@@ -22,7 +22,7 @@ extension UIColor {
             return .white
             #endif
         }
-        
+
         public static let text: UIColor = {
             #if compiler(>=5.1)
             if #available(iOS 13, *) {
@@ -40,7 +40,7 @@ extension UIColor {
             return color(hex: 0x364049)
             #endif
         }()
-        
+
         public static var label: UIColor {
             #if compiler(>=5.1)
             if #available(iOS 13, *) {
@@ -58,7 +58,7 @@ extension UIColor {
             return color(hex: 0x858B9A)
             #endif
         }
-        
+
         public static var line: UIColor {
             #if compiler(>=5.1)
             if #available(iOS 13, *) {
@@ -76,12 +76,12 @@ extension UIColor {
             return color(hex: 0xE4E7ED)
             #endif
         }
-        
+
         public static let cardFormLabel = color(hex: 0x3C414D)
-        
+
         public static let formButton = color(hex: 0x0A69C7)
         public static let footerText = color(hex: 0x617384)
-        
+
         internal static func color(hex: UInt) -> UIColor {
             assert(hex >= 0x000000 && hex <= 0xFFFFFF,
                    "Invalid Hex number")
@@ -92,7 +92,7 @@ extension UIColor {
                 alpha: 1.0
             )
         }
-        
+
     }
-    
+
 }

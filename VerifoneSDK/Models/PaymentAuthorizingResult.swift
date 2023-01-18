@@ -12,7 +12,7 @@ import PassKit
 public class PaymentAuthorizingResult: NSObject {
     @objc public let queryStringDictionary: NSMutableDictionary?
     @objc public let redirectedUrl: URL
-    
+
     public init(redirectedUrl: URL, queryStringDictionary: NSMutableDictionary?) {
         self.redirectedUrl = redirectedUrl
         self.queryStringDictionary = queryStringDictionary

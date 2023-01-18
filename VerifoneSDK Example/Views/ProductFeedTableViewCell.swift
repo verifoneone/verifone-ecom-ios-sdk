@@ -13,10 +13,10 @@ class ProductFeedTableViewCell: UITableViewCell {
     @IBOutlet weak var productNameLabel: UILabel!
     @IBOutlet weak var productPriceLabel: UILabel!
 
-    func configure(_ viewm: ItemViewModel) {
+    func configure(_ viewm: ItemViewModel, currency: String) {
         productImageView.image = UIImage(named: viewm.image)
         productNameLabel?.text = viewm.title
-        productPriceLabel?.text = "\(viewm.price)$"
+        productPriceLabel?.text = "\(viewm.price) \(currency)"
     }
 }
 
@@ -31,7 +31,7 @@ class ItemCell: UITableViewCell {
     lazy var button: FormButton = {
         let button = FormButton()
         button.setTitle("Buy", for: .normal)
-        
+
                 button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

@@ -8,10 +8,10 @@
 import UIKit
 import VerifoneSDK
 
-fileprivate var defaultValues = ["FFFFFF", "FFFFFF", "000000", "364049", "007AFF", "E4E7ED", "FFFFFF", "000000"]
+private var defaultValues = ["FFFFFF", "FFFFFF", "000000", "364049", "007AFF", "E4E7ED", "FFFFFF", "000000"]
 
 class SettingsVC: UITableViewController {
-    
+
     @IBOutlet var formFields: [UITextField]!
     @IBOutlet weak var textfieldCardFormbackgroundColor: UITextField!
     @IBOutlet weak var textfieldCardTextFieldBackColor: UITextField!
@@ -21,22 +21,29 @@ class SettingsVC: UITableViewController {
     @IBOutlet weak var textfieldPayButtonDisabledBackColor: UITextField!
     @IBOutlet weak var textfieldPayButtonTextColor: UITextField!
     @IBOutlet weak var textfieldCardTitleColor: UITextField!
-    
+
     @IBOutlet weak var storeValues: UIBarButtonItem!
     @IBOutlet weak var switchCardSave: UISwitch!
     @IBOutlet weak var deleteReuseTokenBtn: UIButton!
 
     @IBOutlet weak var currentLangName: UILabel!
     @IBOutlet weak var fontLabel: UILabel!
-    
+
+    @IBOutlet weak var changeEnv: UIButton!
+
     let defaults = UserDefaults.standard
     fileprivate var saveVal: Bool = false
     fileprivate var fontFamilyName: String?
     fileprivate var selectLanguageCode: String?
-    @IBOutlet weak var paymentMethod1: UITableViewCell!
-    @IBOutlet weak var paymentMethodCell2: UITableViewCell!
+    fileprivate var selectedEnvironment: String!
+
+    @IBOutlet weak var creditCard: UITableViewCell!
+    @IBOutlet weak var paypal: UITableViewCell!
     @IBOutlet weak var applepayCell: UITableViewCell!
     @IBOutlet weak var klarnaCell: UITableViewCell!
+    @IBOutlet weak var swishCell: UITableViewCell!
+    @IBOutlet weak var vippsCell: UITableViewCell!
+    @IBOutlet weak var mobielPayCell: UITableViewCell!
     
     var allowedPaymentMethods: Set<VerifoneSDKPaymentTypeValue> = [] {
         willSet {
@@ -58,22 +65,22 @@ class SettingsVC: UITableViewController {
             }
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         reset()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationItem.title = "Settings"
     }
-    
+
     func setup() {
         self.currentLangName.text = MerchantAppConfig.shared.getCurrentLangName()
         self.fontLabel.text = "Font: \(MerchantAppConfig.shared.getFontName())"
@@ -85,20 +92,20 @@ class SettingsVC: UITableViewController {
             textfield.layer.cornerRadius = 8
             textfield.layer.borderColor = UIColorFromRGB(0xE4E4E6).cgColor
             textfield.layer.borderWidth = 0.5
-            
+
             if let value = defaults.string(forKey: "textfield_\(textfield.tag)") {
                 textfield.text = format(with: "#XXXXXX", phone: value)
             } else {
                 defaults.set(textfield.text!.replacingOccurrences(of: "#", with: ""), forKey: "textfield_\(textfield.tag)")
             }
-            
+
             if let hex = Int(textfield.text!.replacingOccurrences(of: "#", with: ""), radix: 16) {
                 textfield.setRightIcon(UIColorFromRGB(hex))
             }
         }
-        
+
         if let value = defaults.string(forKey: "switch_\(switchCardSave.tag)") {
-            if (value == "checked") {
+            if value == "checked" {
                 switchCardSave.isOn = true
             } else {
                 switchCardSave.isOn = false
@@ -106,15 +113,15 @@ class SettingsVC: UITableViewController {
         } else {
             defaults.set("checked", forKey: "switch_\(switchCardSave.tag)")
         }
-        
+
         // Enable button if we have saved token(card details)
         do {
-            let _ = try defaults.getObject(forKey: "reuseToken", castTo: ResponseReuseToken.self)
+            _ = try defaults.getObject(forKey: "reuseToken", castTo: ResponseReuseToken.self)
             deleteReuseTokenBtn.isEnabled = true
         } catch {
-            
+
         }
-        
+
         // Load saved payment methods. if no saved payment methods then load all.
         if let arr = defaults.stringArray(forKey: "paymentMethods") {
             arr.forEach { element in
@@ -123,12 +130,15 @@ class SettingsVC: UITableViewController {
         } else {
             allowedPaymentMethods = Set(MerchantAppConfig.shared.allowedPaymentMethods)
         }
-        
+
         allowedPaymentMethods.compactMap(self.cell(for:)).forEach {
             $0.accessoryType = .checkmark
         }
+
+        selectedEnvironment = defaults.getEnv(fromKey: Keys.environment)
+        changeEnv.setTitle(selectedEnvironment, for: .normal)
     }
-    
+
     @IBAction func enableCardSave(_ sender: UISwitch) {
         storeValues.isEnabled = true
         if sender.isOn {
@@ -137,27 +147,38 @@ class SettingsVC: UITableViewController {
             defaults.set("unchecked", forKey: "switch_\(switchCardSave.tag)")
         }
     }
-    
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        switch segue.identifier {
+        case "LanguageList":
+            storeValues.isEnabled = true
+            let langVC = segue.destination as! ListOfLanguagesVCTableViewController
+            langVC.delegate = self
+        default:
+            break
+        }
+    }
+
     func reset() {
         // if closed without saving
-        if (!saveVal) {
+        if !saveVal {
             for (index, item) in defaultValues.enumerated() {
                 defaults.set(item, forKey: "textfield_\(100+index)")
             }
         }
     }
-    
+
     @IBAction func saveValues() {
         storeValues.isEnabled = false
         saveVal = true
         formFields.forEach { textfield in
             defaults.set(textfield.text!.replacingOccurrences(of: "#", with: ""), forKey: "textfield_\(textfield.tag)")
         }
-        
+
         if let val = fontFamilyName {
             MerchantAppConfig.shared.setFont(familyName: val)
         }
-        
+
         if let val = selectLanguageCode {
             MerchantAppConfig.shared.setLang(lang: val)
             let vm = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: "NavigationController") as! UINavigationController
@@ -168,10 +189,11 @@ class SettingsVC: UITableViewController {
             let appDlg = UIApplication.shared.delegate as? AppDelegate
             appDlg?.window?.rootViewController = vm
         }
-    
+
         defaults.set(Array(allowedPaymentMethods), forKey: "paymentMethods")
+        defaults.set(selectedEnvironment, forKey: Keys.environment)
     }
-    
+
     @IBAction func defaulValues() {
         storeValues.isEnabled = true
         defaults.set("checked", forKey: "switch_\(switchCardSave.tag)")
@@ -184,50 +206,46 @@ class SettingsVC: UITableViewController {
             }
         }
     }
-    
+
+    @IBAction func changeEnv(_ sender: Any) {
+
+        let envvc = DropDownVC(items: MerchantAppConfig.shared.environments, dropDownType: .environment, hideTextfield: true)
+        envvc.titleLabel.text = "Select Region"
+        envvc.selectedValue = selectedEnvironment
+        envvc.selectedItem = {[weak self] env in
+            self?.storeValues.isEnabled = true
+            self?.selectedEnvironment = env
+            self?.changeEnv.setTitle(env, for: .normal)
+        }
+        if #available(iOS 15.0, *) {
+            if let sheet = envvc.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.preferredCornerRadius = 20
+            }
+        }
+        present(envvc, animated: true, completion: nil)
+    }
+
     @IBAction func deleteReuseToken(_ sender: Any) {
         deleteReuseTokenBtn.isEnabled = false
         defaults.set(nil, forKey: "reuseToken")
     }
-    
+
     @IBAction func changeFont(_ sender: UIButton) {
         storeValues.isEnabled = true
         let fontsVC = FontsTableViewController()
         fontsVC.delegate = self
         self.navigationController?.pushViewController(fontsVC, animated: true)
     }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        switch segue.identifier {
-        case "creditcard":
-            let vc = segue.destination as! ConfigurationParamsVC
-            vc.title = "Credit Card Config"
-        case "paypal":
-            let vc = segue.destination as! ConfigurationParamsVC
-            vc.title = "Paypal Config"
-        case "applepay":
-            let vc = segue.destination as! ConfigurationParamsVC
-            vc.title = "Apple Pay Config"
-        case "klarna":
-            let vc = segue.destination as! ConfigurationParamsVC
-            vc.title = "Klarna Config"
-        case "LanguageList":
-            storeValues.isEnabled = true
-            let langVC = segue.destination as! ListOfLanguagesVCTableViewController
-            langVC.delegate = self
-        default:
-            break
-        }
-    }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        if indexPath.section == 5 {
+        if indexPath.section == 6 {
             storeValues.isEnabled = true
             guard let cell = tableView.cellForRow(at: indexPath),
-                let sourceType = paymentSource(for: cell) else {
-                    assertionFailure("Invalid cell configuration in the Setting scene")
-                    return
+                  let sourceType = paymentSource(for: cell) else {
+                assertionFailure("Invalid cell configuration in the Setting scene")
+                return
             }
             if allowedPaymentMethods.contains(sourceType) {
                 allowedPaymentMethods.remove(sourceType)
@@ -235,38 +253,79 @@ class SettingsVC: UITableViewController {
                 allowedPaymentMethods.insert(sourceType)
             }
         }
+
+        if indexPath.section == 7 {
+            let vc = ConfigurationParamsVC()
+            switch tableView.cellForRow(at: indexPath)!.tag {
+            case 1010:
+                vc.title = "Credit Card Config"
+                vc.paymentMethodType = .creditCard
+            case 1011:
+                vc.title = "Paypal Config"
+                vc.paymentMethodType = .paypal
+            case 1012:
+                vc.title = "Apple Pay Config"
+                vc.paymentMethodType = .applePay
+            case 1013:
+                vc.title = "Klarna Config"
+                vc.paymentMethodType = .klarna
+            case 1014:
+                vc.title = "Swish Config"
+                vc.paymentMethodType = .swish
+            case 1015:
+                vc.title = "Vipps Config"
+                vc.paymentMethodType = .vipps
+            case 1016:
+                vc.title = "MobilePay Config"
+                vc.paymentMethodType = .mobilePay
+            default:
+                break
+            }
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
-    
+
     func paymentSource(for cell: UITableViewCell) -> VerifoneSDKPaymentTypeValue? {
         switch cell {
-        case paymentMethod1:
+        case creditCard:
             return .creditCard
-        case paymentMethodCell2:
+        case paypal:
             return .paypal
         case applepayCell:
             return .applePay
         case klarnaCell:
             return .klarna
+        case swishCell:
+            return .swish
+        case vippsCell:
+            return .vipps
+        case mobielPayCell:
+            return .mobilePay
         default:
             return nil
         }
     }
-    
+
     func cell(for paymentSource: VerifoneSDKPaymentTypeValue) -> UITableViewCell? {
         switch paymentSource {
         case .creditCard:
-            return paymentMethod1
+            return creditCard
         case .paypal:
-            return paymentMethodCell2
+            return paypal
         case .applePay:
             return applepayCell
         case .klarna:
             return klarnaCell
+        case .swish:
+            return swishCell
+        case .vipps:
+            return vippsCell
+        case .mobilePay:
+            return mobielPayCell
         default:
             return nil
         }
     }
-    
 }
 
 extension SettingsVC: FontsTableViewControllerDelegate, ListOfLanguagesVCTableViewControllerDelegate {
@@ -274,30 +333,30 @@ extension SettingsVC: FontsTableViewControllerDelegate, ListOfLanguagesVCTableVi
         self.fontFamilyName = familyName
         self.fontLabel.text = "Font: \(familyName)"
     }
-    
+
     func didSelectLanguage(selectedLanguageCode: String) {
         self.selectLanguageCode = selectedLanguageCode
         self.currentLangName.text = Locale.current.localizedString(forIdentifier: selectedLanguageCode)!
     }
 }
 
-extension SettingsVC: UITextFieldDelegate  {
-    
+extension SettingsVC: UITextFieldDelegate {
+
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         storeValues.isEnabled = true
         guard let text = textField.text else { return false }
         let newString = (text as NSString).replacingCharacters(in: range, with: string)
-        
+
         textField.text = format(with: "#XXXXXX", phone: newString)
-        
-        if (newString.count <= 7) {
+
+        if newString.count <= 7 {
             if let hex = Int(newString.replacingOccurrences(of: "#", with: ""), radix: 16) {
                 textField.setRightIcon(UIColorFromRGB(hex))
             }
         }
         return false
     }
-    
+
     func format(with mask: String, phone: String) -> String {
         let numbers = phone.replacingOccurrences(of: "[^0-9A-Za-z]", with: "", options: .regularExpression)
         var result = ""
@@ -308,10 +367,8 @@ extension SettingsVC: UITextFieldDelegate  {
             if ch == "X" {
                 // mask requires a number in this place, so take the next one
                 result.append(numbers[index])
-
                 // move numbers iterator to the next index
                 index = numbers.index(after: index)
-
             } else {
                 result.append(ch) // just append a mask character
             }
@@ -327,30 +384,4 @@ func UIColorFromRGB(_ rgbValue: Int) -> UIColor! {
         green: CGFloat((Float((rgbValue & 0x00ff00) >> 8)) / 255.0),
         blue: CGFloat((Float((rgbValue & 0x0000ff) >> 0)) / 255.0),
         alpha: 1.0)
-}
-
-extension UITextField {
-    func setIcon(_ image: UIImage) {
-        let iconView = UIImageView(frame:
-                                    CGRect(x: 10, y: 5, width: 20, height: 20))
-        iconView.image = image
-        let iconContainerView: UIView = UIView(frame:
-                                                CGRect(x: 20, y: 0, width: 35, height: 30))
-        iconContainerView.addSubview(iconView)
-        leftView = iconContainerView
-        leftViewMode = .always
-    }
-    
-    func setRightIcon(_ color: UIColor) {
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 32, height: 30))
-        let colorContainerView: UIView = UIView(frame: CGRect(x: -5, y: 0, width: 30, height: 30))
-        colorContainerView.backgroundColor = color
-        colorContainerView.layer.cornerRadius = 15
-        colorContainerView.layer.masksToBounds = true
-        colorContainerView.layer.borderWidth = 0.2
-        colorContainerView.layer.borderColor = UIColor.gray.cgColor
-        containerView.addSubview(colorContainerView)
-        rightView = containerView
-        rightViewMode = .always
-    }
 }

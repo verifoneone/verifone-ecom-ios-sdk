@@ -24,14 +24,14 @@ extension Encodable {
                 }
             }
         }
-        
+
         return dict
     }
-    
+
     func debugJsonPrint() -> String {
         let jsonEncoder = JSONEncoder()
         guard let jsonData = try? jsonEncoder.encode(self) else { return "" }
-        
+
         return String(data: jsonData, encoding: String.Encoding.utf8) ?? ""
     }
 }

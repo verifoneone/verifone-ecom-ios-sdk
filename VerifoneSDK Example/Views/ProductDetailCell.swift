@@ -29,7 +29,7 @@ class BuyButtonCell: UITableViewCell {
     @IBOutlet weak var buyButton2: FormButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityIndicator2: UIActivityIndicatorView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         buyButton.defaultBackgroundColor = .black
@@ -42,7 +42,7 @@ class BuyButtonCell: UITableViewCell {
 class BuyButtonCellWithSingleButton: UITableViewCell {
     @IBOutlet weak var buyButton: FormButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         buyButton.defaultBackgroundColor = .black

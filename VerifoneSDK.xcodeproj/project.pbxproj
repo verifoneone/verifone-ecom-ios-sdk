@@ -54,7 +54,6 @@
 		8EB3B41D26CF93B0006388F4 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B41C26CF93B0006388F4 /* Extensions.swift */; };
 		8EB3B41F26CF946C006388F4 /* CardFormExpiryDateTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B41E26CF946C006388F4 /* CardFormExpiryDateTextField.swift */; };
 		8EB3B42126CF99DD006388F4 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B42026CF99DC006388F4 /* Globals.swift */; };
-		8EB3B42326CFC22F006388F4 /* CardFormNameTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B42226CFC22E006388F4 /* CardFormNameTextField.swift */; };
 		8EB3B42526CFC27E006388F4 /* CardFormNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B42426CFC27E006388F4 /* CardFormNumberTextField.swift */; };
 		8EB3B44126CFDDC3006388F4 /* PanModalPresentable+Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B42D26CFDDC2006388F4 /* PanModalPresentable+Defaults.swift */; };
 		8EB3B44226CFDDC3006388F4 /* PanModalPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B42E26CFDDC2006388F4 /* PanModalPresentable.swift */; };
@@ -96,7 +95,6 @@
 		8EE2137C278874FF000B3D41 /* ListOfLanguagesVCTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE2137B278874FF000B3D41 /* ListOfLanguagesVCTableViewController.swift */; };
 		8EED626427B118780050C30D /* PaypalTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EED626327B118780050C30D /* PaypalTransaction.swift */; };
 		8EED626627B1190A0050C30D /* PaypalTransactionResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EED626527B1190A0050C30D /* PaypalTransactionResponse.swift */; };
-		8EED626827B2523B0050C30D /* PaymentMethodType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EED626727B2523B0050C30D /* PaymentMethodType.swift */; };
 		8EF80BED27244333000B70DE /* RequestValidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0F66FE26F49D010058C582 /* RequestValidate.swift */; };
 		8EF80BEE27244345000B70DE /* ValidateResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0F670A26F49D010058C582 /* ValidateResponse.swift */; };
 		8EF80BF227282AEA000B70DE /* VerifonePaymentForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF80BF127282AEA000B70DE /* VerifonePaymentForm.swift */; };
@@ -108,8 +106,20 @@
 		8EF84F452760DEB2009270C3 /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF84F442760DEB1009270C3 /* SettingsVC.swift */; };
 		8EFE9A552821B3DD00753414 /* CardValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EFE9A532821B3DC00753414 /* CardValidator.swift */; };
 		8EFE9A562821B3DD00753414 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EFE9A542821B3DD00753414 /* Regex.swift */; };
-		8EFE9A58282329DF00753414 /* PanNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EFE9A57282329DF00753414 /* PanNumber.swift */; };
 		8EFE9A5A28232AD200753414 /* BaseTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EFE9A5928232AD200753414 /* BaseTextField.swift */; };
+		9946894C291C1927007A67EA /* Textfield+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946894B291C1927007A67EA /* Textfield+Extensions.swift */; };
+		9946894F291D0ADB007A67EA /* ConfigFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946894E291D0ADB007A67EA /* ConfigFields.swift */; };
+		99468951291D0E8D007A67EA /* RetrieveFieldData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99468950291D0E8D007A67EA /* RetrieveFieldData.swift */; };
+		99468954291D1E2B007A67EA /* ButtonTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99468953291D1E2B007A67EA /* ButtonTableViewCell.swift */; };
+		99468956291D1E52007A67EA /* TextareaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99468955291D1E52007A67EA /* TextareaTableViewCell.swift */; };
+		99468958291D1E6A007A67EA /* TextfieldTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99468957291D1E6A007A67EA /* TextfieldTableViewCell.swift */; };
+		9946895A291D4881007A67EA /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99468959291D4881007A67EA /* Parameters.swift */; };
+		9946895C291D4B13007A67EA /* UserDefaults+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946895B291D4B13007A67EA /* UserDefaults+Extensions.swift */; };
+		9946895E291D6920007A67EA /* PaymentMethodType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946895D291D6920007A67EA /* PaymentMethodType.swift */; };
+		99468960291D6B94007A67EA /* ParameterByPaymentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946895F291D6B94007A67EA /* ParameterByPaymentType.swift */; };
+		99614A362923D54A003D4090 /* DropDownVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99614A352923D54A003D4090 /* DropDownVC.swift */; };
+		99614A382923FC4D003D4090 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99614A372923FC4D003D4090 /* UIColor+Extensions.swift */; };
+		99614A3D292E7011003D4090 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99614A3C292E7011003D4090 /* Helpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -196,7 +206,6 @@
 		8EB3B41C26CF93B0006388F4 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		8EB3B41E26CF946C006388F4 /* CardFormExpiryDateTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardFormExpiryDateTextField.swift; sourceTree = "<group>"; };
 		8EB3B42026CF99DC006388F4 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
-		8EB3B42226CFC22E006388F4 /* CardFormNameTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardFormNameTextField.swift; sourceTree = "<group>"; };
 		8EB3B42426CFC27E006388F4 /* CardFormNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardFormNumberTextField.swift; sourceTree = "<group>"; };
 		8EB3B42D26CFDDC2006388F4 /* PanModalPresentable+Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+Defaults.swift"; sourceTree = "<group>"; };
 		8EB3B42E26CFDDC2006388F4 /* PanModalPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentable.swift; sourceTree = "<group>"; };
@@ -273,7 +282,6 @@
 		8EE2137B278874FF000B3D41 /* ListOfLanguagesVCTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOfLanguagesVCTableViewController.swift; sourceTree = "<group>"; };
 		8EED626327B118780050C30D /* PaypalTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaypalTransaction.swift; sourceTree = "<group>"; };
 		8EED626527B1190A0050C30D /* PaypalTransactionResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaypalTransactionResponse.swift; sourceTree = "<group>"; };
-		8EED626727B2523B0050C30D /* PaymentMethodType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethodType.swift; sourceTree = "<group>"; };
 		8EF80BF127282AEA000B70DE /* VerifonePaymentForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifonePaymentForm.swift; sourceTree = "<group>"; };
 		8EF80BF827293DB5000B70DE /* VFWebConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VFWebConfig.swift; sourceTree = "<group>"; };
 		8EF80BFA27293ED7000B70DE /* VFAuthorizingWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VFAuthorizingWebViewController.swift; sourceTree = "<group>"; };
@@ -281,8 +289,20 @@
 		8EF84F442760DEB1009270C3 /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
 		8EFE9A532821B3DC00753414 /* CardValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardValidator.swift; sourceTree = "<group>"; };
 		8EFE9A542821B3DD00753414 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
-		8EFE9A57282329DF00753414 /* PanNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanNumber.swift; sourceTree = "<group>"; };
 		8EFE9A5928232AD200753414 /* BaseTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTextField.swift; sourceTree = "<group>"; };
+		9946894B291C1927007A67EA /* Textfield+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Textfield+Extensions.swift"; sourceTree = "<group>"; };
+		9946894E291D0ADB007A67EA /* ConfigFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigFields.swift; sourceTree = "<group>"; };
+		99468950291D0E8D007A67EA /* RetrieveFieldData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetrieveFieldData.swift; sourceTree = "<group>"; };
+		99468953291D1E2B007A67EA /* ButtonTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonTableViewCell.swift; sourceTree = "<group>"; };
+		99468955291D1E52007A67EA /* TextareaTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextareaTableViewCell.swift; sourceTree = "<group>"; };
+		99468957291D1E6A007A67EA /* TextfieldTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextfieldTableViewCell.swift; sourceTree = "<group>"; };
+		99468959291D4881007A67EA /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
+		9946895B291D4B13007A67EA /* UserDefaults+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Extensions.swift"; sourceTree = "<group>"; };
+		9946895D291D6920007A67EA /* PaymentMethodType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethodType.swift; sourceTree = "<group>"; };
+		9946895F291D6B94007A67EA /* ParameterByPaymentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterByPaymentType.swift; sourceTree = "<group>"; };
+		99614A352923D54A003D4090 /* DropDownVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownVC.swift; sourceTree = "<group>"; };
+		99614A372923FC4D003D4090 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
+		99614A3C292E7011003D4090 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -372,6 +392,7 @@
 		8EB16D38282A57C80047EEF5 /* ConfigScreeen */ = {
 			isa = PBXGroup;
 			children = (
+				99468952291D1E16007A67EA /* Cells */,
 				8EB16D36282949DB0047EEF5 /* ConfigurationParamsVC.swift */,
 			);
 			path = ConfigScreeen;
@@ -449,7 +470,6 @@
 			children = (
 				8EB3B41526CF8E05006388F4 /* CVVTextField.swift */,
 				8EB3B41E26CF946C006388F4 /* CardFormExpiryDateTextField.swift */,
-				8EB3B42226CFC22E006388F4 /* CardFormNameTextField.swift */,
 				8EB3B42426CFC27E006388F4 /* CardFormNumberTextField.swift */,
 				8EFE9A5928232AD200753414 /* BaseTextField.swift */,
 			);
@@ -473,9 +493,7 @@
 				8EFE9A532821B3DC00753414 /* CardValidator.swift */,
 				8EFE9A542821B3DD00753414 /* Regex.swift */,
 				8E0F672B26F7AAA10058C582 /* EncryptedData.swift */,
-				8EED626727B2523B0050C30D /* PaymentMethodType.swift */,
 				8E39FDE527C361460006250E /* PaymentAuthorizingResult.swift */,
-				8EFE9A57282329DF00753414 /* PanNumber.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -566,6 +584,8 @@
 				8E4DD509274252A40021AC90 /* MerchantAppConfig.swift */,
 				8ECF54C2270B4789008856BD /* VerifoneSDK Example.entitlements */,
 				8EC67CBB26FCB56D0023B12C /* Resources */,
+				9946894D291D08C2007A67EA /* Models */,
+				9946894A291C190D007A67EA /* Extensions */,
 				8EC67C9F26FCB1A40023B12C /* Controllers */,
 				8EC67C9D26FCB1A40023B12C /* Network */,
 				8EC67CA226FCB1A40023B12C /* Views */,
@@ -587,6 +607,8 @@
 		8EC67C9F26FCB1A40023B12C /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				99FDA5F62948A48A00606938 /* Klarna */,
+				99614A39292563F9003D4090 /* DropDown */,
 				8EB16D38282A57C80047EEF5 /* ConfigScreeen */,
 				8EC67CA026FCB1A40023B12C /* MainController.swift */,
 				8E4DD4D9273B8DE90021AC90 /* ResultPageVCViewController.swift */,
@@ -596,7 +618,6 @@
 				8E5DECA327742C6A00178234 /* ProductDetailsVC+WithoutThreedsFlow.swift */,
 				8EE2137B278874FF000B3D41 /* ListOfLanguagesVCTableViewController.swift */,
 				8EB387912796D3DC007980CF /* FontsTableVIewController.swift */,
-				8E4FCC252817E83F0049CBFD /* KlarnaVC.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -631,6 +652,7 @@
 				8EC67CAE26FCB1FB0023B12C /* Extension.swift */,
 				8EC67C9426FCB1600023B12C /* Assets.xcassets */,
 				8EC67C9626FCB1600023B12C /* LaunchScreen.storyboard */,
+				99614A3C292E7011003D4090 /* Helpers.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -680,6 +702,54 @@
 				8EF80BFA27293ED7000B70DE /* VFAuthorizingWebViewController.swift */,
 			);
 			path = VF3SecureWebView;
+			sourceTree = "<group>";
+		};
+		9946894A291C190D007A67EA /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				9946894B291C1927007A67EA /* Textfield+Extensions.swift */,
+				9946895B291D4B13007A67EA /* UserDefaults+Extensions.swift */,
+				99614A372923FC4D003D4090 /* UIColor+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		9946894D291D08C2007A67EA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9946894E291D0ADB007A67EA /* ConfigFields.swift */,
+				99468950291D0E8D007A67EA /* RetrieveFieldData.swift */,
+				99468959291D4881007A67EA /* Parameters.swift */,
+				9946895D291D6920007A67EA /* PaymentMethodType.swift */,
+				9946895F291D6B94007A67EA /* ParameterByPaymentType.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		99468952291D1E16007A67EA /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				99468953291D1E2B007A67EA /* ButtonTableViewCell.swift */,
+				99468955291D1E52007A67EA /* TextareaTableViewCell.swift */,
+				99468957291D1E6A007A67EA /* TextfieldTableViewCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		99614A39292563F9003D4090 /* DropDown */ = {
+			isa = PBXGroup;
+			children = (
+				99614A352923D54A003D4090 /* DropDownVC.swift */,
+			);
+			path = DropDown;
+			sourceTree = "<group>";
+		};
+		99FDA5F62948A48A00606938 /* Klarna */ = {
+			isa = PBXGroup;
+			children = (
+				8E4FCC252817E83F0049CBFD /* KlarnaVC.swift */,
+			);
+			path = Klarna;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -741,6 +811,7 @@
 				8EC67C8626FCB1560023B12C /* Frameworks */,
 				8EC67C8726FCB1560023B12C /* Resources */,
 				8EC67CB526FCB3480023B12C /* Embed Frameworks */,
+				99614A3B29266B33003D4090 /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -848,6 +919,28 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		99614A3B29266B33003D4090 /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from #https://github.com/realm/SwiftLint\"\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		8EB3B3C726CE2AC7006388F4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -865,10 +958,8 @@
 				8EB3B44926CFDDC3006388F4 /* PanModalPresentationDelegate.swift in Sources */,
 				8EB3B45A26CFEB38006388F4 /* PaymentTypeCell.swift in Sources */,
 				8E371F2327E1FC34003F8F06 /* ApplePayHelperProtocol.swift in Sources */,
-				8EB3B42326CFC22F006388F4 /* CardFormNameTextField.swift in Sources */,
 				8E98583927E8859000F9FE5D /* VerifoneSDKConstants.m in Sources */,
 				8EB3B41F26CF946C006388F4 /* CardFormExpiryDateTextField.swift in Sources */,
-				8EFE9A58282329DF00753414 /* PanNumber.swift in Sources */,
 				8EB3B44D26CFDDC3006388F4 /* PanContainerView.swift in Sources */,
 				8EB3B45326CFE90E006388F4 /* PaymentMethodsViewController.swift in Sources */,
 				8EB3B41626CF8E05006388F4 /* CVVTextField.swift in Sources */,
@@ -876,7 +967,6 @@
 				8E0F671C26F49D010058C582 /* Verifone3DSecureManager.swift in Sources */,
 				8EB3B45726CFEA06006388F4 /* PaymentTypeHeaderView.swift in Sources */,
 				8EB3B44B26CFDDC3006388F4 /* PanModalPresentationAnimator.swift in Sources */,
-				8EED626827B2523B0050C30D /* PaymentMethodType.swift in Sources */,
 				8E0F671026F49D010058C582 /* VfiCustomUI.swift in Sources */,
 				8E371F2727E1FCBB003F8F06 /* ApplePayServiceProtocol.swift in Sources */,
 				8EB3B44526CFDDC3006388F4 /* PanModalPresentable+UIViewController.swift in Sources */,
@@ -919,24 +1009,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9946895C291D4B13007A67EA /* UserDefaults+Extensions.swift in Sources */,
 				8EF80BF327282BDA000B70DE /* TransactionResponse.swift in Sources */,
+				99468951291D0E8D007A67EA /* RetrieveFieldData.swift in Sources */,
 				8EC67CAF26FCB1FB0023B12C /* Extension.swift in Sources */,
+				99468960291D6B94007A67EA /* ParameterByPaymentType.swift in Sources */,
 				8E5DECA427742C6A00178234 /* ProductDetailsVC+WithoutThreedsFlow.swift in Sources */,
 				8EE2137C278874FF000B3D41 /* ListOfLanguagesVCTableViewController.swift in Sources */,
 				8E4DD4DC273B8E570021AC90 /* ResultTableViewCells.swift in Sources */,
 				8EF80BF427282BE9000B70DE /* RequestTransaction.swift in Sources */,
 				8ECF54CE270DD7AF008856BD /* TransactionWallet.swift in Sources */,
+				9946895E291D6920007A67EA /* PaymentMethodType.swift in Sources */,
+				99614A362923D54A003D4090 /* DropDownVC.swift in Sources */,
 				8EF80BED27244333000B70DE /* RequestValidate.swift in Sources */,
 				8EC67CAD26FCB1D80023B12C /* AppDelegate.swift in Sources */,
 				8ED34B5C276A70BE00253D84 /* ReuseTokenResponse.swift in Sources */,
 				8E4DD50A274252A50021AC90 /* MerchantAppConfig.swift in Sources */,
+				99614A382923FC4D003D4090 /* UIColor+Extensions.swift in Sources */,
+				99468958291D1E6A007A67EA /* TextfieldTableViewCell.swift in Sources */,
 				8E86BD5B2805AB4900E554DE /* DecodableExtension.swift in Sources */,
 				8E4BC93B27229DC200B2B169 /* RequestJwt.swift in Sources */,
+				9946895A291D4881007A67EA /* Parameters.swift in Sources */,
 				8EF84F452760DEB2009270C3 /* SettingsVC.swift in Sources */,
 				8E4BC93D2722AA6E00B2B169 /* OrderData.swift in Sources */,
 				8EF80BEE27244345000B70DE /* ValidateResponse.swift in Sources */,
+				9946894F291D0ADB007A67EA /* ConfigFields.swift in Sources */,
 				8ED34B5A276A6E1200253D84 /* RequestReuseToken.swift in Sources */,
 				8EB16D37282949DB0047EEF5 /* ConfigurationParamsVC.swift in Sources */,
+				99614A3D292E7011003D4090 /* Helpers.swift in Sources */,
 				8E4DD4DA273B8DE90021AC90 /* ResultPageVCViewController.swift in Sources */,
 				8EED626427B118780050C30D /* PaypalTransaction.swift in Sources */,
 				8EC67CA826FCB1A50023B12C /* ProductFeedTableViewCell.swift in Sources */,
@@ -947,11 +1047,14 @@
 				8EC67CA926FCB1A50023B12C /* ProductDetailCell.swift in Sources */,
 				8E4BC93C2722AA3E00B2B169 /* ResponseLookup.swift in Sources */,
 				8EC67CA626FCB1A50023B12C /* MainController.swift in Sources */,
+				99468954291D1E2B007A67EA /* ButtonTableViewCell.swift in Sources */,
 				8E4FCC262817E83F0049CBFD /* KlarnaVC.swift in Sources */,
 				8EB387922796D3DC007980CF /* FontsTableVIewController.swift in Sources */,
+				99468956291D1E52007A67EA /* TextareaTableViewCell.swift in Sources */,
 				8E7E30C027F4318C007BE7C3 /* ApplePayTokenWrapper.swift in Sources */,
 				8EED626627B1190A0050C30D /* PaypalTransactionResponse.swift in Sources */,
 				8E4BC93A27229BC300B2B169 /* ResponseJwt.swift in Sources */,
+				9946894C291C1927007A67EA /* Textfield+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1282,11 +1385,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = "VerifoneSDK Example/VerifoneSDK Example.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = QEMQ6S54J4;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks";
 				INFOPLIST_FILE = "VerifoneSDK Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1307,11 +1409,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = "VerifoneSDK Example/VerifoneSDK Example.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = QEMQ6S54J4;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks";
 				INFOPLIST_FILE = "VerifoneSDK Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;

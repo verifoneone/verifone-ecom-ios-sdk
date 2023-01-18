@@ -37,7 +37,7 @@ class PaymentTypeHeaderView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     let closeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1).withAlphaComponent(0.5)

@@ -7,22 +7,22 @@
 
 import Foundation
 
-public class RequestTransaction: NSObject, Codable {
-    public var amount: Int64
-    public var authType: String
-    public var captureNow: Bool
+public struct RequestTransaction: Codable {
+    public var amount: Int64?
+    public var authType: String?
+    public var captureNow: Bool?
     public var customer: String?
     public var redirectUrl: String?
     public var entityId: String?
     public var purchaseCountry: String?
     public var cardBrand: String?
-    public var currencyCode: String
-    public var dynamicDescriptor: String
+    public var currencyCode: String?
+    public var dynamicDescriptor: String?
     public var encryptedCard: String?
-    public var merchantReference: String
-    public var paymentProviderContract: String
+    public var merchantReference: String?
+    public var paymentProviderContract: String?
     public var publicKeyAlias: String?
-    public var shopperInteraction: String
+    public var shopperInteraction: String?
     public var reuseToken: String?
     public var threedAuthentication: ThreedAuthentication?
     public var walletType: String?
@@ -30,30 +30,121 @@ public class RequestTransaction: NSObject, Codable {
     public var scaComplianceLevel: String?
     public var locale: AppLocale?
     public var lineItems: [LineItem]?
-    
-    public init(amount: Int64, authType: String, captureNow: Bool, customer: String? = nil, redirectUrl: String? = nil, entityId: String? = nil, purchaseCountry: String? = nil, cardBrand: String? = nil, currencyCode: String, dynamicDescriptor: String, encryptedCard: String? = nil, merchantReference: String, paymentProviderContract: String, publicKeyAlias: String?=nil, shopperInteraction: String, threedAuthentication: ThreedAuthentication? = nil, reuseToken: String? = nil, walletType: String? = nil, walletPayload: ApplePayToken? = nil, scaComplianceLevel: String? = nil, locale: AppLocale? = nil, lineItems: [LineItem]? = []) {
-        self.amount = amount
-        self.authType = authType
-        self.captureNow = captureNow
+    public var isApp: Bool?
+}
+
+extension RequestTransaction {
+    static let creditCard: Self = .init(
+        authType: "FINAL_AUTH",
+        captureNow: true,
+        dynamicDescriptor: "M.reference",
+        merchantReference: "TEST-ECOM-iOS",
+        shopperInteraction: "ECOMMERCE"
+    )
+
+    static let klarna: RequestTransaction = .init(
+        authType: "FINAL_AUTH",
+        captureNow: false,
+        purchaseCountry: "SE",
+        dynamicDescriptor: "TEST AUTOMATION ECOM",
+        merchantReference: "5678-iOS",
+        shopperInteraction: "",
+        locale: AppLocale(countryCode: "SE", language: "en"),
+        lineItems: []
+    )
+
+    static let applePay: RequestTransaction = .init(
+        authType: "FINAL_AUTH",
+        captureNow: true,
+        dynamicDescriptor: "abc123",
+        merchantReference: "TEST-ECOM123",
+        shopperInteraction: "ECOMMERCE",
+        walletType: "APPLE_PAY",
+        scaComplianceLevel: "FORCE_3DS"
+    )
+
+    static let swish: RequestTransaction = .init(
+        captureNow: true,
+        merchantReference: "5690-iOS"
+    )
+
+    static let vipps: RequestTransaction = .init(
+        captureNow: true,
+        redirectUrl: "verifonesdk://",
+        merchantReference: "5690-iOS",
+        isApp: true
+    )
+
+    static let mobilePay: RequestTransaction = .init(
+        authType: "FINAL_AUTH",
+        captureNow: true,
+        redirectUrl: "verifonesdk://",
+        merchantReference: "5690-iOS",
+        scaComplianceLevel: "WALLET",
+        isApp: true
+    )
+
+    mutating func setupCreditCardWithout3ds(productPrice: Double, cardBrand: String, paymentProviderContract: String, publicKeyAlias: String, reuseToken: String?) {
+        self.amount = Int64(productPrice * 100)
+        self.cardBrand = cardBrand
+        self.paymentProviderContract = paymentProviderContract
+        self.publicKeyAlias = publicKeyAlias
+        self.reuseToken = reuseToken
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+    }
+
+    mutating func setupCreditCardWith3ds(productPrice: Double, cardBrand: String, encryptedCard: String, paymentProviderContract: String, publicKeyAlias: String, threedAuthentication: ThreedAuthentication) {
+        self.amount = Int64(productPrice * 100)
+        self.cardBrand = cardBrand
+        self.encryptedCard = encryptedCard
+        self.paymentProviderContract = paymentProviderContract
+        self.publicKeyAlias = publicKeyAlias
+        self.threedAuthentication = threedAuthentication
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+    }
+
+    mutating func setupKlarna(productPrice: Double, customer: String, entityId: String, redirectUrl: String?) {
+        self.amount = Int64(productPrice * 100)
         self.customer = customer
         self.redirectUrl = redirectUrl
         self.entityId = entityId
-        self.purchaseCountry = purchaseCountry
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+        self.lineItems = [LineItem(
+            imageURL: "https://demo.klarna.se/fashion/kp/media/wysiwyg/Accessoriesbagimg.jpg",
+            type: "physical", reference: "AccessoryBag-Ref-ID-0001",
+            name: "string", quantity: 1, unitPrice: Int(productPrice * 100),
+            taxRate: 0, discountAmount: 0, totalTaxAmount: 0,
+            totalAmount: Int(productPrice * 100), sku: "string", lineItemDescription: "string",
+            category: "DIGITAL_GOODS")]
+        self.redirectUrl = "http://2checkout.com/test"
+    }
+
+    mutating func setupApplePay(productPrice: Double, cardBrand: String, paymentProviderContract: String, walletPayload: ApplePayToken) {
+        self.amount = Int64(productPrice * 100)
         self.cardBrand = cardBrand
-        self.currencyCode = currencyCode
-        self.dynamicDescriptor = dynamicDescriptor
-        self.encryptedCard = encryptedCard
-        self.merchantReference = merchantReference
         self.paymentProviderContract = paymentProviderContract
-        self.publicKeyAlias = publicKeyAlias
-        self.shopperInteraction = shopperInteraction
-        self.threedAuthentication = threedAuthentication
-        self.reuseToken = reuseToken
-        self.walletType = walletType
         self.walletPayload = walletPayload
-        self.scaComplianceLevel = scaComplianceLevel
-        self.locale = locale
-        self.lineItems = lineItems
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+    }
+
+    mutating func setupSwish(productPrice: Double, entityId: String) {
+        self.amount = Int64(productPrice * 100)
+        self.entityId = entityId
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+    }
+
+    mutating func setupVipps(productPrice: Double, paymentProviderContract: String, customer: String) {
+        self.amount = Int64(productPrice * 100)
+        self.paymentProviderContract = paymentProviderContract
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+        self.customer = customer
+    }
+
+    mutating func setupMobilePay(productPrice: Double, paymentProviderContract: String, customer: String) {
+        self.amount = Int64(productPrice * 100)
+        self.paymentProviderContract = paymentProviderContract
+        self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
+        self.customer = customer
     }
 }
 
@@ -68,7 +159,7 @@ public class ThreedAuthentication: NSObject, Codable {
     public var signatureVerification: String?
     public var threedsVersion: String
     public var additionalData: AdditionalData?
-    
+
     public init(cavv: String, dsTransactionId: String?, enrolled: String, errorDesc: String?, errorNo: String?, eciFlag: String, paresStatus: String, signatureVerification: String?, threedsVersion: String, additionalData: AdditionalData?) {
         self.cavv = cavv
         self.dsTransactionId = dsTransactionId
@@ -81,7 +172,7 @@ public class ThreedAuthentication: NSObject, Codable {
         self.threedsVersion = threedsVersion
         self.additionalData = additionalData
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case cavv = "cavv"
         case dsTransactionId = "ds_transaction_id"
@@ -100,14 +191,14 @@ public class AdditionalData: NSObject, Codable {
     public var deviceChannel: String?
     public var acsUrl: String?
     public let acquirerResponseCode, initiatorTraceID: String?
-    
+
     public init(deviceChannel: String?, acsUrl: String?, acquirerResponseCode: String? = nil, initiatorTraceID: String? = nil) {
         self.deviceChannel = deviceChannel
         self.acsUrl = acsUrl
         self.acquirerResponseCode = acquirerResponseCode
         self.initiatorTraceID = initiatorTraceID
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case acquirerResponseCode = "acquirer_response_code"
         case initiatorTraceID = "initiator_trace_id"
@@ -167,8 +258,10 @@ public class LineItem: NSObject, Codable {
 
 public class AuthToken: NSObject, Codable {
     let authorizationToken: String
-    
-    init(authorizationToken: String) {
+    let customer: String
+
+    init(authorizationToken: String, customer: String) {
         self.authorizationToken = authorizationToken
+        self.customer = customer
     }
 }

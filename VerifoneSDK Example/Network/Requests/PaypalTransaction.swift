@@ -7,28 +7,52 @@
 
 import Foundation
 
-class PaypalTransaction: Codable {
-    let intent: String
-    let customer: Customer
-    let applicationContext: ApplicationContext
-    let shipping: Shipping
-    let paymentProviderContract: String
-    let items: [Item]
-    let dynamicDescriptor, merchantReference: String
-    let detailedAmount: DetailedAmount
-    let amount: Amount
+struct PaypalTransaction: Codable {
+    var intent: String
+    var customer: Customer?
+    var applicationContext: ApplicationContext?
+    var shipping: Shipping?
+    var paymentProviderContract: String?
+    var items: [Item]?
+    var dynamicDescriptor, merchantReference: String
+    var detailedAmount: DetailedAmount?
+    var amount: Amount?
+}
 
-    init(intent: String, customer: Customer, applicationContext: ApplicationContext, shipping: Shipping, paymentProviderContract: String, items: [Item], dynamicDescriptor: String, merchantReference: String, detailedAmount: DetailedAmount, amount: Amount) {
-        self.intent = intent
+extension PaypalTransaction {
+    static let paypal: Self = .init(
+        intent: "AUTHORIZE",
+        dynamicDescriptor: "Paypal order 123",
+        merchantReference: "123test"
+    )
+
+    mutating func setupPaypal(returnUrl: String, cancelURL: String, itemName: String, price: Int, paymentProviderContract: String) {
+        let mobile = PhoneNumber(phoneType: "MOBILE", value: "64646464")
+        let identification = Identification(taxIdentificationNumber: "123456", taxIdentificationType: "BR_CNPJ")
+        let address = Address(country: "US", postalCode: "570023", countrySubdivision: "IN-MH", city: "yyy", addressLine1: "add1", addressLine2: "add2")
+        let customer = Customer(email: "verifone-buyer@paypal.com",
+                                payerID: "WDJJHEBZ4X2LY", phoneNumber: mobile,
+                                birthDate: "2000-01-31", identification: identification,
+                                address: address, firstName: "James", lastName: "Smith")
+        let shipping = Shipping(address: address, fullName: "JamesSmith")
+        let applicationContext = ApplicationContext(brandName: "MAHENDRA", shippingPreference: "CustomerProvided", returnURL: returnUrl, cancelURL: cancelURL)
+        let item = Item(name: itemName,
+                        unitAmount: Amount(currencyCode: CurrencyCode.usd, value: price),
+                        tax: Amount(currencyCode: .usd, value: 100), quantity: "1",
+                        itemDescription: "Item description", sku: "123", category: "PHYSICAL_GOODS")
+        let detailedAmount = DetailedAmount(discount: Amount(currencyCode: .usd, value: 200),
+                                            shippingDiscount: Amount(currencyCode: .usd, value: 200),
+                                            insurance: Amount(currencyCode: .usd, value: 100),
+                                            handling: Amount(currencyCode: .usd, value: 100),
+                                            shipping: Amount(currencyCode: .usd, value: 100))
+
         self.customer = customer
         self.applicationContext = applicationContext
         self.shipping = shipping
         self.paymentProviderContract = paymentProviderContract
-        self.items = items
-        self.dynamicDescriptor = dynamicDescriptor
-        self.merchantReference = merchantReference
+        self.items = [item]
         self.detailedAmount = detailedAmount
-        self.amount = amount
+        self.amount = Amount(currencyCode: .usd, value: (price+400)-400)
     }
 }
 

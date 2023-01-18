@@ -8,12 +8,12 @@
 import Foundation
 
 public struct RequestJwt: Codable {
-    var threedsContractId: String
-    
-    init(threedsContractId: String) {
+    var threedsContractId: String?
+
+    init(threedsContractId: String?) {
         self.threedsContractId = threedsContractId
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case threedsContractId
     }
