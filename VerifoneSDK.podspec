@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "VerifoneSDK"
-  s.version          = "1.1.0"
+  s.version          = "1.2.0"
   s.summary          = "Accept payments through VerifoneSDK."
   s.description      = <<-DESC
                        The VerifoneSDK library will allow you to accept payments in your iOS app.
