@@ -55,47 +55,6 @@ extension Encodable {
     }
 }
 
-protocol FormattableNumeric {}
-extension FormattableNumeric {
-    var localized: String {
-        guard let number = self as? NSNumber else { return "NaN" }
-        return "\(number.description(withLocale: Locale.current)) \(UserDefaults.standard.getCurrency(fromKey: Keys.currency))"
-    }
-}
-extension Int: FormattableNumeric {}
-extension Int64: FormattableNumeric {}
-extension UInt: FormattableNumeric {}
-extension Float: FormattableNumeric {}
-extension Double: FormattableNumeric {}
-
-protocol ObjectSavable {
-    func setObject<Object>(_ object: Object, forKey: String) throws where Object: Encodable
-    func getObject<Object>(forKey: String, castTo type: Object.Type) throws -> Object where Object: Decodable
-}
-
-extension UserDefaults: ObjectSavable {
-    func setObject<Object>(_ object: Object, forKey: String) throws where Object: Encodable {
-        let encoder = JSONEncoder()
-        do {
-            let data = try encoder.encode(object)
-            set(data, forKey: forKey)
-        } catch {
-            throw ObjectSavableError.unableToEncode
-        }
-    }
-
-    func getObject<Object>(forKey: String, castTo type: Object.Type) throws -> Object where Object: Decodable {
-        guard let data = data(forKey: forKey) else { throw ObjectSavableError.noValue }
-        let decoder = JSONDecoder()
-        do {
-            let object = try decoder.decode(type, from: data)
-            return object
-        } catch {
-            throw ObjectSavableError.unableToDecode
-        }
-    }
-}
-
 enum ObjectSavableError: String, LocalizedError {
     case unableToEncode = "Unable to encode object into data"
     case noValue = "No data object found for the given key"
@@ -139,28 +98,5 @@ public extension UIFont {
         if CTFontManagerRegisterGraphicsFont(font, &errorRef) == false {
             print("UIFont+:  Failed to register font - register graphics font failed - this font may have already been registered in the main bundle.")
         }
-    }
-}
-
-extension UIImageView {
-    func downloaded(from url: URL, contentMode mode: ContentMode = .scaleAspectFit) {
-        contentMode = mode
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard
-                let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
-                let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
-                let data = data, error == nil,
-                let image = UIImage(data: data)
-                else { return }
-            DispatchQueue.main.async { [weak self] in
-                self?.image = image
-            }
-        }.resume()
-    }
-
-    func downloaded(from link: String, contentMode mode: ContentMode = .scaleAspectFit) {
-        guard let url = URL(string: link) else { return }
-
-        downloaded(from: url, contentMode: mode)
     }
 }

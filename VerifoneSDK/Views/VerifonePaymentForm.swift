@@ -8,26 +8,26 @@
 import UIKit
 import PassKit
 
-@objc public final class VerifoneFormResult: NSObject {
-    @objc public var cardData: String?
-    @objc public var cardBrand: String?
-    @objc public var error: Error?
-    @objc public var saveCard: Bool = false
-    @objc public var paymentAuthorizingResult: PaymentAuthorizingResult?
-    @objc public var paymentMethodType: VerifoneSDKPaymentTypeValue
-    @objc public var paymentApplePayResult: PKPayment?
+public final class VerifoneFormResult: NSObject {
+    public var cardData: String?
+    public var cardBrand: String?
+    public var error: Error?
+    public var saveCard: Bool = false
+    public var paymentAuthorizingResult: PaymentAuthorizingResult?
+    public var paymentMethodType: VerifonePaymentMethodType
+    public var paymentApplePayResult: PKPayment?
 
-    @objc public init(paymentMethodType: VerifoneSDKPaymentTypeValue, paymentApplePayResult: PKPayment) {
+    public init(paymentMethodType: VerifonePaymentMethodType, paymentApplePayResult: PKPayment) {
         self.paymentMethodType = paymentMethodType
         self.paymentApplePayResult = paymentApplePayResult
     }
 
-    @objc public init(paymentMethodType: VerifoneSDKPaymentTypeValue, paymentAuthorizingResult: PaymentAuthorizingResult?) {
+    public init(paymentMethodType: VerifonePaymentMethodType, paymentAuthorizingResult: PaymentAuthorizingResult?) {
         self.paymentMethodType = paymentMethodType
         self.paymentAuthorizingResult = paymentAuthorizingResult
     }
 
-    @objc public init(paymentMethodType: VerifoneSDKPaymentTypeValue = .creditCard, cardData: String? = "", cardBrand: String? = "", cardHolder: String? = "") {
+    public init(paymentMethodType: VerifonePaymentMethodType = .creditCard, cardData: String? = "", cardBrand: String? = "", cardHolder: String? = "") {
         self.cardData = cardData
         self.cardBrand = cardBrand
         self.error = nil
@@ -60,40 +60,28 @@ public class VerifonePaymentForm {
         self.defultTheme = verifoneTheme
     }
 
-    lazy var paymentMethodsViewController: PaymentMethodsViewController = {
-        let storyboard = UIStoryboard(name: "VerifoneSDK", bundle: .module)
-        let viewController = storyboard.instantiateViewController(withIdentifier: "PaymentMethodsController") as! PaymentMethodsViewController
+    lazy var paymentMethodsViewController = PaymentMethodsViewController()
 
-        return viewController
-    }()
-
-    public typealias PaymentResultCallback = (_ result: Result<VerifoneFormResult, Error>) -> Void
-
-    public func displayPaymentForm(
-        from presentingViewController: UIViewController,
-        completion: @escaping ((Result<VerifoneFormResult, Error>) -> Void)
-    ) {
-        let completion: (_ result: Result<VerifoneFormResult, Error>) -> Void = { result in
+    public func displayPaymentForm(from presentingViewController: UIViewController, completion: @escaping (Result<VerifoneFormResult, Error>) -> Void) {
+        // Define the completion block as an optional property
+        self.completion = { [weak self] result in
+            guard let self = self else { return }
+            // Check if the payment methods view controller is still presented before dismissing it
             if self.paymentMethodsViewController.presentingViewController != nil {
                 self.paymentMethodsViewController.dismiss(animated: true) {
                     completion(result)
                 }
             } else {
-                /// the user closes the payment sheet
-                /// without choosing a payment method
+                // The user closed the payment sheet without choosing a payment method
                 completion(result)
             }
-            switch result {
-            // check if payment method is pay by link don't close the page.
-            case .success(let verifoneResult):
-                if verifoneResult.paymentMethodType != .paypal {
-                    self.completion = nil
-                }
-            case .failure:
+            // If the payment method is not PayPal, set the completion block to nil to avoid a retain cycle
+            if case .success(let verifoneResult) = result, verifoneResult.paymentMethodType != .paypal {
+                self.completion = nil
+            } else if case .failure = result {
                 self.completion = nil
             }
         }
-        self.completion = completion
         paymentFlowSession = PaymentFlowSession()
         paymentFlowSession.verifoneTheme = defultTheme
         paymentFlowSession.paymentConfiguration = paymentConfiguration
@@ -102,33 +90,30 @@ public class VerifonePaymentForm {
         paymentMethodsViewController.allowedPaymentMethods = paymentConfiguration!.allowedPaymentMethods
         paymentFlowSession.delegate = self
 
-        if paymentConfiguration!.allowedPaymentMethods.isEmpty {
+        if paymentConfiguration?.allowedPaymentMethods.isEmpty ?? true {
             presentingViewController.alert(title: "No payment methods are enabled")
             self.completion?(.failure(VerifoneError.cancel))
         } else {
             presentingViewController.presentPanModal(paymentMethodsViewController)
         }
     }
+
 }
 
 extension VerifonePaymentForm: PaymentFlowSessionDelegate {
 
-    func paymentAuthorizingDidSelected(_ viewController: UIViewController, paymentMethod: VerifoneSDKPaymentTypeValue) {
+    func paymentAuthorizingDidSelected(_ viewController: UIViewController, paymentMethod: VerifonePaymentMethodType) {
         self.completion?(.success(VerifoneFormResult(paymentMethodType: paymentMethod)))
     }
 
     func paymentFlowSessionDidCardEncrypted(_ controller: UIViewController, result: VerifoneFormResult) {
         if let error = result.error {
-            AppLog.log("Payment Chooser -  %@",
-                       log: uiLogObject,
-                       type: .error, error.localizedDescription)
+            debugPrint("Payment Chooser")
             controller.dismiss(animated: true) {
                 self.completion?(.failure(error))
             }
         } else {
-            AppLog.log("Payment Chooser - Request Success",
-                       log: uiLogObject,
-                       type: .error)
+            debugPrint("Payment Chooser - Request Success")
             controller.dismiss(animated: true) {
                 self.completion?(.success(result))
             }
@@ -136,9 +121,7 @@ extension VerifonePaymentForm: PaymentFlowSessionDelegate {
     }
 
     func paymentFlowSessionDidCancel(_ controller: UIViewController, callBack: CallbackStatus) {
-        AppLog.log("Payment Method - Cancelled by User",
-                   log: uiLogObject,
-                   type: .default)
+        debugPrint("Payment Method - Cancelled by User")
         controller.dismiss(animated: true) {
             switch callBack {
             case .cancel:
@@ -149,9 +132,7 @@ extension VerifonePaymentForm: PaymentFlowSessionDelegate {
     }
 
     func authorizingPaymentViewController(_ viewController: UIViewController, didCompleteAuthorizing result: PaymentAuthorizingResult) {
-        AppLog.log("Redirected to expected - %{private}@",
-                   log: uiLogObject,
-                   type: .default, result.redirectedUrl.absoluteString)
+        debugPrint("Redirected to expected - \(result.redirectedUrl.absoluteString)")
         let vfresult = VerifoneFormResult(paymentMethodType: .paypal, paymentAuthorizingResult: result)
         viewController.dismiss(animated: true) {
             self.completion?(.success(vfresult))
@@ -159,9 +140,7 @@ extension VerifonePaymentForm: PaymentFlowSessionDelegate {
     }
 
     func didReceiveResultFromAppleService(_ viewController: UIViewController, result: PKPayment) {
-        AppLog.log("Result from apple pay",
-                   log: uiLogObject,
-                   type: .default)
+        debugPrint("Result from apple pay")
 
         viewController.dismiss(animated: true) {
             let vfresult = VerifoneFormResult(paymentMethodType: .applePay, paymentApplePayResult: result)
@@ -170,9 +149,7 @@ extension VerifonePaymentForm: PaymentFlowSessionDelegate {
     }
 
     func paymentFlowSessionCancelWithError(_ viewController: UIViewController, error: Error) {
-        AppLog.log("Cancelled with error - %{private}@",
-                   log: uiLogObject,
-                   type: .default, error.localizedDescription)
+        debugPrint("Cancelled with error")
         viewController.dismiss(animated: true) {
             self.completion?(.failure(error))
         }

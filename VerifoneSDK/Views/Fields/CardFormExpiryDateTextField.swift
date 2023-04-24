@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 @IBDesignable
-@objc(VFCardFormExpiryDateTextField) public class CardFormExpiryDateTextField: BaseTextField {
+public class CardFormExpiryDateTextField: BaseTextField {
 
     public private(set) var selectedMonth: Int? {
         didSet {
@@ -15,15 +15,7 @@ import UIKit
         }
     }
 
-    @objc(selectedMonth) public var __selectedMonth: Int {
-        return selectedMonth ?? 0
-    }
-
     public private(set) var selectedYear: Int?
-    
-    @objc(selectedYear) public var __selectedYear: Int {
-        return selectedYear ?? 0
-    }
 
     public override var keyboardType: UIKeyboardType {
         didSet {
@@ -89,7 +81,9 @@ import UIKit
 
 extension CardFormExpiryDateTextField: UITextFieldDelegate {
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        return true
+        let allowedCharacters = CharacterSet.decimalDigits
+        let characterSet = CharacterSet(charactersIn: string)
+        return allowedCharacters.isSuperset(of: characterSet)
     }
 
     func formatExpiryDate(_ textField: UITextField) {
@@ -102,7 +96,7 @@ extension CardFormExpiryDateTextField: UITextFieldDelegate {
           let formattedMonth = String(format: "%02d", month!)
           str = formattedMonth
         }
-        
+
         if str.count >= 3 {
             let expiryMonth = str[Range(0...1)]
             var expiryYear: String
@@ -111,8 +105,10 @@ extension CardFormExpiryDateTextField: UITextFieldDelegate {
             } else {
                 expiryYear = str[Range(2...3)]
             }
-            selectedMonth = Int(expiryMonth)!
-            selectedYear = 2000 + Int(expiryYear)!
+            guard let expiryMonthDigits = Int(expiryMonth) else { return }
+            guard let expiryYearDigits = Int(expiryYear) else { return }
+            selectedMonth = expiryMonthDigits
+            selectedYear = 2000 + expiryYearDigits
             textField.text = expiryMonth + dividerString + expiryYear
         } else {
             textField.text = str

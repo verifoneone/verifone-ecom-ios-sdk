@@ -25,7 +25,7 @@
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)-ReturnUrl</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>verifonesdk</string>
+				<string>verifoneSdkTestApp</string>
 			</array>
 		</dict>
 	</array>
@@ -38,6 +38,8 @@
 		<string>swish</string>
 		<string>bankid</string>
 		<string>mobilepay-test</string>
+		<string>mobilepayonline</string>
+		<string>mobilepay</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

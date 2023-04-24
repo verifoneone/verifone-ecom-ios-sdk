@@ -150,6 +150,7 @@ extension DropDownVC: UITextFieldDelegate {
         if count <= 3 {
             do {
                 let regex = try NSRegularExpression(pattern: ".*[^A-Z].*", options: [])
+                // swiftlint: disable legacy_constructor
                 if regex.firstMatch(in: string, options: [], range: NSMakeRange(0, string.count)) != nil {
                     return false
                 }

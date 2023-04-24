@@ -1,65 +1,17 @@
 import UIKit
 
-public enum TextFieldStyle {
-    case plain
-    case border(width: CGFloat)
-}
-
 public enum VFTextFieldValidationError: Error {
     case emptyText
     case invalidData
 }
 
 @IBDesignable
-@objc(BaseTextField) public class BaseTextField: UITextField {
-    public var style: TextFieldStyle = .plain {
-        didSet {
-            invalidateIntrinsicContentSize()
-        }
-    }
+public class BaseTextField: UITextField {
 
-    @IBInspectable var borderWidth: CGFloat {
-        get {
-            switch style {
-            case .plain:
-                return 0
-            case .border(width: let width):
-                return width
-            }
-        }
-        set {
-            switch newValue {
-            case let value where value <= 0:
-                style = .plain
-            case let value:
-                style = .border(width: value)
-            }
-        }
-    }
+    private var normalTextColor: UIColor?
 
-    @IBInspectable var borderColor: UIColor? {
-        didSet {
-            updateBorder()
-        }
-    }
-
-    @IBInspectable var cornerRadius: CGFloat = 0 {
-        didSet {
-            updateBorder()
-        }
-    }
-
-    @IBInspectable var errorTextColor: UIColor? {
-        didSet {
-            updateTextColor()
-        }
-    }
-
-    @IBInspectable var placeholderTextColor: UIColor? {
-        didSet {
-            updatePlaceholderTextColor()
-        }
-    }
+    var padding: UIEdgeInsets!
+    var borderWidth: CGFloat = 0.0
 
     public override var placeholder: String? {
         didSet {
@@ -67,7 +19,29 @@ public enum VFTextFieldValidationError: Error {
         }
     }
 
-    private var normalTextColor: UIColor?
+    var placeholderTextColor: UIColor? {
+        didSet {
+            updatePlaceholderTextColor()
+        }
+    }
+
+    var errorHintColor: UIColor? {
+        didSet {
+            updateTextColor()
+        }
+    }
+
+    var borderColor: UIColor? {
+        didSet {
+            updateBorder()
+        }
+    }
+
+    var cornerRadius: CGFloat = 0 {
+        didSet {
+            updateBorder()
+        }
+    }
 
     public override var text: String? {
         didSet {
@@ -86,7 +60,7 @@ public enum VFTextFieldValidationError: Error {
     }
 
     private func updateTextColor() {
-        guard let errorTextColor = errorTextColor else {
+        guard let errorTextColor = errorHintColor else {
             super.textColor = normalTextColor ?? .black
             return
         }
@@ -105,27 +79,6 @@ public enum VFTextFieldValidationError: Error {
         }
     }
 
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        initialize()
-    }
-
-    public required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        initialize()
-    }
-
-    init() {
-        super.init(frame: CGRect.zero)
-        initialize()
-    }
-
-    private func initialize() {
-        addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        addTarget(self, action: #selector(didBeginEditing), for: .editingDidBegin)
-        addTarget(self, action: #selector(didEndEditing), for: .editingDidEnd)
-    }
-
     public var isValid: Bool {
         do {
             try validate()
@@ -135,13 +88,43 @@ public enum VFTextFieldValidationError: Error {
         }
     }
 
-    @objc func didBeginEditing() {
-
+    // MARK: - Initializers
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
     }
 
-    @objc func didEndEditing() {
-
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        configure()
     }
+
+    init() {
+        super.init(frame: CGRect.zero)
+        configure()
+    }
+
+    private func configure() {
+        padding = UIEdgeInsets(
+            top: layoutMargins.top,
+            left: layoutMargins.left,
+            bottom: layoutMargins.bottom,
+            right: layoutMargins.right
+        )
+        addTarget(self,
+                  action: #selector(self.textDidChange),
+                  for: UIControl.Event.editingChanged)
+        addTarget(self,
+                  action: #selector(self.didBeginEditing),
+                  for: UIControl.Event.editingDidBegin)
+        addTarget(self,
+                  action: #selector(self.didEndEditing),
+                  for: UIControl.Event.editingDidEnd)
+    }
+
+    @objc func didBeginEditing() {}
+
+    @objc func didEndEditing() {}
 
     @objc func textDidChange() {}
 
@@ -152,23 +135,6 @@ public enum VFTextFieldValidationError: Error {
         if text.isEmpty {
             throw VFTextFieldValidationError.emptyText
         }
-    }
-
-    private var insets: UIEdgeInsets {
-        let edgeInsets: UIEdgeInsets
-        switch style {
-        case .plain:
-            edgeInsets = UIEdgeInsets.zero
-        case .border(width: let width):
-            edgeInsets = UIEdgeInsets(
-                top: layoutMargins.top + width,
-                left: layoutMargins.left + width,
-                bottom: layoutMargins.bottom + width,
-                right: layoutMargins.right + width
-            )
-        }
-
-        return edgeInsets
     }
 
     public override func borderRect(forBounds bounds: CGRect) -> CGRect {
@@ -196,7 +162,7 @@ public enum VFTextFieldValidationError: Error {
     }
 
     func textAreaViewRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.inset(by: insets)
+        return bounds.inset(by: padding)
     }
 
     private func updateBorder() {

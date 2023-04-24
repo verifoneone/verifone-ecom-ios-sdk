@@ -35,6 +35,7 @@ class TextFieldTableViewCell: UITableViewCell, UITextFieldDelegate {
         t.font = .systemFont(ofSize: 16)
         t.keyboardType = .default
         t.borderStyle = .none
+        t.textColor = UIColor.AppColors.defaultBlackLabelColor
         t.translatesAutoresizingMaskIntoConstraints = false
         return t
     }()

@@ -7,12 +7,6 @@
 
 import UIKit
 
-extension Optional where Wrapped == String {
-    public var isNilOrEmpty: Bool {
-        return self?.isEmpty ?? true
-    }
-}
-
 extension Calendar {
     /// Calendar used in the Credit Card information which is Gregorian Calendar
     public static let creditCardInformationCalendar = Calendar(identifier: .gregorian)

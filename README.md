@@ -62,7 +62,7 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
 
 A simple completion handler for encrypted card data looks like this. Here we will check ```verifoneResult.paymentMethodType``` which payment method was selected. 
 
-If the customer selected credit card, the SDK will return the encrypted card data to perform transaction request to the merchant server.
+If the customer selected credit card, the sdk will return the encrypted card data to perform transaction request to the merchant server.
 
 If the customer selected PayPal, you will have to do a create transaction API call, and then pass to the sdk the "approvalUrl" and "id". The sdk will display the confirmation PaypPal screen inside a webview and provide you with the details necessary to perform the confirmation API call.
 
@@ -132,7 +132,6 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
                             // get redirected to your app (merchant app)
                             // make an API call to check the status of the transaction
                         default: break
-
                     }
                 case .failure(let error):
                     let error = error as NSError?
@@ -146,17 +145,16 @@ verifonePaymentForm.displayPaymentForm(from: self) { result in
                             print("Required parameters are missing or invalid")
                         default:
                             print(error!)
-                    }
-
+                        }
                 }            
 }
 ```
 
-##### Wallet App Integrations
+### (Swish, Vipps, MobilePay) Integration
 ###### URL Schemes
-In order to access wallet apps (Swish, Vipps, MobilePay), you need to specify the app's scheme in the 'LSApplicationQueriesSchemes' section of your Info.plist file. This enables your app to communicate with the wallet app and authorize the transaction. 
+In order to access wallet app (Siwsh, Vipps, MobilePay), you need to specify the app's scheme in the 'LSApplicationQueriesSchemes' section of the Info.plist file. This enables your app to communicate with the wallet app and authorize the transaction. 
 
-Additionally, you should specify a custom URL for the payment app to redirect to once the process is finished. This can be done by adding it to the 'URL Types' array in your Info.plist file.
+Additionally, you should specify a custom URL for the payment app to redirect to once the process is finished. This can be done by adding it to the 'URL Types' array in the Info.plist file.
 You can read more about the URL schemes on [https://developers.apple.com](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app)
 
 ###### Swish
@@ -182,14 +180,43 @@ You can read more about the URL schemes on [https://developers.apple.com](https:
     <string>mobilepay-test</string>
 </array>
 ```
+
+To ensure a smooth payment experience for your users, it is advisable to verify if they have the wallet app installed before continueing the payment process. VerifoneSDK class provides a convenient methods to accomplish this.
+```swift
+VerifoneSDK.isSwishAppAvailable()
+VerifoneSDK.isVippsAppAvailable()
+VerifoneSDK.isMobilePayAppAvailable()
+```
 ###### Initiate a payment
 Initiate a wallet transaction on the server side by making an API call to obtain a payment request token. Use the token to launch the wallet app for the user to authorize the payment. Once the user completes the payment, the wallet app will redirect back to your app, regardless of the success or failure of the transaction.
 
-###### App Redirect
-In the AppDelegate file, the open URL delegate method will handle all redirects to your application.
-This method will be called when the app is opened through a URL, and within this method, you can check the passed URL, and determine if it's a redirect from a wallet app, and then make an API call to check the status of the transaction.
+```swift
+// SWISH
+VerifoneSDK.authorizeSwishPayment(token: "token", returnUrl: "testAppUrl") { [weak self] in
+    // make an API call to check the status of the transaction
+    // https://verifone.cloud/api-catalog/verifone-ecommerce-api#tag/Transaction/operation/readTransaction
+} failure: {
+    // catch failure
+}
 
-You can find an example of the entire payment flow, including the server-side transaction API call, launching the wallet app, handling the redirect back to the merchant app, and checking the transaction status in the [VerifoneSDK Example](https://github.com/verifoneone/verifone-ecom-ios-sdk/tree/main/VerifoneSDK%20Example).
+// VIPPS
+VerifoneSDK.authorizeVippsPayment(token: "token", returnUrl: "testAppUrl") { [weak self] in
+    // make an API call to check the status of the transaction
+    // https://verifone.cloud/api-catalog/verifone-ecommerce-api#tag/Transaction/operation/readTransaction
+} failure: {
+    // catch failure
+}
+
+// MOBILE PAY
+VerifoneSDK.authorizeMobilePayPayment(token: "token", returnUrl: "testAppUrl") { [weak self] in
+    // make an API call to check the status of the transaction
+    // https://verifone.cloud/api-catalog/verifone-ecommerce-api#tag/Transaction/operation/readTransaction
+} failure: {
+    // catch failure
+}
+```
+
+You can find an example of the entire payment flow, including the server-side transaction API call, launching the wallet app, and checking the transaction status, in [VerifoneSDK Example](https://github.com/verifoneone/verifone-ecom-ios-sdk/tree/main/VerifoneSDK%20Example).
 
 ##### Transaction flow with threed secure.
 
@@ -269,6 +296,7 @@ let cardData = CardEncryption(publicKey: "YOUR_PUBLIC_ENCRYPTION_KEY", cardData:
               }
 
 ```
+
 
 ### Customization
 

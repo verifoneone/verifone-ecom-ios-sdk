@@ -68,4 +68,26 @@ extension UserDefaults {
             return Env.CST.rawValue
         }
     }
+
+    func booleanValue(for key: String) -> Bool {
+        if let data = self.value(forKey: key) as? Bool {
+            return data
+        } else {
+            return false
+        }
+    }
+
+    func getEnabledPaymentOptions() -> [AppPaymentMethodType]? {
+        if let options = self.stringArray(forKey: Keys.paymentOptions) {
+            return options.filter {!$0.isEmpty}.map { AppPaymentMethodType(rawValue: $0)! }
+        }
+        return nil
+    }
+
+    func hasReuseToken() -> Bool {
+        if self.retrieve(object: ResponseReuseToken.self, fromKey: Keys.reuseToken) != nil {
+            return true
+        }
+        return false
+    }
 }

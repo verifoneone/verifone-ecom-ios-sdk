@@ -8,14 +8,14 @@
 import Foundation
 
 public class OrderData: NSObject, Codable {
-    var amount: Int64?
+    var amount: Int?
     var billingFirstName: String
     var billingLastName: String
     var billingAddress1: String
     var billingCity: String
     var billingState: String
     var billingCountryCode: String
-    var currencyCode: String
+    var currencyCode: String?
     var email: String
     var merchantReference: String?
     var threedsContractId: String?
@@ -26,14 +26,14 @@ public class OrderData: NSObject, Codable {
     var publicKeyAlias: String?
     var reuseToken: String?
 
-    public init(amount: Int64? = nil,
+    public init(amount: Int? = nil,
                 billingFirstName: String,
                 billingLastName: String,
                 billingAddress1: String,
                 billingCity: String,
                 billingState: String,
                 billingCountryCode: String,
-                currencyCode: String,
+                currencyCode: String? = nil,
                 email: String,
                 merchantReference: String?,
                 threedsContractId: String? = nil,
@@ -89,14 +89,19 @@ extension OrderData {
           billingCity: "Columbus",
           billingState: "Oh",
           billingCountryCode: "US",
-          currencyCode: UserDefaults.standard.getCurrency(fromKey: Keys.currency),
           email: "testingtester@gmail.com",
           merchantReference: "test123"
     )
 
-    func setupCreditCard(productPrice: Double, threedsContractId: String, publicKetAlias: String) {
-        self.amount = Int64(productPrice * 100)
+    func setupCreditCard(productPrice: Int, publicKetAlias: String) {
+        self.amount = productPrice
+        self.publicKeyAlias = publicKetAlias
+    }
+
+    func setupCreditCard3DS(productPrice: Int, threedsContractId: String, publicKetAlias: String, currencyCode: String) {
+        self.amount = productPrice
         self.threedsContractId = threedsContractId
         self.publicKeyAlias = publicKetAlias
+        self.currencyCode = currencyCode
     }
 }

@@ -7,14 +7,14 @@
 
 import Foundation
 import PassKit
-import os
 
-@objc public final class VerifoneSDK: NSObject {
+public final class VerifoneSDK: NSObject {
     static public weak var paymentConfiguration: PaymentConfiguration?
     static public weak var threedsConfiguration: ThreedsConfiguration?
     static public weak var applePayMerchantConfiguration: ApplePayMerchantConfiguration?
     static public var defaultTheme = Theme.defaultTheme
     static public var defaultFont: UIFont! = UIFont.systemFont(ofSize: 15, weight: .regular)
+    public typealias authorizeCompletion = (() -> Void)?
 
     static public var locale: Locale? {
         didSet {
@@ -22,8 +22,9 @@ import os
         }
     }
 
-    static let bundleIdentifier = "com.verifone.sdk"
+    fileprivate static let bundleIdentifier = "com.verifone.sdk"
     fileprivate static var bundle: Bundle = createBundle()
+    fileprivate static var walletAppCompletion: (() -> Void)?
 
     private static func createBundle() -> Bundle {
         class Class {}
@@ -31,8 +32,8 @@ import os
         else { return Bundle(for: Class.self) }
 
         guard let bundlePath = localizationBundle.path(forResource: currentLanguage(of: localizationBundle),
-                ofType: "lproj"),
-        let bundle = Bundle(path: bundlePath) else { return Bundle(for: Class.self) }
+                                                       ofType: "lproj"),
+              let bundle = Bundle(path: bundlePath) else { return Bundle(for: Class.self) }
 
         return bundle
     }
@@ -49,51 +50,54 @@ import os
     }
 }
 
-extension VerifoneSDK {
-    @objc(VerifoneSDKPaymentConfiguration) public class PaymentConfiguration: NSObject {
-        @objc public let cardEncryptionPublicKey: String?
-        @objc public let paymentPanelStoreTitle: String
-        @objc public var showCardSaveSwitch: Bool = true
-        @objc public var totalAmount: String
-        @objc public var allowedPaymentMethods: [VerifoneSDKPaymentTypeValue] = [.creditCard, .paypal]
+public extension VerifoneSDK {
+    class PaymentConfiguration: NSObject {
+        public let cardEncryptionPublicKey: String?
+        public let paymentPanelStoreTitle: String
+        public var showCardSaveSwitch: Bool = true
+        public var totalAmount: String
+        public var allowedPaymentMethods: [VerifonePaymentMethodType] = [.creditCard, .paypal]
+        public var reuseTokenForCardPayment: Bool
 
-        @objc public init(cardEncryptionPublicKey: String? = nil, totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifoneSDKPaymentTypeValue]) {
+        public init(cardEncryptionPublicKey: String? = nil, totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifonePaymentMethodType], reuseTokenForCardPayment: Bool = false) {
             self.cardEncryptionPublicKey = cardEncryptionPublicKey
             self.paymentPanelStoreTitle = "Store"
             self.totalAmount = totalAmount
             self.showCardSaveSwitch = showCardSaveSwitch
             self.allowedPaymentMethods = allowedPaymentMethods
+            self.reuseTokenForCardPayment = reuseTokenForCardPayment
         }
 
-        @objc public init(cardEncryptionPublicKey: String? = nil, paymentPanelStoreTitle: String = "", totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifoneSDKPaymentTypeValue]) {
+        public init(cardEncryptionPublicKey: String? = nil, paymentPanelStoreTitle: String = "", totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifonePaymentMethodType], reuseTokenForCardPayment: Bool = false) {
             self.cardEncryptionPublicKey = cardEncryptionPublicKey
             self.paymentPanelStoreTitle = paymentPanelStoreTitle
             self.showCardSaveSwitch = showCardSaveSwitch
             self.totalAmount = totalAmount
             self.allowedPaymentMethods = allowedPaymentMethods
+            self.reuseTokenForCardPayment = reuseTokenForCardPayment
         }
     }
 
-    @objc(VerifoneSDKThreedsConfiguration) public class ThreedsConfiguration: NSObject {
-        @objc public let environment: Environment
+    class ThreedsConfiguration: NSObject {
+        public let environment: Environment
 
-        @objc public init(environment: Environment = .staging) {
+        public init(environment: Environment = .staging) {
             self.environment = environment
         }
     }
 
-    @objc(VerifoneSDKApplePayMerchantConfiguration) public class ApplePayMerchantConfiguration: NSObject {
-        @objc public let applePayMerchantId: String
-        @objc public let supportedPaymentNetworks: [PKPaymentNetwork]
-        @objc public let countryCode: String
-        @objc public let currencyCode: String
-        @objc public let paymentSummaryItems: [PKPaymentSummaryItem]
+    class ApplePayMerchantConfiguration: NSObject {
+        public let applePayMerchantId: String
+        public let supportedPaymentNetworks: [PKPaymentNetwork]
+        public let countryCode: String
+        public let currencyCode: String
+        public let paymentSummaryItems: [PKPaymentSummaryItem]
 
-        @objc public init(applePayMerchantId: String,
-                          supportedPaymentNetworks: [PKPaymentNetwork],
-                          countryCode: String,
-                          currencyCode: String,
-                          paymentSummaryItems: [PKPaymentSummaryItem]) {
+        public init(applePayMerchantId: String,
+                    supportedPaymentNetworks: [PKPaymentNetwork],
+                    countryCode: String,
+                    currencyCode: String,
+                    paymentSummaryItems: [PKPaymentSummaryItem]) {
             self.applePayMerchantId = applePayMerchantId
             self.supportedPaymentNetworks = supportedPaymentNetworks
             self.countryCode = countryCode
@@ -103,65 +107,142 @@ extension VerifoneSDK {
     }
 }
 
-public enum VerifoneError {
-    private static let verifoneSDKErrorDomain = "com.verifone.ios.sdk"
-
-    enum ErrorType {
-        static let merchantNotSupport3DS = "The Merchant account doesn't support 3ds"
-        static let invalidMerchantConfiguration = "Invalid merchant configuration setup."
-        static let missingCardEncryptionPublicKey = "Missing encryption public key"
-        static let invalidPublicKey = "Public key parameter is not a string or is not a valid base64 encoded value."
-        static let invalidCardData = "Invalid card data"
-        static let cancel = "Cancel"
-        static let internalSDKError = "Unhandled error occurred."
+private extension VerifoneSDK {
+    static func isAppInstalled(appName: String) -> Bool {
+        guard let url = URL(string: appName) else {
+            preconditionFailure("Invalid url")
+        }
+        return UIApplication.shared.canOpenURL(url)
     }
 
-    public static var invalidPublicKey: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9002,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.invalidPublicKey])
+    static func encodedCallbackUrl(callback: String) -> String? {
+        let disallowedCharacters = NSCharacterSet(charactersIn: "!*'();:@&=+$,/?%#[]")
+        let allowedCharacters = disallowedCharacters.inverted
+        return callback.addingPercentEncoding(withAllowedCharacters: allowedCharacters)
     }
 
-    public static var invalidCardData: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9003,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.invalidCardData])
+    static func createPaymentURL(host: String? = "", scheme: String, queryItems: [URLQueryItem]) -> URL? {
+        var urlComponents = URLComponents()
+        urlComponents.host = host
+        urlComponents.scheme = scheme
+        urlComponents.queryItems = queryItems
+        return urlComponents.url
     }
 
-    static var missingCardEncryptionPublicKey: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9004,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.missingCardEncryptionPublicKey])
+    static func addObservingState() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(applicationDidBecomeActive),
+                                               name: UIApplication.didBecomeActiveNotification,
+                                               object: nil)
     }
 
-    public static var cancel: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9005,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.cancel])
+    static func removeObservingState() {
+        NotificationCenter.default.removeObserver(self,
+                                                  name: UIApplication.didBecomeActiveNotification,
+                                                  object: nil)
     }
 
-    public static var merchantNotSupport3DS: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9006,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.merchantNotSupport3DS])
+    @objc static func applicationDidBecomeActive() {
+        removeObservingState()
+        callbackFromWalletApp()
     }
 
-    static var invalidMerchantConfigurationError: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9007,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.invalidMerchantConfiguration])
-    }
-
-    static var internalSDKError: NSError {
-        return NSError(domain: verifoneSDKErrorDomain,
-                       code: 9008,
-                       userInfo: [NSLocalizedDescriptionKey: ErrorType.internalSDKError])
+    static func callbackFromWalletApp() {
+        guard let completion = walletAppCompletion else {
+            walletAppCompletion = nil
+            return
+        }
+        completion()
+        walletAppCompletion = nil
     }
 }
 
-public enum VFError: Int {
-    // ApplePay
-    case cantMakePaymentError
-    case applePayOperationError
-    case applePayCanceled
+// MARK: - SWISH PAYMENT
+public extension VerifoneSDK {
+    private static let swishScheme = "swish"
+
+    static func authorizeSwishPayment(token: String, returnUrl: String, completion: authorizeCompletion, failure: authorizeCompletion) {
+        guard let callback = encodedCallbackUrl(callback: returnUrl) else {
+            failure?()
+            return
+        }
+        let queryItems = [URLQueryItem(name: "token", value: token), URLQueryItem(name: "callbackurl", value: callback)]
+        if let url = createPaymentURL(host: "paymentrequest", scheme: swishScheme, queryItems: queryItems), UIApplication.shared.canOpenURL(url) {
+            if let completion = completion {
+                walletAppCompletion = completion
+                addObservingState()
+            }
+            DispatchQueue.main.async {
+                UIApplication.shared.open(url) { success in
+                    if !success { failure?() }
+                }
+            }
+        } else {
+            failure?()
+        }
+    }
+
+    static func isSwishAppAvailable() -> Bool {
+        return isAppInstalled(appName: "\(swishScheme)://")
+    }
+}
+
+// MARK: - VIPPS PAYMENT
+public extension VerifoneSDK {
+    private static let vippsScheme = "vipps"
+
+    static func authorizeVippsPayment(token: String, returnUrl: String, completion: authorizeCompletion, failure: authorizeCompletion) {
+        guard let callback = encodedCallbackUrl(callback: returnUrl) else {
+            failure?()
+            return
+        }
+        let queryItems = [URLQueryItem(name: "token", value: token), URLQueryItem(name: "fallBack", value: callback)]
+        if let url = createPaymentURL(scheme: vippsScheme, queryItems: queryItems), UIApplication.shared.canOpenURL(url) {
+            if let completion = completion {
+                walletAppCompletion = completion
+                addObservingState()
+            }
+            DispatchQueue.main.async {
+                UIApplication.shared.open(url) { success in
+                    if !success { failure?() }
+                }
+            }
+        } else {
+            failure?()
+        }
+    }
+
+    static func isVippsAppAvailable() -> Bool {
+        return isAppInstalled(appName: "\(vippsScheme)://")
+    }
+}
+
+// MARK: - MOBILE PAY PAYMENT
+public extension VerifoneSDK {
+    private static let mobilePayScheme = "mobilepay"
+
+    static func authorizeMobilePayPayment(token: String, returnUrl: String, completion: authorizeCompletion, failure: authorizeCompletion) {
+        guard let callback = encodedCallbackUrl(callback: returnUrl) else {
+            failure?()
+            return
+        }
+        let queryItems = [URLQueryItem(name: "paymentid", value: token), URLQueryItem(name: "redirect_url", value: callback)]
+        if let url = createPaymentURL(host: "online", scheme: mobilePayScheme, queryItems: queryItems), UIApplication.shared.canOpenURL(url) {
+            if let completion = completion {
+                walletAppCompletion = completion
+                addObservingState()
+            }
+            DispatchQueue.main.async {
+                UIApplication.shared.open(url) { success in
+                    if !success { failure?() }
+                }
+            }
+        } else {
+            failure?()
+        }
+    }
+
+    static func isMobilePayAppAvailable() -> Bool {
+        return isAppInstalled(appName: "\(mobilePayScheme)://")
+    }
 }

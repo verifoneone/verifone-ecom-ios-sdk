@@ -26,36 +26,10 @@ struct PaypalTransactionResponse: Codable {
     let id, authorizationID: String
     let createdAt, expiresAt: String
     let status, instoreReference: String
-    let payer: Payer
 
     enum CodingKeys: String, CodingKey {
         case id
         case authorizationID = "authorizationId"
-        case createdAt, expiresAt, status, instoreReference, payer
+        case createdAt, expiresAt, status, instoreReference
     }
-}
-
-// MARK: - Payer
-struct Payer: Codable {
-    let payerID: String
-    let name: Name
-    let phoneNumber: PhoneNumber
-    let authorizationStatus, email: String
-    let shippingAddress: ShippingAddress
-
-    enum CodingKeys: String, CodingKey {
-        case payerID = "payerId"
-        case name, phoneNumber, authorizationStatus, email, shippingAddress
-    }
-}
-
-// MARK: - Name
-struct Name: Codable {
-    let firstName, lastName: String
-}
-
-// MARK: - ShippingAddress
-struct ShippingAddress: Codable {
-    let fullName, country, postalCode, countrySubdivision: String
-    let city, addressLine1, addressLine2: String
 }

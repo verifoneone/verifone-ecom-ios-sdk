@@ -14,5 +14,3 @@ FOUNDATION_EXPORT double VerifoneVersionNumber;
 FOUNDATION_EXPORT const unsigned char VerifoneVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <Verifone/PublicHeader.h>
-
-#import <VerifoneSDK/VerifoneSDKConstants.h>

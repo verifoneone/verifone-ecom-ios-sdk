@@ -13,6 +13,7 @@ import VerifoneSDK
 // (doesn't support 3ds)
 //
 public var GlobalENV = Env.CST
+typealias AppPaymentMethodType = VerifonePaymentMethodType
 
 public enum Env: String {
     case CST = "CST"
@@ -20,7 +21,6 @@ public enum Env: String {
     case EMEA_PROD = "EMEA PROD"
     case US_PROD = "US PROD"
     case NZ_PROD = "NZ PROD"
-    case CST_FOR_REUSE_TOKEN = "CST_FOR_REUSE_TOKEN"
 }
 
 public enum Keys {
@@ -29,8 +29,11 @@ public enum Keys {
     public static var creditCardParams = "creditCardParams"
     public static var currency = "storedCurrency"
     public static var environment = "environment"
-    public static var appSwitchNotificationName = Notification.Name("CallbackFromThirdPartyApp")
-    public static var switchedApp = "switchedApp"
+    public static var threedsEnabled = "threedsEnabled"
+    public static var isCardSaveEnabled = "isCardSaveEnabled"
+    public static var testAppScheme = "verifoneSdkTestApp://"
+    public static var reuseToken = "reuseToken"
+    public static var paymentOptions = "paymentOptions"
 }
 
 public protocol MerchantAppConfigProtocol {
@@ -55,15 +58,12 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
     public static var expectedCancellURL = "https://verifone.cloud"
 
     var bundle: Bundle!
+    var userdefaults = UserDefaults.standard
     private var _font: UIFont?
-    private var _allowedPaymentMethods: [VerifoneSDKPaymentTypeValue]? = []
-    private var _allPaymentMethods: [VerifoneSDKPaymentTypeValue] = [.creditCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
+    private var _allowedPaymentMethods: [AppPaymentMethodType]? = []
+    public var supportedPaymentOptions: [AppPaymentMethodType] = [.creditCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
 
     public var font: UIFont {
-        set {
-            _font = newValue
-            setFont(familyName: _font!.familyName)
-        }
         get {
             if let familyName = UserDefaults.standard.string(forKey: Keys.Font), UIFont(name: familyName, size: 15) != nil {
                 return UIFont(name: familyName, size: 15)!
@@ -74,25 +74,21 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
                 return fontMetrics.scaledFont(for: UIFont.systemFont(ofSize: 15))
             }
         }
+        set {
+            _font = newValue
+            setFont(familyName: _font!.familyName)
+        }
     }
 
-    public var allowedPaymentMethods: [VerifoneSDKPaymentTypeValue] {
-        set {
-            _allowedPaymentMethods = Array(newValue)
-        }
+    public var allowedPaymentOptions: [AppPaymentMethodType] {
         mutating get {
-            _allowedPaymentMethods = []
-            if let arr = UserDefaults.standard.stringArray(forKey: "paymentMethods") {
-                for value in _allPaymentMethods {
-                    if arr.contains(value.rawValue) {
-                        _allowedPaymentMethods?.append(value)
-                        }
-                    }
-            } else {
-                _allowedPaymentMethods = [.creditCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
+            guard let options = userdefaults.getEnabledPaymentOptions() else {
+                return []
             }
-
-            return _allowedPaymentMethods!
+            // keep order
+            return supportedPaymentOptions.filter({
+                options.contains($0)
+            })
         }
     }
 
@@ -103,8 +99,8 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
         self.setParams(paymentMethodType: .creditCard)
     }
 
-    mutating func setParams(paymentMethodType: PaymentMethodType) {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.creditCard.rawValue) else {
+    mutating func setParams(paymentMethodType: AppPaymentMethodType) {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.creditCard.rawValue) else {
             isParamsLoaded = false
             return
         }
@@ -208,5 +204,5 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
 
 struct PaymentTypeOrder {
     var index: Int
-    var paymentType: VerifoneSDKPaymentTypeValue
+    var paymentType: AppPaymentMethodType
 }

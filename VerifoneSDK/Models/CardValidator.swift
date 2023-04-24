@@ -68,21 +68,21 @@ open class CardValidator {
 
         /**
         Default constructor
-        
+
         @param name name of the card
-        
+
         @param pattern regular expression matching the card's code
-        
+
         @param format default card display format
-        
+
         @param cardLength array containing all the possible lengths of the card's code
-        
+
         @param cvvLength array containing all the possible lengths of the card's CVV
-        
+
         @param luhn does the card's number respects the luhn validation or not
-        
+
         @param supported is this card usable with Checkout services
-        
+
         */
         fileprivate init(name: String, pattern: String, format: String, cardLength: ClosedRange<Int>, cvvLength: [Int], luhn: Bool, supported: Bool) {
             self.name = name
@@ -123,13 +123,13 @@ open class CardValidator {
     public static let CARD_NAME_REPLACE_PATTERN = "[^A-Z\\s]"
 
     /*
-    
+
     Test if the string is composed exclusively of digits
-    
+
     @param entry String to be tested
-    
+
     @return result of the test
-    
+
     */
 
     fileprivate class func isDigit(_ entry: String) -> Bool {
@@ -137,15 +137,15 @@ open class CardValidator {
     }
 
     /**
-    
+
     Sanitizes any string given as a parameter
-    
+
     @param entry String to be cleaned
-    
+
     @param isNumber boolean, if set, the method removes all non digit characters, otherwise only the - and spaces
-    
+
     @return cleaned string
-    
+
     */
 
     open class func sanitizeEntry(_ entry: String, isNumber: Bool) -> String {
@@ -154,13 +154,13 @@ open class CardValidator {
     }
 
     /*
-    
+
     Sanitizes the card's name using the regular expression above
-    
+
     @param entry String to be cleaned
-    
+
     @return cleaned string
-    
+
     */
 
     fileprivate class func sanitizeName(_ entry: String) -> String {
@@ -168,13 +168,13 @@ open class CardValidator {
     }
 
     /**
-    
+
     Returns the CardInfo element corresponding to the given number
-    
+
     @param number String containing the card's number
-    
+
     @return CardInfo element corresponding to num or null if it was not recognized
-    
+
     */
 
     open class func getCardType(_ number: String) -> CardInfo? {
@@ -185,13 +185,13 @@ open class CardValidator {
     }
 
     /*
-    
+
     Applies the Luhn Algorithm to the given card number
-    
+
     @param number String containing the card's number to be tested
-    
+
     @return boolean containing the result of the computation
-    
+
     */
 
     fileprivate class func validateLuhnNumber(_ number: String) -> Bool {
@@ -218,13 +218,13 @@ open class CardValidator {
     }
 
     /**
-    
+
     Checks if the card's number is valid by identifying the card's type and checking its conditions
-    
+
     @param number String containing the card's code to be verified
-    
+
     @return boolean containing the result of the verification
-    
+
     */
 
     open class func validateCardNumber(_ number: String) -> Bool {
@@ -234,11 +234,9 @@ open class CardValidator {
             let c = getCardType(n)
             if c != nil {
                 var len = false
-                for i in c!.cardLength {
-                    if n.count == i {
-                       len = true
-                        break
-                    }
+                for i in c!.cardLength where n.count == i {
+                    len = true
+                    break
                 }
                 return len && (c!.luhn == false || validateLuhnNumber(n))
             }
@@ -247,15 +245,15 @@ open class CardValidator {
     }
 
     /**
-    
+
     Checks if the card is still valid
-    
+
     @param month String containing the expiring month of the card
-    
+
     @param year String containing the expiring year of the card
-    
+
     @return boolean containing the result of the verification
-    
+
     */
 
     open class func validateExpiryDate(_ month: String, year: String) -> Bool {
@@ -269,15 +267,15 @@ open class CardValidator {
     }
 
     /**
-    
+
     Checks if the card is still valid
-    
+
     @param month int containing the expiring month of the card
-    
+
     @param year int containing the expiring year of the card
-    
+
     @return boolean containing the result of the verification
-    
+
     */
 
     open class func validateExpiryDate(_ month: Int, year: Int) -> Bool {
@@ -293,36 +291,36 @@ open class CardValidator {
     }
 
     /**
-    
+
     Checks if the CVV is valid for a given card's type
-    
+
     @param cvv String containing the value of the CVV
-    
+
     @param card Cards element containing the card's type
-    
+
     @return boolean containing the result of the verification
-    
+
     */
 
     open class func validateCVV(_ cvv: String, card: CardInfo) -> Bool {
         if cvv == "" { return false }
-        let len = cvv.count
-        for i in card.cvvLength {
-            if len == i { return true }
+        if card.cvvLength.contains(cvv.count) {
+            return true
         }
+
         return false
     }
 
     /**
-    
+
     Checks if the CVV is valid for a given card's type
-    
+
     @param cvv int containing the value of the CVV
-    
+
     @param card Cards element containing the card's type
-    
+
     @return boolean containing the result of the verification
-    
+
     */
 
     open class func validateCVV(_ cvv: Int, card: CardInfo) -> Bool {

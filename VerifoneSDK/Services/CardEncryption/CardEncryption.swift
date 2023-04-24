@@ -27,25 +27,25 @@ public class CardEncryption: NSObject {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         guard let publicKey64 = self.publicKey else {
-            AppLog.log("Missing card encryption public key", log: sdkLogObject, type: .error)
+            debugPrint("Missing card encryption public key")
             completion(.failure(VerifoneError.invalidPublicKey))
             return
         }
 
         guard let publicKey = publicKey64.fromBase64() else {
-            AppLog.log("Invalid public key", log: sdkLogObject, type: .error)
+            debugPrint("Invalid public key")
             completion(.failure(VerifoneError.invalidPublicKey))
             return
         }
 
         guard let cardData = self.cardData else {
-            AppLog.log("Missing or invalid card data information", log: sdkLogObject, type: .error)
+            debugPrint("Missing or invalid card data information")
             completion(.failure(VerifoneError.invalidCardData))
             return
         }
 
         guard let json = try? encoder.encode(cardData) else {
-            AppLog.log("Card encryption json format is wrong", log: sdkLogObject, type: .error)
+            debugPrint("Card encryption json format is wrong")
             completion(.failure(VerifoneError.invalidCardData))
             return
         }

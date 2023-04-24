@@ -8,17 +8,22 @@
 import UIKit
 import PassKit
 
-@objc(VFPaymentMethodsViewController)
 public class PaymentMethodsViewController: UITableViewController, PanModalPresentable {
 
     var paymentFlowSession: PaymentFlowSession!
     var creditCardForm: CreditCardViewController?
     var applePayService: ApplePayService?
-    @objc var allowedPaymentMethods: [VerifoneSDKPaymentTypeValue] = []
-
+    var allowedPaymentMethods: [VerifonePaymentMethodType] = []
     let headerView = PaymentTypeHeaderView()
-
     var headerPresentable: PaymentTypeHeaderPresentable!
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,12 +50,14 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
             self.automaticallyAdjustsScrollViewInsets = false
         }
     }
+    
     // MARK: - View Configurations
 
     func setupTableView() {
         tableView.tableFooterView = UIView()
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = UIColor.VF.defaultBackground
+        self.view.backgroundColor = UIColor.VF.defaultBackground
         tableView.register(PaymentTypeCell.self, forCellReuseIdentifier: "cell")
     }
 
@@ -61,18 +68,13 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
 
     private func sizeHeaderToFit() {
         if let headerView = tableView.tableHeaderView {
-
             headerView.setNeedsLayout()
             headerView.layoutIfNeeded()
-
             let height = headerView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
             var newFrame = headerView.frame
-
-            // Needed or we will stay in viewDidLayoutSubviews() forever
             if height != newFrame.size.height {
                 newFrame.size.height = height
                 headerView.frame = newFrame
-
                 tableView.tableHeaderView = headerView
             }
         }
@@ -91,28 +93,28 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
 
         switch allowedPaymentMethods[indexPath.row] {
         case .creditCard:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.creditCard.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.creditCard.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductCard".localized()
         case .paypal:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.paypal.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.paypal.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductPaypal".localized()
         case .applePay:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.applePay.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.applePay.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductApplePay".localized()
         case .klarna:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.klarna.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.klarna.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductKlarna".localized()
         case .swish:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.swish.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.swish.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductSwish".localized()
         case .vipps:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.vipps.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.vipps.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductVipps".localized()
         case .mobilePay:
-            cell.cardBrandImageView.image = UIImage(named: VerifoneSDKPaymentTypeValue.mobilePay.rawValue, in: .module, compatibleWith: nil)!
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.mobilePay.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductMobilePay".localized()
-        default: break
         }
+
         return cell
     }
 
@@ -136,9 +138,13 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
         tableView.deselectRow(at: indexPath, animated: true)
         switch allowedPaymentMethods[indexPath.row] {
         case .creditCard:
-            creditCardForm = CreditCardViewController(paymentConfiguration: paymentFlowSession!.paymentConfiguration!, theme: paymentFlowSession!.verifoneTheme)
-            creditCardForm!.delegate = paymentFlowSession
-            present(creditCardForm!, animated: true)
+            if !self.paymentFlowSession.paymentConfiguration!.reuseTokenForCardPayment {
+                creditCardForm = CreditCardViewController(paymentConfiguration: paymentFlowSession!.paymentConfiguration!, theme: paymentFlowSession!.verifoneTheme)
+                creditCardForm!.delegate = paymentFlowSession
+                present(creditCardForm!, animated: true)
+            } else {
+                self.paymentFlowSession.delegate?.paymentAuthorizingDidSelected(self, paymentMethod: allowedPaymentMethods[indexPath.row])
+            }
         case .paypal:
             let webview = VFAuthorizingPaymentWebViewController()
             webview.paymentMethod = allowedPaymentMethods[indexPath.row]
@@ -156,8 +162,6 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
                     self?.paymentFlowSession.delegate?.paymentFlowSessionCancelWithError(self!, error: error)
                 }
             })
-        default:
-            break
         }
     }
 

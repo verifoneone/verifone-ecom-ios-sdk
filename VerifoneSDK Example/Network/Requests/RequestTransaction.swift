@@ -8,7 +8,7 @@
 import Foundation
 
 public struct RequestTransaction: Codable {
-    public var amount: Int64?
+    public var amount: Int?
     public var authType: String?
     public var captureNow: Bool?
     public var customer: String?
@@ -70,7 +70,7 @@ extension RequestTransaction {
 
     static let vipps: RequestTransaction = .init(
         captureNow: true,
-        redirectUrl: "verifonesdk://",
+        redirectUrl: Keys.testAppScheme,
         merchantReference: "5690-iOS",
         isApp: true
     )
@@ -78,14 +78,14 @@ extension RequestTransaction {
     static let mobilePay: RequestTransaction = .init(
         authType: "FINAL_AUTH",
         captureNow: true,
-        redirectUrl: "verifonesdk://",
+        redirectUrl: Keys.testAppScheme,
         merchantReference: "5690-iOS",
         scaComplianceLevel: "WALLET",
         isApp: true
     )
 
-    mutating func setupCreditCardWithout3ds(productPrice: Double, cardBrand: String, paymentProviderContract: String, publicKeyAlias: String, reuseToken: String?) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupCreditCardWithout3ds(productPrice: Int, cardBrand: String?, paymentProviderContract: String, publicKeyAlias: String, reuseToken: String?) {
+        self.amount = productPrice
         self.cardBrand = cardBrand
         self.paymentProviderContract = paymentProviderContract
         self.publicKeyAlias = publicKeyAlias
@@ -93,8 +93,8 @@ extension RequestTransaction {
         self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
     }
 
-    mutating func setupCreditCardWith3ds(productPrice: Double, cardBrand: String, encryptedCard: String, paymentProviderContract: String, publicKeyAlias: String, threedAuthentication: ThreedAuthentication) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupCreditCardWith3ds(productPrice: Int, cardBrand: String?, encryptedCard: String, paymentProviderContract: String, publicKeyAlias: String, threedAuthentication: ThreedAuthentication) {
+        self.amount = productPrice
         self.cardBrand = cardBrand
         self.encryptedCard = encryptedCard
         self.paymentProviderContract = paymentProviderContract
@@ -103,8 +103,8 @@ extension RequestTransaction {
         self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
     }
 
-    mutating func setupKlarna(productPrice: Double, customer: String, entityId: String, redirectUrl: String?) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupKlarna(productPrice: Int, customer: String, entityId: String, redirectUrl: String?) {
+        self.amount = productPrice
         self.customer = customer
         self.redirectUrl = redirectUrl
         self.entityId = entityId
@@ -112,36 +112,36 @@ extension RequestTransaction {
         self.lineItems = [LineItem(
             imageURL: "https://demo.klarna.se/fashion/kp/media/wysiwyg/Accessoriesbagimg.jpg",
             type: "physical", reference: "AccessoryBag-Ref-ID-0001",
-            name: "string", quantity: 1, unitPrice: Int(productPrice * 100),
+            name: "string", quantity: 1, unitPrice: productPrice,
             taxRate: 0, discountAmount: 0, totalTaxAmount: 0,
-            totalAmount: Int(productPrice * 100), sku: "string", lineItemDescription: "string",
+            totalAmount: productPrice, sku: "string", lineItemDescription: "string",
             category: "DIGITAL_GOODS")]
         self.redirectUrl = "http://2checkout.com/test"
     }
 
-    mutating func setupApplePay(productPrice: Double, cardBrand: String, paymentProviderContract: String, walletPayload: ApplePayToken) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupApplePay(productPrice: Int, cardBrand: String, paymentProviderContract: String, walletPayload: ApplePayToken) {
+        self.amount = productPrice
         self.cardBrand = cardBrand
         self.paymentProviderContract = paymentProviderContract
         self.walletPayload = walletPayload
         self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
     }
 
-    mutating func setupSwish(productPrice: Double, entityId: String) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupSwish(productPrice: Int, entityId: String) {
+        self.amount = productPrice
         self.entityId = entityId
         self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
     }
 
-    mutating func setupVipps(productPrice: Double, paymentProviderContract: String, customer: String) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupVipps(productPrice: Int, paymentProviderContract: String, customer: String) {
+        self.amount = productPrice
         self.paymentProviderContract = paymentProviderContract
         self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
         self.customer = customer
     }
 
-    mutating func setupMobilePay(productPrice: Double, paymentProviderContract: String, customer: String) {
-        self.amount = Int64(productPrice * 100)
+    mutating func setupMobilePay(productPrice: Int, paymentProviderContract: String, customer: String) {
+        self.amount = productPrice
         self.paymentProviderContract = paymentProviderContract
         self.currencyCode = UserDefaults.standard.getCurrency(fromKey: Keys.currency)
         self.customer = customer
@@ -159,6 +159,19 @@ public class ThreedAuthentication: NSObject, Codable {
     public var signatureVerification: String?
     public var threedsVersion: String
     public var additionalData: AdditionalData?
+
+    public init(validationResponse: ValidateResponse, dsTransactionID: String?, additionalData: AdditionalData) {
+        self.cavv = validationResponse.validationResult?.cavv ?? ""
+        self.dsTransactionId = dsTransactionID
+        self.enrolled = "Y"
+        self.errorDesc = validationResponse.errorDesc ?? ""
+        self.errorNo = validationResponse.errorNo ?? ""
+        self.eciFlag = validationResponse.validationResult?.eciFlag ?? ""
+        self.paresStatus = validationResponse.validationResult?.paresStatus ?? ""
+        self.signatureVerification = validationResponse.validationResult?.signatureVerification ?? ""
+        self.threedsVersion = "2.1.0"
+        self.additionalData = additionalData
+    }
 
     public init(cavv: String, dsTransactionId: String?, enrolled: String, errorDesc: String?, errorNo: String?, eciFlag: String, paresStatus: String, signatureVerification: String?, threedsVersion: String, additionalData: AdditionalData?) {
         self.cavv = cavv

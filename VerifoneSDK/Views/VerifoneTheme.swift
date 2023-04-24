@@ -8,23 +8,20 @@
 import UIKit
 
 extension VerifoneSDK {
-    @objc(VerifoneSDKTheme) public class Theme: NSObject {
-        @objc public static let defaultTheme = Theme()
+    public class Theme: NSObject {
+        public static let defaultTheme = Theme()
 
-        @objc public var primaryBackgorundColor: UIColor = VerifoneThemeDefaultPrimaryBackgroundColor
-        @objc public var textfieldBackgroundColor: UIColor = VerifoneThemeDefaultTextfieldBackgroundColor
-        @objc public var textfieldTextColor: UIColor = VerifoneThemeDefaultTextfieldTextColor
-        @objc public var textfieldBorderColor: UIColor = VerifoneThemeDefaultTextfieldBorderColor
-        @objc public var payButtonBackgroundColor: UIColor = VerifoneThemeDefaultPayButtonBackgroundColor
-        @objc public var payButtonDisabledBackgroundColor: UIColor = VerifoneThemeDefaultPayButtonDisabledBackgroundColor
-        @objc public var payButtonTextColor: UIColor = VerifoneThemeDefaultPayButtonTextColor
-        @objc public var labelColor: UIColor = VerifoneThemeDefaultLabelColor
-        @objc public var cardTitleColor: UIColor = VerifoneThemeDefaultCardTitleColor
+        public var primaryBackgorundColor: UIColor = VerifoneThemeDefaultPrimaryBackgroundColor
+        public var textfieldBackgroundColor: UIColor = VerifoneThemeDefaultTextfieldBackgroundColor
+        public var textfieldTextColor: UIColor = VerifoneThemeDefaultTextfieldTextColor
+        public var textfieldBorderColor: UIColor = VerifoneThemeDefaultTextfieldBorderColor
+        public var payButtonBackgroundColor: UIColor = VerifoneThemeDefaultPayButtonBackgroundColor
+        public var payButtonDisabledBackgroundColor: UIColor = VerifoneThemeDefaultPayButtonDisabledBackgroundColor
+        public var payButtonTextColor: UIColor = VerifoneThemeDefaultPayButtonTextColor
+        public var labelColor: UIColor = VerifoneThemeDefaultLabelColor
+        public var cardTitleColor: UIColor = VerifoneThemeDefaultCardTitleColor
 
-        @objc public var font: UIFont {
-            set {
-                _font = newValue
-            }
+        public var font: UIFont {
             get {
                 if let _font = _font {
                     return _font
@@ -32,6 +29,9 @@ extension VerifoneSDK {
                     let fontMetrics = UIFontMetrics(forTextStyle: .body)
                     return fontMetrics.scaledFont(for: VerifoneDefaultFont)
                 }
+            }
+            set {
+                _font = newValue
             }
         }
         private var _font: UIFont?

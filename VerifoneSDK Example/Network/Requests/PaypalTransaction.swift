@@ -36,6 +36,7 @@ extension PaypalTransaction {
                                 address: address, firstName: "James", lastName: "Smith")
         let shipping = Shipping(address: address, fullName: "JamesSmith")
         let applicationContext = ApplicationContext(brandName: "MAHENDRA", shippingPreference: "CustomerProvided", returnURL: returnUrl, cancelURL: cancelURL)
+
         let item = Item(name: itemName,
                         unitAmount: Amount(currencyCode: CurrencyCode.usd, value: price),
                         tax: Amount(currencyCode: .usd, value: 100), quantity: "1",
@@ -52,7 +53,7 @@ extension PaypalTransaction {
         self.paymentProviderContract = paymentProviderContract
         self.items = [item]
         self.detailedAmount = detailedAmount
-        self.amount = Amount(currencyCode: .usd, value: (price+400)-400)
+        self.amount = Amount(currencyCode: .usd, value: price)
     }
 }
 

@@ -15,7 +15,9 @@ final class ConfigurationParamsVC: UIViewController, UITableViewDataSource {
         return t
     }()
 
-    var paymentMethodType: PaymentMethodType!
+    var didClose: (() -> Void)?
+    var paymentMethodType: AppPaymentMethodType!
+    var viewModel = SettingsViewModel()
 
     private(set) var currentActiveParamType: ParamType!
     private(set) var rightBarItem: UIBarButtonItem!
@@ -81,17 +83,31 @@ final class ConfigurationParamsVC: UIViewController, UITableViewDataSource {
             self.tableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.tableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
+        self.tableView.reloadData()
     }
 
     @objc func saveChanged() {
         self.rightBarItem.isEnabled = false
         UserDefaults.standard.save(customObject: self.parameters, inKey: paymentMethodType.rawValue)
         MerchantAppConfig.shared.setParams(paymentMethodType: paymentMethodType)
+        // Check params if it's missing disable payment method
+        if !self.viewModel.isParamValid(paymentMethodType) {
+            self.viewModel.paymentStateSwitchButtons[paymentMethodType.rawValue] = false
+            self.viewModel.saveValues()
+        }
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.layoutIfNeeded()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if self.isMovingFromParent {
+            self.didClose?()
+        }
     }
 }
 
@@ -115,13 +131,16 @@ extension ConfigurationParamsVC: UITableViewDelegate {
                 for: indexPath) as? TextFieldTableViewCell
             cell?.textfieldTitleLabel.text = fieldData.title
             cell?.textfield.placeholder = fieldData.placeholder
+            cell?.textfield.backgroundColor = (cellModel.error != nil) ? UIColor.AppColors.textfieldRedColor : UIColor.AppColors.background
             cell?.textFieldTextChangeCallback = { [unowned self] text in
                 self.currentActiveParamType = cellModel.paramType
                 self.textChange(text: text)
+                cell?.textfield.backgroundColor = UIColor.AppColors.background
             }
             cell?.textfield.text = ""
             guard let value = cellModel.value else { return cell! }
             cell?.textfield.text = value
+
             return cell!
         case is TextArea:
             guard let fieldData = cellModel.cell as? TextArea else { return UITableViewCell() }
@@ -131,13 +150,15 @@ extension ConfigurationParamsVC: UITableViewDelegate {
             cell.textfieldTitleLabel.text = fieldData.title
             cell.placeholderForTextView = fieldData.placeholder
             cell.textView.text = ""
+            cell.textView.backgroundColor = (cellModel.error != nil) ? UIColor.AppColors.textfieldRedColor : UIColor.AppColors.background
             cell.textFieldTextChangeCallback = { [unowned self] text in
                 self.currentActiveParamType = cellModel.paramType
                 self.textChange(text: text)
+                cell.textView.backgroundColor = UIColor.AppColors.background
             }
             guard let value = cellModel.value else { return cell }
             cell.textView.text = value
-            cell.textView.textColor = .black
+            cell.textView.textColor = UIColor.AppColors.defaultBlackLabelColor
             return cell
         case is ButtonItem:
             guard let fieldData = cellModel.cell as? ButtonItem else { return UITableViewCell() }
@@ -193,16 +214,12 @@ extension ConfigurationParamsVC: UITableViewDelegate {
             parameters.encryptionKey = text
         case .paymentProviderContract:
             parameters.paymentProviderContract = text
-        case .apiUserId:
+        case .apiUserID:
             parameters.apiUserID = text
         case .apiKey:
             parameters.apiKey = text
-        case .reuseToken:
-            parameters.reuseToken = text
-        case .organisationId:
-            parameters.organisationId = text
-        case .ppc:
-            parameters.ppc = text
+        case .tokenScope:
+            parameters.tokenScope = text
         case .customer:
             parameters.customer = text
         case .entityId:
@@ -224,10 +241,13 @@ extension ConfigurationParamsVC: UIDocumentPickerDelegate, UINavigationControlle
             do {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
-                self.parameters = try? decoder.decode(Parameters.self, from: data)
-                if parameters.apiUserID == nil && parameters.apiKey == nil {
-                    self.alert(title: "Error", message: "Uploaded file is either empty or invalid JSON file.")
-                    return
+                self.parameters = try decoder.decode(Parameters.self, from: data)
+
+                let fields = parameters.validateByPayment(self.paymentMethodType)
+                if let fields = fields, !fields.isEmpty {
+                    // swiftlint:disable opening_brace
+                    let fieldParams = fields.map{ "\n\($0.key)" }.joined(separator: ", ")
+                    self.alert(title: "Warning", message: fields.count == 1 ? "Required parameter is missing: \(fieldParams)" : "Some required parameters are missing: \(fieldParams)")
                 }
 
                 guard let firstSection: ConfigSection = items.first, !items.isEmpty else { return }
@@ -242,22 +262,19 @@ extension ConfigurationParamsVC: UIDocumentPickerDelegate, UINavigationControlle
                         items[0].cells[i].value = parameters.encryptionKey
                     case .paymentProviderContract:
                         items[0].cells[i].value = parameters.paymentProviderContract
-                    case .apiUserId:
+                    case .apiUserID:
                         items[0].cells[i].value = parameters.apiUserID
                     case .apiKey:
                         items[0].cells[i].value = parameters.apiKey
-                    case .reuseToken:
-                        items[0].cells[i].value = parameters.reuseToken
-                    case .organisationId:
-                        items[0].cells[i].value = parameters.organisationId
-                    case .ppc:
-                        items[0].cells[i].value = parameters.ppc
+                    case .tokenScope:
+                        items[0].cells[i].value = parameters.tokenScope
                     case .customer:
                         items[0].cells[i].value = parameters.customer
                     case .entityId:
                         items[0].cells[i].value = parameters.entityId
                     default: break
                     }
+                    items[0].cells[i].error = fields![cell.paramType.rawValue]
                 }
                 self.rightBarItem.isEnabled = true
                 self.tableView.reloadData()

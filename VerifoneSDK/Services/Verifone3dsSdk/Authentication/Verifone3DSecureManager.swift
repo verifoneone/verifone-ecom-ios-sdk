@@ -18,8 +18,7 @@ public class Verifone3DSecureManager {
 
     public init(threedsConfiguration: VerifoneSDK.ThreedsConfiguration?) {
         self.threedsConfiguration = threedsConfiguration
-
-        configureCardinalSession(customUi: nil)
+        configureCardinalSession()
     }
 
     public func setup(with jwt: String, completion: @escaping ((String) -> Void), failure: @escaping ((CardinalResponse) -> Void)) {
@@ -28,6 +27,7 @@ public class Verifone3DSecureManager {
             // for CCA, you may then enable it. This will prevent users from submitting
             // their order before CCA is ready.
             completion(consumerSessionId)
+            // swiftlint: disable multiple_closures_with_trailing_closure
         }) { validateResponse in
             // Handle failed setup
             // If there was an error with setup, cardinal will call this function with
@@ -50,12 +50,12 @@ public class Verifone3DSecureManager {
         }
     }
 
-    private func configureCardinalSession(customUi: VFCustomUi?) {
+    private func configureCardinalSession() {
         var waringMessageTitle: String = ""
         var waringMessageMessage: String = ""
 
         if self.threedsConfiguration == nil {
-            AppLog.log("Missing threeds configuration", log: sdkLogObject, type: .error)
+            debugPrint("Missing threeds configuration")
             waringMessageTitle = "Missing threeds configurration information."
             waringMessageMessage = "Please set the threeds configuration to initilize."
 
@@ -73,11 +73,6 @@ public class Verifone3DSecureManager {
         }
 
         config.uiType = .both
-
-        if let yourCustomUi = customUi {
-            config.uiCustomization = yourCustomUi
-        }
-
         config.renderType = [CardinalSessionRenderTypeOTP,
                              CardinalSessionRenderTypeHTML]
         config.enableDFSync = true

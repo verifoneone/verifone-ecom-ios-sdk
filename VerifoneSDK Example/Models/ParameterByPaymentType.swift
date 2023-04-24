@@ -8,10 +8,10 @@
 import Foundation
 
 struct ParameterByPaymentType {
-    let paymentMethodType: PaymentMethodType!
+    let paymentMethodType: AppPaymentMethodType!
     var params = RetrieveFieldData()
 
-    init(paymentMethodType: PaymentMethodType!) {
+    init(paymentMethodType: AppPaymentMethodType!) {
         self.paymentMethodType = paymentMethodType
     }
 

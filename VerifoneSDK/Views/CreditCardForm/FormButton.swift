@@ -8,7 +8,7 @@
 import UIKit
 
 @IBDesignable
-@objc(VFFormButton) public class FormButton: UIButton {
+public class FormButton: UIButton {
 
     @IBInspectable var cornerRadius: CGFloat = 0.0 {
         didSet {
@@ -68,5 +68,4 @@ import UIKit
     func backgroundColor(for state: ControlState) -> UIColor? {
         return backgroundColors[state]
     }
-
 }

@@ -18,7 +18,7 @@ class PaymentTypeHeaderView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "Lato-Bold", size: 18.0)
-        label.textColor = .black
+        label.textColor = UIColor.VF.text
         return label
     }()
 
@@ -41,7 +41,7 @@ class PaymentTypeHeaderView: UIView {
     let closeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1).withAlphaComponent(0.5)
-        button.tintColor = UIColor.darkGray
+        button.tintColor = UIColor.VF.text
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 19
         button.layer.masksToBounds = true
@@ -55,7 +55,7 @@ class PaymentTypeHeaderView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .white
+        backgroundColor = UIColor.VF.defaultBackground
         addSubview(seperatorView)
         addSubview(HstackView)
 
@@ -69,24 +69,23 @@ class PaymentTypeHeaderView: UIView {
     // MARK: - Layout
 
     func setupConstraints() {
-        HstackView.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
-        HstackView.centerXAnchor.constraint(equalTo: self.centerXAnchor, constant: 0.0).isActive = true
-        HstackView.topAnchor.constraint(equalTo: self.topAnchor, constant: -15).isActive = true
-        HstackView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: Constants.contentInsets.left).isActive = true
-        HstackView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.contentInsets.right).isActive = true
-
-        seperatorView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        seperatorView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        seperatorView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        seperatorView.heightAnchor.constraint(equalToConstant: 1.0).isActive = true
-        closeButton.heightAnchor.constraint(equalToConstant: 38.0).isActive = true
-        closeButton.widthAnchor.constraint(equalToConstant: 38.0).isActive = true
+        NSLayoutConstraint.activate([
+            HstackView.heightAnchor.constraint(equalToConstant: 50.0),
+            HstackView.centerXAnchor.constraint(equalTo: self.centerXAnchor, constant: 0.0),
+            HstackView.topAnchor.constraint(equalTo: self.topAnchor, constant: -15),
+            HstackView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: Constants.contentInsets.left),
+            HstackView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -Constants.contentInsets.right),
+            seperatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            seperatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            seperatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            seperatorView.heightAnchor.constraint(equalToConstant: 1.0),
+            closeButton.heightAnchor.constraint(equalToConstant: 38.0),
+            closeButton.widthAnchor.constraint(equalToConstant: 38.0)
+        ])
     }
 
     // MARK: - View Configuration
-
     func configure(with presentable: PaymentTypeHeaderPresentable) {
         titleLabel.text = "\(presentable.title)"
     }
-
 }

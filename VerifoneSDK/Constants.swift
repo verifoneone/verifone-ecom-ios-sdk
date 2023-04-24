@@ -7,16 +7,12 @@
 
 import UIKit
 import Foundation
-import os
 
 extension Bundle {
     #if !SWIFT_PACKAGE
     static var module = Bundle(for: CreditCardViewController.self)
     #endif
 }
-
-let sdkLogObject = OSLog(subsystem: "com.verifone.ios.sdk", category: "SDK")
-let uiLogObject = OSLog(subsystem: "com.verifone.ios.sdk", category: "UI")
 
 typealias AccessibilityCustomRotorDirection = UIAccessibilityCustomRotor.Direction
 typealias AttributedStringKey = NSAttributedString.Key
@@ -31,3 +27,8 @@ let NotificationKeyboardWillShowFrameNotification: NSNotification.Name = UIRespo
 
 let NotificationKeyboardFrameEndUserInfoKey = UIResponder.keyboardFrameEndUserInfoKey
 let NotificationKeyboardFrameBeginUserInfoKey = UIResponder.keyboardFrameBeginUserInfoKey
+
+enum HTTPHeaderField {
+    static var contentType = "Content-Type"
+    static var formURLEncoded = "x-www-form-urlencoded"
+}

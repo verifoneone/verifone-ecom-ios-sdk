@@ -21,7 +21,7 @@ class PaymentTypeCell: UITableViewCell {
 
     let nameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = UIColor.VF.text
         label.font = UIFont(name: "Lato-Bold", size: 17.0)
         label.backgroundColor = .clear
         return label
@@ -49,7 +49,7 @@ class PaymentTypeCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.accessoryType = .disclosureIndicator
         cardBrandImageView.contentMode = ContentMode.scaleAspectFit
-        backgroundColor = .white
+        backgroundColor = UIColor.VF.defaultBackground
         isAccessibilityElement = true
 
         let backgroundView = UIView()
@@ -102,5 +102,4 @@ class PaymentTypeCell: UITableViewCell {
         cardBrandImageView.image = presentable.cardBrand
         cardBrandImageView.contentMode = ContentMode.scaleAspectFit
     }
-
 }

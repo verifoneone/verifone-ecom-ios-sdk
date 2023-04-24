@@ -45,7 +45,6 @@ class TransactionWallet: Codable {
         case refusalReason = "refusal_reason"
         case tokenPreference = "token_preference"
         case walletType = "wallet_type"
-//        case walletPayload = "wallet_payload"
         case scaComplianceLevel = "sca_compliance_level"
     }
 

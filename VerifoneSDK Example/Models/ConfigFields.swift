@@ -32,17 +32,17 @@ struct ConfigCell {
     var cell: ConfigItem
     var paramType: ParamType
     var value: String?
+    var error: String?
 }
 
-enum ParamType: Equatable {
+enum ParamType: String {
     case publicKeyAlias
     case threedsContractId
     case encryptionKey
     case paymentProviderContract
-    case apiUserId
+    case apiUserID
     case apiKey
-    case reuseToken
-    case organisationId
+    case tokenScope
     case ppc
     case customer
     case entityId
@@ -51,7 +51,7 @@ enum ParamType: Equatable {
 
 protocol ConfigFields {
     var items: [ConfigSection] { get set }
-    mutating func getFields(paymentMethodType: PaymentMethodType!) -> (Parameters?, [ConfigSection])
+    mutating func getFields(paymentMethodType: AppPaymentMethodType!) -> (Parameters?, [ConfigSection])
 }
 
 extension ConfigCell {
@@ -60,32 +60,32 @@ extension ConfigCell {
         return [
             ConfigCell(
                 cell: TextField(title: "Public Key alias",
-                                  placeholder: "Add a public key"),
+                                  placeholder: "----"),
                 paramType: .publicKeyAlias, value: parameters?.publicKeyAlias ?? ""),
             ConfigCell(
                 cell: TextField(title: "3DS Contract ID",
-                                placeholder: "Add a 3ds contarct id"),
+                                placeholder: "----"),
                 paramType: .threedsContractId, value: parameters?.threedsContractID ?? ""),
             ConfigCell(
                 cell: TextArea(title: "Public encryption key",
-                               placeholder: "Add an encryption key"),
+                               placeholder: "----"),
                 paramType: .encryptionKey, value: parameters?.encryptionKey ?? ""),
             ConfigCell(
                 cell: TextField(title: "Payment provider contract",
-                                placeholder: "Add a payment provider contract"),
+                                placeholder: "----"),
                 paramType: .paymentProviderContract, value: parameters?.paymentProviderContract ?? ""),
             ConfigCell(
-                cell: TextField(title: "Api user ID",
-                                placeholder: "Add a payment api user id"),
-                paramType: .apiUserId, value: parameters?.apiUserID ?? ""),
+                cell: TextField(title: "API user ID",
+                                placeholder: "----"),
+                paramType: .apiUserID, value: parameters?.apiUserID ?? ""),
             ConfigCell(
-                cell: TextField(title: "Api key",
-                                placeholder: "Add a payment api key"),
+                cell: TextField(title: "API key",
+                                placeholder: "----"),
                 paramType: .apiKey, value: parameters?.apiKey ?? ""),
             ConfigCell(
-                cell: TextField(title: "Reuse token",
-                                placeholder: "Add a reuse token"),
-                paramType: .reuseToken, value: parameters?.reuseToken ?? "")
+                cell: TextField(title: "Token scope",
+                                placeholder: "----"),
+                paramType: .tokenScope, value: parameters?.tokenScope ?? "")
         ]
     }
     // MARK: Klarna params
@@ -93,20 +93,20 @@ extension ConfigCell {
         return [
             ConfigCell(
                 cell: TextField(title: "Api user ID",
-                                placeholder: "Add a payment api user id"),
-                paramType: .apiUserId, value: parameters?.apiUserID ?? ""),
+                                placeholder: "----"),
+                paramType: .apiUserID, value: parameters?.apiUserID ?? ""),
             ConfigCell(
                 cell: TextField(title: "Api key",
-                                placeholder: "Add a payment api key"),
+                                placeholder: "----"),
                 paramType: .apiKey, value: parameters?.apiKey ?? ""),
             ConfigCell(
-                cell: TextField(title: "Customer ID",
-                                placeholder: "Add a customer id"),
+                cell: TextField(title: "Customer",
+                                placeholder: "----"),
                 paramType: .customer, value: parameters?.customer ?? ""),
             ConfigCell(
-                cell: TextField(title: "Organisation ID",
-                                placeholder: "Add an organisation id"),
-                paramType: .organisationId, value: parameters?.organisationId ?? "")
+                cell: TextField(title: "Entity ID",
+                                placeholder: "----"),
+                paramType: .entityId, value: parameters?.entityId ?? "")
         ]
     }
 
@@ -114,16 +114,16 @@ extension ConfigCell {
     static func getSwishParameters(parameters: Parameters?) -> [ConfigCell] {
         return [
             ConfigCell(
-                cell: TextField(title: "Api user ID",
-                                placeholder: "Add a payment api user id"),
-                paramType: .apiUserId, value: parameters?.apiUserID ?? ""),
+                cell: TextField(title: "API user ID",
+                                placeholder: "----"),
+                paramType: .apiUserID, value: parameters?.apiUserID ?? ""),
             ConfigCell(
-                cell: TextField(title: "Api key",
-                                placeholder: "Add a payment api key"),
+                cell: TextField(title: "API key",
+                                placeholder: "----"),
                 paramType: .apiKey, value: parameters?.apiKey ?? ""),
             ConfigCell(
                 cell: TextField(title: "Entity ID",
-                                placeholder: "Add an entity id"),
+                                placeholder: "----"),
                 paramType: .entityId, value: parameters?.entityId ?? "")
         ]
     }
@@ -132,20 +132,20 @@ extension ConfigCell {
     static func getVippsParameters(parameters: Parameters?) -> [ConfigCell] {
         return [
             ConfigCell(
-                cell: TextField(title: "Api user ID",
-                                placeholder: "Add a payment api user id"),
-                paramType: .apiUserId, value: parameters?.apiUserID ?? ""),
+                cell: TextField(title: "API user ID",
+                                placeholder: "----"),
+                paramType: .apiUserID, value: parameters?.apiUserID ?? ""),
             ConfigCell(
-                cell: TextField(title: "Api key",
-                                placeholder: "Add a payment api key"),
+                cell: TextField(title: "API key",
+                                placeholder: "----"),
                 paramType: .apiKey, value: parameters?.apiKey ?? ""),
             ConfigCell(
-                cell: TextField(title: "PPC",
-                                placeholder: "Add a payment provider contract"),
+                cell: TextField(title: "Payment provider contract",
+                                placeholder: "----"),
                 paramType: .paymentProviderContract, value: parameters?.paymentProviderContract ?? ""),
             ConfigCell(
                 cell: TextField(title: "Customer",
-                                placeholder: "Add customer"),
+                                placeholder: "----"),
                 paramType: .customer, value: parameters?.customer ?? "")
         ]
     }
@@ -154,21 +154,43 @@ extension ConfigCell {
     static func getMobilePayParameters(parameters: Parameters?) -> [ConfigCell] {
         return [
             ConfigCell(
-                cell: TextField(title: "Api user ID",
-                                placeholder: "Add a payment api user id"),
-                paramType: .apiUserId, value: parameters?.apiUserID ?? ""),
+                cell: TextField(title: "API user ID",
+                                placeholder: "----"),
+                paramType: .apiUserID, value: parameters?.apiUserID ?? ""),
             ConfigCell(
-                cell: TextField(title: "Api key",
-                                placeholder: "Add a payment api key"),
+                cell: TextField(title: "API key",
+                                placeholder: "----"),
                 paramType: .apiKey, value: parameters?.apiKey ?? ""),
             ConfigCell(
-                cell: TextField(title: "PPC",
-                                placeholder: "Add a payment provider contract"),
+                cell: TextField(title: "Payment provider contract",
+                                placeholder: "----"),
                 paramType: .paymentProviderContract, value: parameters?.paymentProviderContract ?? ""),
             ConfigCell(
                 cell: TextField(title: "Customer",
-                                placeholder: "Add customer"),
+                                placeholder: "----"),
                 paramType: .customer, value: parameters?.customer ?? "")
+        ]
+    }
+
+    // MARK: Paypal params
+    static func getPaypalParameters(parameters: Parameters?) -> [ConfigCell] {
+        return [
+            ConfigCell(
+                cell: TextField(title: "API user ID",
+                                placeholder: "----"),
+                paramType: .apiUserID, value: parameters?.apiUserID ?? ""),
+            ConfigCell(
+                cell: TextField(title: "API key",
+                                placeholder: "----"),
+                paramType: .apiKey, value: parameters?.apiKey ?? ""),
+            ConfigCell(
+                cell: TextField(title: "Payment provider contract",
+                                placeholder: "----"),
+                paramType: .paymentProviderContract, value: parameters?.paymentProviderContract ?? ""),
+            ConfigCell(
+                cell: TextField(title: "Entity ID",
+                                placeholder: "----"),
+                paramType: .entityId, value: parameters?.entityId ?? "")
         ]
     }
 }

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@objc(VFCallbackStatus)
 public enum CallbackStatus: Int, CustomStringConvertible, Codable {
     case success
     case cancel

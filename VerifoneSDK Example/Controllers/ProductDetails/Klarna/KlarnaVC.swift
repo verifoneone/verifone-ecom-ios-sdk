@@ -52,7 +52,7 @@ class KlarnaVC: UIViewController {
     }
 
     override func loadView() {
-        view  = UIView()
+        view = UIView()
         view.backgroundColor = .white
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.startAnimating()

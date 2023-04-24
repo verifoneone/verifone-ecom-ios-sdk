@@ -28,15 +28,13 @@ public struct PaymentAuthorizingWithURL {
     }
 }
 
-@objc(VFAuthorizingPaymentWebViewControllerDelegate)
 public protocol AuthorizingPaymentWebViewControllerDelegate: AnyObject {
-    func paymentAuhtorizingDidSelected(_ viewController: VFAuthorizingPaymentWebViewController, paymentMethod: VerifoneSDKPaymentTypeValue)
+    func paymentAuhtorizingDidSelected(_ viewController: VFAuthorizingPaymentWebViewController, paymentMethod: VerifonePaymentMethodType)
     func authorizingPaymentViewController(_ viewController: VFAuthorizingPaymentWebViewController, didCompleteAuthorizing result: PaymentAuthorizingResult)
 
     func authorizingPaymentViewControllerDidCancel(_ viewController: VFAuthorizingPaymentWebViewController, callback: CallbackStatus)
 }
 
-@objc(VFAuthorizingPaymentViewController)
 public class VFAuthorizingPaymentWebViewController: UIViewController, PanModalPresentable, PaymentAuthorizingReloadDelegate {
 
     private var activityIndicatorView: UIActivityIndicatorView!
@@ -47,23 +45,27 @@ public class VFAuthorizingPaymentWebViewController: UIViewController, PanModalPr
     private var webView: WKWebView!
     private let hTopStackView = UIStackView()
 
-    public var paymentMethod: VerifoneSDKPaymentTypeValue!
+    public var paymentMethod: VerifonePaymentMethodType!
     public var webConfig: VFWebConfig?
     public weak var delegate: AuthorizingPaymentWebViewControllerDelegate?
 
-    var didFailed: (() -> Void)?
-    var didValidated: ((String) -> Void)?
-    var payload: String?
+    var webViewConfiguration: WKWebViewConfiguration {
+        let preferences = WKPreferences()
+        preferences.javaScriptCanOpenWindowsAutomatically = false
+        let configuration = WKWebViewConfiguration()
+        configuration.preferences = preferences
+        return configuration
+    }
 
     func reloadWebview(webConfig: VFWebConfig) {
         self.webConfig = webConfig
         guard let url = webConfig.url, !webConfig.expectedRedirectUrl!.isEmpty else {
             assertionFailure("Provide all required payment information")
-            AppLog.log("Missing authorizing payment information", log: uiLogObject, type: .error)
+            debugPrint("Missing authorizing payment information")
             return
         }
 
-        AppLog.log("Initializing auth payment proccess %{private}@", log: uiLogObject, type: .info, url.absoluteString)
+        debugPrint("Initializing auth payment proccess \(url.absoluteString)")
         webView.load(webConfig.authorizingPaymentRequest)
     }
 
@@ -76,20 +78,11 @@ public class VFAuthorizingPaymentWebViewController: UIViewController, PanModalPr
         self.activityIndicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
         self.webView = WKWebView(frame: self.view.bounds, configuration: webViewConfiguration)
         view.addSubview(webView)
-
+        self.view.backgroundColor = UIColor.VF.defaultBackground
+        webView.backgroundColor = UIColor.VF.defaultBackground
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.uiDelegate = self
         webView.navigationDelegate = self
-    }
-
-    @objc(authorizingPaymentViewControllerWithAuthorizedURL:expectedReturnURL:expectedReturnURL:delegate:)
-    public static func createAuthorizingPaymentViewControllerWithAuthorizedURL(_ authorizedURL: URL, expectedReturnURL: [URLComponents], expectedCancelURL: [URLComponents], delegate: AuthorizingPaymentWebViewControllerDelegate) -> VFAuthorizingPaymentWebViewController {
-        let webConfig: VFWebConfig = VFWebConfig(url: authorizedURL, expectedRedirectUrl: expectedReturnURL, expectedCancelUrl: expectedCancelURL)
-        let viewController = VFAuthorizingPaymentWebViewController()
-        viewController.webConfig = webConfig
-        viewController.delegate = delegate
-
-        return viewController
     }
 
     public override func viewDidLoad() {
@@ -107,24 +100,8 @@ public class VFAuthorizingPaymentWebViewController: UIViewController, PanModalPr
     }
 
     @objc private func cancel() {
-//        dismiss(animated: true) {
-//            self.didFailed?()
-//        }
-
         delegate?.authorizingPaymentViewControllerDidCancel(self, callback: .cancel)
         self.dismiss(animated: true, completion: nil)
-    }
-
-    public func onCompletion(didValidated: @escaping ((String) -> Void), didFailed: @escaping (() -> Void)) {
-        self.didValidated = didValidated
-        self.didFailed = didFailed
-    }
-    var webViewConfiguration: WKWebViewConfiguration {
-        let preferences = WKPreferences()
-        preferences.javaScriptCanOpenWindowsAutomatically = false
-        let configuration = WKWebViewConfiguration()
-        configuration.preferences = preferences
-        return configuration
     }
 
     private func validatePaymentURL(_ url: URL, expectedRedirectURL: [URLComponents]) -> Bool {
@@ -168,15 +145,13 @@ extension VFAuthorizingPaymentWebViewController: WKNavigationDelegate, WKUIDeleg
     public func webView(_ webView: WKWebView, didFinish _: WKNavigation!) {
         self.activityIndicatorView.stopAnimating()
         if !webView.hasOnlySecureContent {
-            dismiss(animated: true) {
-                self.didFailed?()
-            }
+            dismiss(animated: true)
         }
     }
 
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Swift.Void) {
         if let url = navigationAction.request.url, validatePaymentURL(url, expectedRedirectURL: webConfig!.expectedRedirectUrl!) {
-            AppLog.log("Redirected to expected %{private}@ url", log: uiLogObject, type: .info, url.absoluteString)
+            debugPrint("Redirected to expected \(url.absoluteString)")
             let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
 
             let dict: NSMutableDictionary = [:]
@@ -190,11 +165,11 @@ extension VFAuthorizingPaymentWebViewController: WKNavigationDelegate, WKUIDeleg
             delegate?.authorizingPaymentViewController(self, didCompleteAuthorizing: result)
             decisionHandler(.cancel)
         } else if let url = navigationAction.request.url, validatePaymentURL(url, expectedRedirectURL: webConfig!.expectedCancelUrl!) {
-            AppLog.log("Redirected to cancel %{private}@ url", log: uiLogObject, type: .debug, url.absoluteString)
+            debugPrint("Redirected to cancel \(url.absoluteString)")
             cancel()
             decisionHandler(.cancel)
         } else {
-            AppLog.log("Redirected to non expected %{private}@ url", log: uiLogObject, type: .debug, navigationAction.request.url?.absoluteString ?? "no url")
+            debugPrint("Redirected to non expected \(navigationAction.request.url?.absoluteString ?? "")")
             decisionHandler(.allow)
         }
     }
@@ -223,35 +198,21 @@ extension VFAuthorizingPaymentWebViewController {
         self.view.addSubview(hTopStackView)
 
         // constraints for top stack view
-        self.view.addConstraints([
-            NSLayoutConstraint(item: hTopStackView, attribute: .top, relatedBy: .equal,
-                               toItem: self.view, attribute: .top, multiplier: 1.0, constant: 10.0),
-            NSLayoutConstraint(item: hTopStackView, attribute: .leading, relatedBy: .equal,
-                               toItem: self.view, attribute: .leading, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: hTopStackView, attribute: .trailing, relatedBy: .equal,
-                               toItem: self.view, attribute: .trailing, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: hTopStackView,
-                               attribute: NSLayoutConstraint.Attribute.height,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 35),
-            NSLayoutConstraint(item: hTopStackView,
-                               attribute: NSLayoutConstraint.Attribute.width,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.width,
-                               multiplier: 1.0, constant: self.view.frame.width)
+        NSLayoutConstraint.activate([
+            hTopStackView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 10.0),
+            hTopStackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0.0),
+            hTopStackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0.0),
+            hTopStackView.heightAnchor.constraint(equalToConstant: 35.0)
         ])
 
         NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: webView!, attribute: .top, relatedBy: .equal, toItem: hTopStackView, attribute: .bottom, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: webView!, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: webView!, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0),
-            NSLayoutConstraint(item: webView!, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0)
-        ])
+            webView.topAnchor.constraint(equalTo: hTopStackView.bottomAnchor, constant: 0.0),
+            webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0.0),
+            webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0.0),
+            webView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0.0),
 
-        NSLayoutConstraint.activate([
-            NSLayoutConstraint(item: activityIndicatorView!, attribute: .centerX, relatedBy: .equal, toItem: self.view, attribute: .centerX, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: activityIndicatorView!, attribute: .centerY, relatedBy: .equal, toItem: self.view, attribute: .centerY, multiplier: 1.0, constant: 0.0)
+            activityIndicatorView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor, constant: 0.0),
+            activityIndicatorView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor, constant: 0.0)
         ])
     }
 }

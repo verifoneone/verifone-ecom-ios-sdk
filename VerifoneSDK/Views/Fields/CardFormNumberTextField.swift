@@ -1,7 +1,7 @@
 import UIKit
 
 @IBDesignable
-@objc(VFCardFormNumberTextField) public class CardFormNumberTextField: BaseTextField {
+public class CardFormNumberTextField: BaseTextField {
 
     fileprivate var previousTextFieldContent: String?
     fileprivate var previousSelection: UITextRange?

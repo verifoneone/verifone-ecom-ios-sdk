@@ -10,12 +10,9 @@ import Foundation
 // MARK: - TransactionResponse
 public struct TransactionResponse: Codable {
     public let id, paymentProviderContract: String?
-//    public let amount: String?
-//    public let blocked: Bool?
     public let merchantReference, paymentProduct, status, authorizationCode, createdBy: String?
     public let cvvPresent: Bool?
     public let cvvResult: String?
-    public let details: Details?
     public let reasonCode, rrn, shopperInteraction, stan: String?
     public let threedAuthentication: ThreedAuthentication?
     public let reversalStatus: String?
@@ -28,14 +25,12 @@ public struct TransactionResponse: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case paymentProviderContract = "payment_provider_contract"
-//        case amount, blocked
         case merchantReference = "merchant_reference"
         case paymentProduct = "payment_product"
         case status
         case createdBy = "created_by"
         case cvvPresent = "cvv_present"
         case cvvResult = "cvv_result"
-        case details
         case reasonCode = "reason_code"
         case rrn
         case shopperInteraction = "shopper_interaction"
@@ -49,18 +44,5 @@ public struct TransactionResponse: Codable {
         case customer = "customer"
         case paymentRequestToken = "payment_request_token"
         case redirectUrl = "redirect_url"
-    }
-}
-
-// MARK: - Details
-public class Details: Codable {
-    let autoCapture: Bool?
-
-    enum CodingKeys: String, CodingKey {
-        case autoCapture = "auto_capture"
-    }
-
-    public init(autoCapture: Bool?) {
-        self.autoCapture = autoCapture
     }
 }

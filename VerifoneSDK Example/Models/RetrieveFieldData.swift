@@ -9,9 +9,9 @@ import Foundation
 
 struct RetrieveFieldData: ConfigFields {
     var items: [ConfigSection] = []
-    var parameters: Parameters?
+    var parameters: Parameters? = Parameters()
 
-    mutating func getFields(paymentMethodType: PaymentMethodType!) -> (Parameters?, [ConfigSection]) {
+    mutating func getFields(paymentMethodType: AppPaymentMethodType!) -> (Parameters?, [ConfigSection]) {
         if let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: paymentMethodType.rawValue) {
             parameters = params
         }
@@ -40,6 +40,11 @@ struct RetrieveFieldData: ConfigFields {
             let cardParams = ConfigSection(
                 header: "MobilePay parameters",
                 cells: ConfigCell.getMobilePayParameters(parameters: parameters))
+            self.items.append(cardParams)
+        case .paypal:
+            let cardParams = ConfigSection(
+                header: "Paypal parameters",
+                cells: ConfigCell.getPaypalParameters(parameters: parameters))
             self.items.append(cardParams)
         default:
             self.items = []

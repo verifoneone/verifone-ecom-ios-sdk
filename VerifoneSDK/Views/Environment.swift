@@ -7,13 +7,7 @@
 
 import Foundation
 
-@objc public enum Environment: Int {
+public enum Environment: Int {
     case staging
     case production
-}
-
-extension Environment: Codable {
-    public init(from decor: Decoder) throws {
-        self = try Environment(rawValue: decor.singleValueContainer().decode(RawValue.self)) ?? .production
-    }
 }

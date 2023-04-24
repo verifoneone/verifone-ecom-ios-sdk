@@ -12,8 +12,7 @@ struct Parameters: Codable {
     static var shared = Parameters()
 
     var publicKeyAlias, threedsContractID, encryptionKey, paymentProviderContract: String?
-    var apiUserID, apiKey, reuseToken, customer, redirectUrl, entityId: String?
-    var organisationId, ppc: String?
+    var apiUserID, apiKey, tokenScope, customer, redirectUrl, entityId: String?
 
     enum CodingKeys: String, CodingKey {
         case publicKeyAlias = "public_key_alias"
@@ -22,18 +21,94 @@ struct Parameters: Codable {
         case paymentProviderContract = "payment_provider_contract"
         case apiUserID = "api_user_id"
         case apiKey = "api_key"
-        case reuseToken = "reuse_token"
+        case tokenScope = "token_scope"
         case customer = "customer"
         case redirectUrl = "redirect_url"
         case entityId = "entity_id"
-        case organisationId = "organisation_id"
-        case ppc = "ppc"
+    }
+
+    var areCreditCardFieldsValid: [String: String] {
+        return isValid(fields: [
+            ParamType.apiKey.rawValue,
+            ParamType.apiUserID.rawValue,
+            ParamType.publicKeyAlias.rawValue,
+            ParamType.encryptionKey.rawValue,
+            ParamType.paymentProviderContract.rawValue])
+    }
+
+    var areKlarnaFieldsValid: [String: String] {
+        return isValid(fields: [
+            ParamType.apiKey.rawValue,
+            ParamType.apiUserID.rawValue,
+            ParamType.customer.rawValue,
+            ParamType.entityId.rawValue])
+    }
+
+    var arePaypalFieldsValid: [String: String] {
+        return isValid(fields: [
+            ParamType.apiKey.rawValue,
+            ParamType.apiUserID.rawValue,
+            ParamType.paymentProviderContract.rawValue,
+            ParamType.entityId.rawValue])
+    }
+
+    var areSwishFieldsValid: [String: String] {
+        return isValid(fields: [
+            ParamType.apiKey.rawValue,
+            ParamType.apiUserID.rawValue,
+            ParamType.entityId.rawValue])
+    }
+
+    var areVippsFieldsValid: [String: String] {
+        return isValid(fields: [
+            ParamType.apiKey.rawValue,
+            ParamType.apiUserID.rawValue,
+            ParamType.paymentProviderContract.rawValue,
+            ParamType.customer.rawValue])
+    }
+
+    func isValid(fields: [String]) -> [String: String] {
+        let mirror = Mirror(reflecting: self)
+        var properties = [String: String]()
+        for child in mirror.children {
+            guard let label = child.label, let value = child.value as? String else {
+                continue
+            }
+            properties[label] = value
+        }
+
+        var invalidProperties = [String: String]()
+        for field in fields {
+            if let value = properties[field], !value.isEmpty {
+                continue
+            }
+            invalidProperties[field] = properties[field] ?? ""
+        }
+
+        return invalidProperties
+    }
+
+    func validateByPayment(_ method: AppPaymentMethodType) -> [String: String]? {
+        switch method {
+        case .creditCard:
+            return areCreditCardFieldsValid
+        case .klarna:
+            return areKlarnaFieldsValid
+        case .paypal:
+            return arePaypalFieldsValid
+        case .swish:
+            return areSwishFieldsValid
+        case .vipps, .mobilePay:
+            return areVippsFieldsValid
+        default:
+            return [:]
+        }
     }
 }
 
 extension Parameters {
     static var creditCard: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.creditCard.rawValue) else {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.creditCard.rawValue) else {
             return nil
         }
         if ([params.apiKey, params.apiUserID, params.publicKeyAlias, params.encryptionKey, params.paymentProviderContract] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
@@ -43,31 +118,34 @@ extension Parameters {
     }
 
     static var klarna: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.klarna.rawValue) else {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.klarna.rawValue) else {
             return nil
         }
-        if ([params.apiKey, params.apiUserID, params.customer, params.organisationId] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
+        if ([params.apiKey, params.apiUserID, params.customer, params.entityId] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
             return nil
         }
         return params
     }
 
     static var applePay: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.applePay.rawValue) else {
-            return nil
-        }
-        return params
+//        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.applePay.rawValue) else {
+//            return nil
+//        }
+        return nil
     }
 
     static var paypal: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.paypal.rawValue) else {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.paypal.rawValue) else {
+            return nil
+        }
+        if ([params.apiKey, params.apiUserID, params.paymentProviderContract, params.entityId] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
             return nil
         }
         return params
     }
 
     static var swish: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.swish.rawValue) else {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.swish.rawValue) else {
             return nil
         }
         if ([params.apiKey, params.apiUserID, params.entityId] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
@@ -77,7 +155,7 @@ extension Parameters {
     }
 
     static var vipps: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.vipps.rawValue) else {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.vipps.rawValue) else {
             return nil
         }
         if ([params.apiKey, params.apiUserID, params.paymentProviderContract, params.customer] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
@@ -87,7 +165,7 @@ extension Parameters {
     }
 
     static var mobilePay: Parameters? {
-        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: PaymentMethodType.mobilePay.rawValue) else {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.mobilePay.rawValue) else {
             return nil
         }
         if ([params.apiKey, params.apiUserID, params.paymentProviderContract, params.customer] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {

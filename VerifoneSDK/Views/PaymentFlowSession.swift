@@ -12,7 +12,7 @@ internal protocol PaymentFlowSessionDelegate: AnyObject {
     func paymentFlowSessionDidCancel(_ controller: UIViewController, callBack: CallbackStatus)
     func paymentFlowSessionDidCardEncrypted(_ controller: UIViewController, result: VerifoneFormResult)
 
-    func paymentAuthorizingDidSelected(_ viewController: UIViewController, paymentMethod: VerifoneSDKPaymentTypeValue)
+    func paymentAuthorizingDidSelected(_ viewController: UIViewController, paymentMethod: VerifonePaymentMethodType)
     func authorizingPaymentViewController(_ viewController: UIViewController, didCompleteAuthorizing redirected: PaymentAuthorizingResult)
 
     func didReceiveResultFromAppleService(_ viewController: UIViewController, result: PKPayment)
@@ -30,13 +30,11 @@ internal class PaymentFlowSession: NSObject {
         let waringMessageMessage: String
 
         if self.paymentConfiguration == nil {
-            AppLog.log("Missing payment configuration", log: uiLogObject, type: .error)
+            debugPrint("Missing payment configuration")
             waringMessageTitle = "Missing payment information."
             waringMessageMessage = "Please set the configuration before request payment."
         } else if self.paymentConfiguration?.cardEncryptionPublicKey == nil {
-            AppLog.log("Missing payment information",
-                   log: uiLogObject,
-                   type: .error)
+            debugPrint("Missing payment information")
             waringMessageTitle = "Missing payment information."
             waringMessageMessage = "Please set encryption public key before request the payment"
         } else {
@@ -64,7 +62,7 @@ extension PaymentFlowSession: AuthorizingPaymentWebViewControllerDelegate {
         delegate?.paymentFlowSessionDidCancel(viewController, callBack: callback)
     }
 
-    func paymentAuhtorizingDidSelected(_ viewController: VFAuthorizingPaymentWebViewController, paymentMethod: VerifoneSDKPaymentTypeValue) {
+    func paymentAuhtorizingDidSelected(_ viewController: VFAuthorizingPaymentWebViewController, paymentMethod: VerifonePaymentMethodType) {
         delegate?.paymentAuthorizingDidSelected(viewController, paymentMethod: paymentMethod)
     }
 

@@ -7,17 +7,11 @@
 
 import UIKit
 
-@objc public protocol VFCreditCardFormViewControllerDelegate: AnyObject {
-    @objc func creditCardFormViewControllerDidCardEncrypted(_ controller: CreditCardViewController, result: VerifoneFormResult)
-    @objc func creditCardFormViewControllerDidCancel(_ controller: CreditCardViewController, callback: CallbackStatus)
-}
-
 public protocol CreditCardFormViewControllerDelegate: AnyObject {
     func creditCardFormViewControllerDidCardEncrypted(_ controller: CreditCardViewController, result: VerifoneFormResult)
     func creditCardFormViewControllerDidCancel(_ controller: CreditCardViewController, callback: CallbackStatus)
 }
 
-@objc(VFCreditCardFormViewController)
 public class CreditCardViewController: UIViewController, UITextFieldDelegate {
 
     public var didSaveCardStateChanged: ((_ isOn: Bool) -> Void)?
@@ -59,7 +53,7 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
     var cardBrandImageView: UIImageView! = UIImageView()
     var cvcInfoImageView: UIImageView! = UIImageView()
     var requestingIndicatorView: UIActivityIndicatorView! = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
-    private var edgeInsets = UIEdgeInsets(top: 0, left: 15.0, bottom: 0.0, right: 15.0)
+    private var edgeInsets = UIEdgeInsets(top: 0, left: 15.0, bottom: 0.0, right: -15.0)
 
     var confirmButton: FormButton = FormButton(frame: .zero)
     lazy var formFieldsAccessoryView: UIToolbar = {
@@ -86,9 +80,7 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
     }()
 
     public var paymentConfiguration: VerifoneSDK.PaymentConfiguration!
-    /// Delegate to receive CreditCardFormController result.
     public weak var delegate: CreditCardFormViewControllerDelegate?
-    @objc(delegate) public weak var __delegate: VFCreditCardFormViewControllerDelegate?
 
     public init(paymentConfiguration: VerifoneSDK.PaymentConfiguration, theme: VerifoneSDK.Theme) {
         super.init(nibName: nil, bundle: nil)
@@ -107,11 +99,8 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
 
     public override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        if #available(iOS 11, *) {
-        } else {
-            cardFormInputFields.forEach {
-                $0.invalidateIntrinsicContentSize()
-            }
+        cardFormInputFields.forEach {
+            $0.invalidateIntrinsicContentSize()
         }
     }
 
@@ -204,19 +193,6 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
         titleCardForm.textColor = theme.cardTitleColor
 
         updateCardBrand()
-        setConfigAccessibility()
-        cardFormInputFields.forEach {
-            $0.adjustsFontForContentSizeCategory = true
-        }
-        cardFormLabels.forEach {
-            $0.adjustsFontForContentSizeCategory = true
-        }
-        confirmButton.titleLabel?.adjustsFontForContentSizeCategory = true
-
-        if #available(iOS 11, *) {
-        } else {
-            automaticallyAdjustsScrollViewInsets = true
-        }
 
         cardFormNumberTextField.rightView = cardBrandImageView
         cvcTextField.rightView = cvcInfoImageView
@@ -242,15 +218,8 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
 
     @objc @discardableResult
     private func cancelCardForm() -> Bool {
-        if let delegate = self.delegate {
-            delegate.creditCardFormViewControllerDidCancel(self, callback: .cancel)
-            AppLog.log("cancel form", log: uiLogObject, type: .default)
-            return true
-        } else if let delegate =  __delegate {
-            delegate.creditCardFormViewControllerDidCancel(self, callback: .cancel)
-            AppLog.log("cancel form", log: uiLogObject, type: .default)
-            return true
-        }
+        delegate?.creditCardFormViewControllerDidCancel(self, callback: .cancel)
+        debugPrint("cancel form")
         return true
     }
 
@@ -347,13 +316,7 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
         let intersectedFrame = contentView.convert(frameEnd, from: nil)
         contentView.contentInset.bottom = intersectedFrame.height
 
-        let bottomScrollIndicatorInset: CGFloat
-        if #available(iOS 11.0, *) {
-            bottomScrollIndicatorInset = intersectedFrame.height - contentView.safeAreaInsets.bottom
-        } else {
-            bottomScrollIndicatorInset = intersectedFrame.height
-        }
-
+        let bottomScrollIndicatorInset: CGFloat = intersectedFrame.height
         contentView.contentInset.bottom = bottomScrollIndicatorInset
         contentView.scrollIndicatorInsets.bottom = bottomScrollIndicatorInset
     }
@@ -364,12 +327,7 @@ public class CreditCardViewController: UIViewController, UITextFieldDelegate {
             return
         }
 
-        let bottomScrollIndicatorInset: CGFloat
-        if #available(iOS 11.0, *) {
-            bottomScrollIndicatorInset = (keyboardHeight + activeTextField.frame.height) - contentView.safeAreaInsets.bottom
-        } else {
-            bottomScrollIndicatorInset = keyboardHeight + activeTextField.frame.height
-        }
+        let bottomScrollIndicatorInset: CGFloat = keyboardHeight + activeTextField.frame.height
         contentView.contentInset.bottom = bottomScrollIndicatorInset
         contentView.scrollIndicatorInsets.bottom = bottomScrollIndicatorInset
     }
@@ -409,19 +367,11 @@ extension CreditCardViewController {
             switch cardEncryptionResult {
             case let .success(cardData):
                 self?.result.cardData = cardData
-                if let delegate = self?.delegate {
-                    delegate.creditCardFormViewControllerDidCardEncrypted(self!, result: self!.result)
-                } else if let delegate = self?.__delegate {
-                    delegate.creditCardFormViewControllerDidCardEncrypted(self!, result: self!.result)
-                }
+                self?.delegate?.creditCardFormViewControllerDidCardEncrypted(self!, result: self!.result)
 
             case let .failure(error):
                 self?.result = VerifoneFormResult(error: error)
-                if let delegate = self?.delegate {
-                    delegate.creditCardFormViewControllerDidCardEncrypted(self!, result: self!.result)
-                } else if let delegate = self?.__delegate {
-                    delegate.creditCardFormViewControllerDidCardEncrypted(self!, result: self!.result)
-                }
+                self?.delegate?.creditCardFormViewControllerDidCardEncrypted(self!, result: self!.result)
             }
 
             DispatchQueue.main.async {
@@ -461,7 +411,7 @@ extension CreditCardViewController {
                        options: [.curveEaseInOut, .allowUserInteraction, .beginFromCurrentState, .layoutSubviews]) {
             self.validateField(sender)
         }
-        sender.borderColor = .gray
+        sender.borderColor = theme.textfieldBorderColor
     }
 
     @IBAction private func updateInputAccessoryViewFor(_ sender: BaseTextField) {
@@ -496,119 +446,6 @@ extension CreditCardViewController {
 
     @IBAction private func updateAccessibilityValue(_ sender: BaseTextField) {
         updateCardBrand()
-    }
-
-    private func setConfigAccessibility() {
-        cardFormLabels.forEach {
-            $0.adjustsFontForContentSizeCategory = true
-        }
-        cardFormInputFields.forEach {
-            $0.adjustsFontForContentSizeCategory = true
-        }
-
-        confirmButton.titleLabel?.adjustsFontForContentSizeCategory = true
-
-        let inputFields = [
-            cardFormNumberTextField,
-            cardFormExpiryDateTextField,
-            cvcTextField
-        ] as [BaseTextField]
-
-        func accessiblityElementAfter(
-            _ element: NSObjectProtocol?,
-            matchingPredicate predicate: (BaseTextField) -> Bool,
-            direction: AccessibilityCustomRotorDirection
-        ) -> NSObjectProtocol? {
-            guard let element = element else {
-                switch direction {
-                case .previous:
-                    return inputFields.reversed().first(where: predicate)?.accessibilityElements?.last as? NSObjectProtocol
-                    ?? inputFields.reversed().first(where: predicate)
-                case .next:
-                    fallthrough
-                @unknown default:
-                    return inputFields.first(where: predicate)?.accessibilityElements?.first as? NSObjectProtocol
-                    ?? inputFields.first(where: predicate)
-                }
-            }
-
-            let fieldOfElement = inputFields.first { field in
-                guard let accessibilityElements = field.accessibilityElements as? [NSObjectProtocol] else {
-                    return element === field
-                }
-
-                return accessibilityElements.contains { $0 === element }
-            } ?? cvcTextField
-
-            func filedAfter(
-                _ field: BaseTextField,
-                matchingPredicate predicate: (BaseTextField) -> Bool,
-                direction: AccessibilityCustomRotorDirection
-            ) -> BaseTextField? {
-                guard let indexOfField = inputFields.firstIndex(of: field) else { return nil }
-                switch direction {
-                case .previous:
-                    return inputFields[inputFields.startIndex..<indexOfField].reversed().first(where: predicate)
-                case .next: fallthrough
-                @unknown default:
-                    return inputFields[inputFields.index(after: indexOfField)...].first(where: predicate)
-                }
-            }
-
-            let nextField = filedAfter(fieldOfElement, matchingPredicate: predicate, direction: direction)
-
-            guard let currentAccessibilityElements = (fieldOfElement.accessibilityElements as? [NSObjectProtocol]),
-                  let indexOfAccessibilityElement = currentAccessibilityElements.firstIndex(where: { $0 === element }) else {
-                      switch direction {
-                      case .previous:
-                          return nextField?.accessibilityElements?.last as? NSObjectProtocol ?? nextField
-                      case .next:
-                          fallthrough
-                      @unknown default:
-                          return nextField?.accessibilityElements?.first as? NSObjectProtocol ?? nextField
-                      }
-                  }
-
-            switch direction {
-            case .previous:
-                if predicate(fieldOfElement) && indexOfAccessibilityElement > currentAccessibilityElements.startIndex {
-                    return currentAccessibilityElements[currentAccessibilityElements.index(before: indexOfAccessibilityElement)]
-                } else {
-                    return nextField?.accessibilityElements?.last as? NSObjectProtocol ?? nextField
-                }
-            case .next:
-                fallthrough
-            @unknown default:
-                if predicate(fieldOfElement) && indexOfAccessibilityElement < currentAccessibilityElements.endIndex - 1 {
-                    return currentAccessibilityElements[currentAccessibilityElements.index(after: indexOfAccessibilityElement)]
-                } else {
-                    return nextField?.accessibilityElements?.first as? NSObjectProtocol ?? nextField
-                }
-            }
-        }
-
-        accessibilityCustomRotors = [
-            UIAccessibilityCustomRotor(name: "Fields") { (predicate) -> UIAccessibilityCustomRotorItemResult? in
-                return accessiblityElementAfter(predicate.currentItem.targetElement,
-                                                matchingPredicate: { _ in true },
-                                                direction: predicate.searchDirection)
-                    .map { UIAccessibilityCustomRotorItemResult(targetElement: $0, targetRange: nil) }
-            },
-            UIAccessibilityCustomRotor(name: "Invalid Data Fields") { (predicate) -> UIAccessibilityCustomRotorItemResult? in
-                return accessiblityElementAfter(predicate.currentItem.targetElement,
-                                                matchingPredicate: { !$0.isValid },
-                                                direction: predicate.searchDirection)
-                    .map { UIAccessibilityCustomRotorItemResult(targetElement: $0, targetRange: nil) }
-            }
-        ]
-    }
-
-    public override func accessibilityPerformMagicTap() -> Bool {
-        guard isCardInputDataValid else {
-            return false
-        }
-        encryptCard()
-        return true
     }
 
     public override func accessibilityPerformEscape() -> Bool {
@@ -661,13 +498,13 @@ extension CreditCardViewController {
         confirmButton.cornerRadius = 3
         cardFormExpiryDateTextField.placeholder = "expiryPlaceholder".localized()
 
-        // set label color
+        // SET LABEL COLOR
         cardFormNumberLabel.textColor = UIColor.VF.cardFormLabel
         cardFormExpiryDateLabel.textColor = UIColor.VF.cardFormLabel
         cvcLabel.textColor = UIColor.VF.cardFormLabel
         switchButtonLabel.textColor = UIColor.VF.cardFormLabel
 
-        // set font
+        // SET FONT
         cardFormNumberLabel.font = UIFont(name: theme.font.familyName, size: 15)
         cardFormExpiryDateLabel.font = UIFont(name: theme.font.familyName, size: 15)
         cvcLabel.font = UIFont(name: theme.font.familyName, size: 15)
@@ -691,7 +528,6 @@ extension CreditCardViewController {
         cvcTextField.autocapitalizationType = UITextAutocapitalizationType.none
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
-//        errorBannerView.translatesAutoresizingMaskIntoConstraints = false
         titleCardForm.translatesAutoresizingMaskIntoConstraints = false
         closeButton.translatesAutoresizingMaskIntoConstraints = false
 
@@ -763,188 +599,118 @@ extension CreditCardViewController {
         hFooterStackView.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(hFooterStackView)
 
-        self.view.addConstraints([
-            NSLayoutConstraint(item: titleCardForm,
-                               attribute: NSLayoutConstraint.Attribute.width,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 145),
-            NSLayoutConstraint(item: closeButton,
-                               attribute: NSLayoutConstraint.Attribute.width,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 40)
-        ])
-        titleCardForm.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10.0).isActive = true
-        closeButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10.0).isActive = true
-
-        // set footer views
-        lockImage.centerYAnchor.constraint(equalTo: hFooterStackView.centerYAnchor).isActive = true
-        verifoneLogo.centerYAnchor.constraint(equalTo: hFooterStackView.centerYAnchor).isActive = true
-        footerText.centerYAnchor.constraint(equalTo: hFooterStackView.centerYAnchor).isActive = true
-        self.view.addConstraints([
-            NSLayoutConstraint(item: lockImage,
-                               attribute: NSLayoutConstraint.Attribute.width,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 10),
-            NSLayoutConstraint(item: lockImage,
-                               attribute: NSLayoutConstraint.Attribute.height,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 10),
-            NSLayoutConstraint(item: verifoneLogo,
-                               attribute: NSLayoutConstraint.Attribute.height,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 30),
-            NSLayoutConstraint(item: verifoneLogo,
-                               attribute: NSLayoutConstraint.Attribute.width,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 50)
+        NSLayoutConstraint.activate([
+            titleCardForm.widthAnchor.constraint(equalToConstant: 145),
+            titleCardForm.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
+            closeButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
+            closeButton.widthAnchor.constraint(equalToConstant: 40),
+            // SET FOOTER VIEWS
+            lockImage.centerYAnchor.constraint(equalTo: hFooterStackView.centerYAnchor, constant: 0),
+            verifoneLogo.centerYAnchor.constraint(equalTo: hFooterStackView.centerYAnchor, constant: 0),
+            footerText.centerYAnchor.constraint(equalTo: hFooterStackView.centerYAnchor, constant: 0)
         ])
 
-        self.view.addConstraints([
-            NSLayoutConstraint(item: contentView!,
-                               attribute: .top, relatedBy: .equal, toItem: self.view,
-                               attribute: .topMargin, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: contentView!,
-                               attribute: .leading, relatedBy: .equal, toItem: self.view,
-                               attribute: .leading, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: contentView!,
-                               attribute: .trailing, relatedBy: .equal, toItem: self.view,
-                               attribute: .trailing, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: contentView!,
-                               attribute: .bottom, relatedBy: .equal, toItem: self.view,
-                               attribute: .bottom, multiplier: 1.0, constant: 0.0)
-        ])
-        self.contentView.contentLayoutGuide.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0).isActive = true
-
-        // constraints for top stack view
-        self.view.addConstraints([
-            NSLayoutConstraint(item: hTopStackView, attribute: .top,
-                               relatedBy: .equal, toItem: self.contentView,
-                               attribute: .top, multiplier: 1.0, constant: 10.0),
-            NSLayoutConstraint(item: hTopStackView,
-                               attribute: NSLayoutConstraint.Attribute.height,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 35)
-        ])
-        hTopStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-        hTopStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right).isActive = true
-
-        // card number label
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardFormNumberLabel, attribute: .top, relatedBy: .equal, toItem: hTopStackView, attribute: .bottom, multiplier: 1.0, constant: 15.0)
-        ])
-        cardFormNumberLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-        cardFormNumberLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right).isActive = true
-
-        // card form number
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardFormNumberTextField, attribute: .top, relatedBy: .equal, toItem: cardFormNumberLabel, attribute: .bottom, multiplier: 1.0, constant: 6.0),
-            NSLayoutConstraint(item: cardFormNumberTextField, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 40)
-        ])
-        cardFormNumberTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-        cardFormNumberTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right).isActive = true
-
-//         card form number error label
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardNumberErrorLabel, attribute: .top, relatedBy: .equal, toItem: cardFormNumberTextField, attribute: .bottom, multiplier: 1.0, constant: 6.0)
-        ])
-        cardNumberErrorLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-        cardNumberErrorLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right).isActive = true
-
-        // card form expire label
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardFormExpiryDateLabel, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: cardFormNumberTextField, attribute: .bottom, multiplier: 1.0, constant: 25.0)
-        ])
-        cardFormExpiryDateLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-
-        // card form card expire textfield
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardFormExpiryDateTextField, attribute: .top, relatedBy: .equal, toItem: cardFormExpiryDateLabel, attribute: .bottom, multiplier: 1.0, constant: 6.0),
-            NSLayoutConstraint(item: cardFormExpiryDateTextField, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 40)
-        ])
-        cardFormExpiryDateTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-
-        // card form expire error label
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardExpiryDateErrorLabel, attribute: .top, relatedBy: .equal, toItem: cardFormExpiryDateTextField, attribute: .bottom, multiplier: 1.0, constant: 6.0)
-        ])
-        cardExpiryDateErrorLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-
-        // card form cvc label
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cvcLabel, attribute: .top, relatedBy: .greaterThanOrEqual, toItem: cardFormNumberTextField, attribute: .bottom, multiplier: 1.0, constant: 25.0),
-            NSLayoutConstraint(item: cvcLabel, attribute: .leading, relatedBy: .equal, toItem: cvcTextField, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        NSLayoutConstraint.activate([
+            lockImage.widthAnchor.constraint(equalToConstant: 10.0),
+            lockImage.heightAnchor.constraint(equalToConstant: 10.0),
+            verifoneLogo.heightAnchor.constraint(equalToConstant: 30.0),
+            verifoneLogo.widthAnchor.constraint(equalToConstant: 50.0)
         ])
 
-        // card form card cvc textfield
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cvcTextField, attribute: .top, relatedBy: .equal, toItem: cvcLabel, attribute: .bottom, multiplier: 1.0, constant: 6.0),
-            NSLayoutConstraint(item: cvcTextField, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 40)
-        ])
-        cvcTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right).isActive = true
-
-        // card form cvc error label
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardCVCErrorLabel, attribute: .top, relatedBy: .equal, toItem: cvcTextField, attribute: .bottom, multiplier: 1.0, constant: 6.0),
-            NSLayoutConstraint(item: cardCVCErrorLabel, attribute: .leading, relatedBy: .equal, toItem: cvcTextField, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0.0),
+            contentView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0.0),
+            contentView.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: 0.0),
+            contentView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0.0),
+            contentView.contentLayoutGuide.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: 0.0)
         ])
 
-        // card form cvc and expire date width, space between
-        self.view.addConstraints([
-            NSLayoutConstraint(item: cardFormExpiryDateTextField, attribute: .width, relatedBy: .equal, toItem: cvcTextField, attribute: .width, multiplier: 1, constant: 6.0),
-            NSLayoutConstraint(item: cardFormExpiryDateTextField, attribute: .trailing, relatedBy: .equal, toItem: cvcTextField, attribute: .leading, multiplier: 1.0, constant: -40)
+        // SET CONSTRAINTS TO TOP STACK VIEW
+        NSLayoutConstraint.activate([
+            hTopStackView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10.0),
+            hTopStackView.heightAnchor.constraint(equalToConstant: 35),
+            hTopStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            hTopStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right)
         ])
 
-        // constraints for bottom stack view
+        // CARD FORM NUMBER INPUT
+        NSLayoutConstraint.activate([
+            cardFormNumberLabel.topAnchor.constraint(equalTo: hTopStackView.bottomAnchor, constant: 15.0),
+            cardFormNumberLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            cardFormNumberLabel.rightAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.rightAnchor, constant: edgeInsets.right),
+            // CARD NUMBER TEXTFIELD
+            cardFormNumberTextField.topAnchor.constraint(equalTo: cardFormNumberLabel.bottomAnchor, constant: 6.0),
+            cardFormNumberTextField.heightAnchor.constraint(equalToConstant: 40),
+            cardFormNumberTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            cardFormNumberTextField.rightAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.rightAnchor, constant: edgeInsets.right),
+            // CARD NUMBER ERROR LABEL
+            cardNumberErrorLabel.topAnchor.constraint(equalTo: cardFormNumberTextField.bottomAnchor, constant: 6.0),
+            cardNumberErrorLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            cardNumberErrorLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right)
+        ])
+
+        // CARD FORM EXPIRE INPUT
+        NSLayoutConstraint.activate([
+            cardFormExpiryDateLabel.topAnchor.constraint(equalTo: cardFormNumberTextField.bottomAnchor, constant: 25.0),
+            cardFormExpiryDateLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            // CARD EXPIRE TEXTFIELD
+            cardFormExpiryDateTextField.topAnchor.constraint(equalTo: cardFormExpiryDateLabel.bottomAnchor, constant: 6.0),
+            cardFormExpiryDateTextField.heightAnchor.constraint(equalToConstant: 40.0),
+            cardFormExpiryDateTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            // CARD EXPIRE ERROR LABEL
+            cardExpiryDateErrorLabel.topAnchor.constraint(equalTo: cardFormExpiryDateTextField.bottomAnchor, constant: 6.0),
+            cardExpiryDateErrorLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left)
+        ])
+
+        // CARD FORM CVC INPUT
+        NSLayoutConstraint.activate([
+            cvcLabel.topAnchor.constraint(equalTo: cardFormNumberTextField.bottomAnchor, constant: 25.0),
+            cvcLabel.leadingAnchor.constraint(equalTo: cvcTextField.leadingAnchor, constant: edgeInsets.left),
+            // CARD CVC TEXTFIELD
+            cvcTextField.topAnchor.constraint(equalTo: cvcLabel.bottomAnchor, constant: 6.0),
+            cvcTextField.heightAnchor.constraint(equalToConstant: 40.0),
+            cvcTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right),
+            // CARD CVC ERROR LABEL
+            cardCVCErrorLabel.topAnchor.constraint(equalTo: cvcTextField.bottomAnchor, constant: 6.0),
+            cardCVCErrorLabel.leadingAnchor.constraint(equalTo: cvcTextField.leadingAnchor, constant: edgeInsets.left)
+        ])
+
+        // CARD FORM CVC AND EXPIRE WIDTH AND SPACE
+        NSLayoutConstraint.activate([
+            cardFormExpiryDateTextField.widthAnchor.constraint(equalTo: cvcTextField.widthAnchor, constant: 0.0),
+            cardFormExpiryDateTextField.trailingAnchor.constraint(equalTo: cvcTextField.leadingAnchor, constant: -40)
+        ])
+
+        // BOTTOM STACKVIEW
         if paymentConfiguration.showCardSaveSwitch {
-            self.view.addConstraints([
-                NSLayoutConstraint(item: hBottomStackView, attribute: .top,
-                                   relatedBy: .equal, toItem: cvcTextField,
-                                   attribute: .bottom, multiplier: 1.0, constant: 20.0),
-                NSLayoutConstraint(item: hBottomStackView,
-                                   attribute: NSLayoutConstraint.Attribute.height,
-                                   relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                                   attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                                   multiplier: 1, constant: 40),
-                NSLayoutConstraint(item: confirmButton, attribute: .top,
-                                   relatedBy: .equal, toItem: hBottomStackView,
-                                   attribute: .bottom, multiplier: 1.0, constant: 20.0)
+            NSLayoutConstraint.activate([
+                hBottomStackView.topAnchor.constraint(equalTo: cvcTextField.bottomAnchor, constant: 20.0),
+                hBottomStackView.heightAnchor.constraint(equalToConstant: 40.0),
+                confirmButton.topAnchor.constraint(equalTo: hBottomStackView.bottomAnchor, constant: 20.0),
+                hBottomStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 0.0),
+                hBottomStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -7)
             ])
-            hBottomStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 0.0).isActive = true
-            hBottomStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -7).isActive = true
         } else {
-            self.view.addConstraint(NSLayoutConstraint(item: confirmButton, attribute: .top,
-                                                       relatedBy: .equal, toItem: cardCVCErrorLabel,
-                                                       attribute: .bottom, multiplier: 1.0, constant: 30.0))
+            NSLayoutConstraint.activate([
+                confirmButton.topAnchor.constraint(equalTo: cvcTextField.bottomAnchor, constant: 30.0)
+            ])
         }
 
-        // constraints for confirm button
-        self.view.addConstraints([
-            NSLayoutConstraint(item: confirmButton,
-                               attribute: NSLayoutConstraint.Attribute.height,
-                               relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil,
-                               attribute: NSLayoutConstraint.Attribute.notAnAttribute,
-                               multiplier: 1, constant: 44)
-        ])
-        confirmButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left).isActive = true
-        confirmButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -edgeInsets.right).isActive = true
+        // CONFIRM BUTTON
+        NSLayoutConstraint.activate([
+            confirmButton.heightAnchor.constraint(equalToConstant: 44.0),
+            confirmButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            confirmButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right),
 
-        self.view.addConstraints([
-            NSLayoutConstraint(item: requestingIndicatorView!, attribute: .centerX, relatedBy: .equal, toItem: confirmButton, attribute: .centerX, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: requestingIndicatorView!, attribute: .centerY, relatedBy: .equal, toItem: confirmButton, attribute: .centerY, multiplier: 1.0, constant: 0.0)
+            requestingIndicatorView.centerXAnchor.constraint(equalTo: confirmButton.centerXAnchor, constant: 0.0),
+            requestingIndicatorView.centerYAnchor.constraint(equalTo: confirmButton.centerYAnchor, constant: 0.0)
         ])
 
-        // constraints for top stack view
-        self.view.addConstraints([
-            NSLayoutConstraint(item: hFooterStackView, attribute: .top, relatedBy: .equal, toItem: self.confirmButton, attribute: .bottom, multiplier: 1.0, constant: 5.0),
-            NSLayoutConstraint(item: hFooterStackView, attribute: .bottom, relatedBy: .equal, toItem: self.contentView, attribute: .bottom, multiplier: 1.0, constant: -30.0),
-            NSLayoutConstraint(item: hFooterStackView, attribute: .centerX, relatedBy: .equal, toItem: view.safeAreaLayoutGuide, attribute: .centerX, multiplier: 1, constant: 0)
+        // BOTTOM STACK VIEW
+        NSLayoutConstraint.activate([
+            hFooterStackView.topAnchor.constraint(equalTo: confirmButton.bottomAnchor, constant: 5.0),
+            hFooterStackView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -30.0),
+            hFooterStackView.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor, constant: 0.0)
         ])
     }
 }

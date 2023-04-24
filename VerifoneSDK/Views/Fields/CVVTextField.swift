@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 @IBDesignable
-@objc(VFCVVTextField) public class CVVTextField: BaseTextField {
+public class CVVTextField: BaseTextField {
     private let validLengths = 3...4
 
     @available(iOS, unavailable)
@@ -53,6 +53,11 @@ import UIKit
 
 extension CVVTextField: UITextFieldDelegate {
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let allowedCharacters = CharacterSet.decimalDigits
+        let characterSet = CharacterSet(charactersIn: string)
+        if !allowedCharacters.isSuperset(of: characterSet) {
+            return false
+        }
         guard range.length >= 0 else {
             return true
         }
