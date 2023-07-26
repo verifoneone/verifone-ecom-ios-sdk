@@ -14,8 +14,13 @@ import VerifoneSDK
 extension ProductDetailsViewController {
 
     func handleCCPaymentWithout3DS(result: VerifoneFormResult, params: Parameters) {
-        if let token = checkForValidReuseToken() {
-            processWithTokenWithout3ds(reuseToken: token)
+        if let token = checkForValidReuseToken(forKey: Keys.reuseToken, isThreedsEnabled: defaults.booleanValue(for: Keys.threedsEnabled)) {
+            guard let params = Parameters.creditCard else {
+                self.alert(title: "\(missingParams) CreditCard")
+                self.stopAnimation()
+                return
+            }
+            processWithTokenWithout3ds(reuseToken: token, params: params, ppc: params.paymentProviderContract!)
             return
         }
         orderData = OrderData.creditCard
@@ -36,7 +41,7 @@ extension ProductDetailsViewController {
                 guard let token = reuseToken else {
                     return
                 }
-                self.defaults.save(customObject: token, inKey: "reuseToken")
+                self.defaults.save(customObject: token, inKey: Keys.reuseToken)
                 self.startFlowWithout3ds(verifoneResult: result)
             }
         } else {
@@ -44,8 +49,8 @@ extension ProductDetailsViewController {
         }
     }
 
-    func checkForValidReuseToken() -> ResponseReuseToken? {
-        guard let token = defaults.retrieve(object: ResponseReuseToken.self, fromKey: Keys.reuseToken), !defaults.booleanValue(for: Keys.threedsEnabled) else {
+    func checkForValidReuseToken(forKey: String, isThreedsEnabled: Bool = false) -> ResponseReuseToken? {
+        guard let token = defaults.retrieve(object: ResponseReuseToken.self, fromKey: forKey), !isThreedsEnabled else {
             return nil
         }
         let isoDate = "\(token.tokenExpiryDate)T00:00:00+0000"
@@ -57,34 +62,19 @@ extension ProductDetailsViewController {
         } else {
             // DELETE EXPIRED REUSE TOKEN
             debugPrint("Reuse token expired and removed")
-            defaults.set(nil, forKey: Keys.reuseToken)
+            defaults.set(nil, forKey: forKey)
             return nil
         }
     }
 
-    func processWithTokenWithout3ds(reuseToken: ResponseReuseToken) {
-        guard let params = Parameters.creditCard else {
-            self.alert(title: "\(missingParams) CreditCard")
-            self.stopAnimation()
-            return
-        }
-
+    func processWithTokenWithout3ds(reuseToken: ResponseReuseToken, params: Parameters, ppc: String, cardBrand: String? = nil) {
         var request = RequestTransaction.creditCard
         request.setupCreditCardWithout3ds(productPrice: product.getPrice(),
-                                          cardBrand: nil,
-                                          paymentProviderContract: params.paymentProviderContract!,
+                                          cardBrand: cardBrand,
+                                          paymentProviderContract: ppc,
                                           publicKeyAlias: params.publicKeyAlias!,
                                           reuseToken: reuseToken.reuseToken)
-        self.createTransaction(request: request)
-        self.viewModel.transaction(params: params, orderData: request) { [weak self] response, error in
-            guard let self = self else { return }
-            self.stopAnimation()
-            guard error == nil else {
-                self.alert(title: "Error transaction", message: "An error has occurred: \(error!)")
-                return
-            }
-            self.showResultPage(merchantReference: "\(response!.merchantReference!)")
-        }
+        self.createTransaction(request: request, params: params)
     }
 
     func startFlowWithout3ds(verifoneResult: VerifoneFormResult) {
@@ -99,11 +89,11 @@ extension ProductDetailsViewController {
                                          paymentProviderContract: Parameters.creditCard?.paymentProviderContract,
                                          publicKeyAlias: Parameters.creditCard?.publicKeyAlias,
                                          shopperInteraction: "ECOMMERCE")
-        self.createTransaction(request: request)
+        self.createTransaction(request: request, params: .creditCard!)
     }
 
-    func createTransaction(request: RequestTransaction) {
-        self.viewModel.transaction(params: .creditCard!, orderData: request) { [weak self] response, error in
+    func createTransaction(request: RequestTransaction, params: Parameters) {
+        self.viewModel.transaction(params: params, orderData: request) { [weak self] response, error in
             guard let self = self else { return }
             self.stopAnimation()
             guard error == nil else {

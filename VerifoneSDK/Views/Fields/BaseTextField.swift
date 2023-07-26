@@ -9,7 +9,8 @@ public enum VFTextFieldValidationError: Error {
 public class BaseTextField: UITextField {
 
     private var normalTextColor: UIColor?
-
+    
+    var onlyLenthCheck: Bool = false
     var padding: UIEdgeInsets!
     var borderWidth: CGFloat = 0.0
 

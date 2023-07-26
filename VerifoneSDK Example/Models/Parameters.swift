@@ -36,6 +36,10 @@ struct Parameters: Codable {
             ParamType.paymentProviderContract.rawValue])
     }
 
+    var areGiftCardFieldsValid: [String: String] {
+        return isValid(fields: [ParamType.paymentProviderContract.rawValue])
+    }
+
     var areKlarnaFieldsValid: [String: String] {
         return isValid(fields: [
             ParamType.apiKey.rawValue,
@@ -92,6 +96,8 @@ struct Parameters: Codable {
         switch method {
         case .creditCard:
             return areCreditCardFieldsValid
+        case .giftCard:
+            return areGiftCardFieldsValid
         case .klarna:
             return areKlarnaFieldsValid
         case .paypal:
@@ -112,6 +118,16 @@ extension Parameters {
             return nil
         }
         if ([params.apiKey, params.apiUserID, params.publicKeyAlias, params.encryptionKey, params.paymentProviderContract] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
+            return nil
+        }
+        return params
+    }
+
+    static var giftCard: Parameters? {
+        guard let params = UserDefaults.standard.retrieve(object: Parameters.self, fromKey: AppPaymentMethodType.giftCard.rawValue) else {
+            return nil
+        }
+        if ([params.paymentProviderContract] as [String?]).contains(where: {$0 == nil || $0!.isEmpty}) {
             return nil
         }
         return params

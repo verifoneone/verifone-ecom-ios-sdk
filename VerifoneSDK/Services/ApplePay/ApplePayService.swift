@@ -80,10 +80,19 @@ extension ApplePayService: ApplePayServiceProtocol {
         let request = PKPaymentRequest()
         request.merchantIdentifier = merchantIdentifier
         request.supportedNetworks = applePayMerchantConfiguration.supportedPaymentNetworks
-        request.merchantCapabilities = .capability3DS
+        request.merchantCapabilities = applePayMerchantConfiguration.merchantCapability
         request.countryCode = applePayMerchantConfiguration.countryCode
         request.currencyCode = applePayMerchantConfiguration.currencyCode
         request.paymentSummaryItems = applePayMerchantConfiguration.paymentSummaryItems
+        request.requiredShippingContactFields = applePayMerchantConfiguration.requiredShippingContactFields
+        request.requiredBillingContactFields = applePayMerchantConfiguration.requiredBillingContactFields
+        request.supportedNetworks = applePayMerchantConfiguration.supportedNetworks
+        request.shippingMethods = applePayMerchantConfiguration.shippingMethods
+        request.billingContact = applePayMerchantConfiguration.billingContact
+        request.shippingContact = applePayMerchantConfiguration.shippingContact
+        if let shippingType = applePayMerchantConfiguration.shippingType {
+            request.shippingType = shippingType
+        }
 
         do {
             try paymentViewControllerType.present(request: request,

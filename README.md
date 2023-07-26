@@ -48,7 +48,22 @@ let paymentConfiguration = VerifoneSDK.PaymentConfiguration(
  cardEncryptionPublicKey: "YOUR_CARD_ENCRYPTION_KEY",
  paymentPanelStoreTitle: "store_name", showCardSaveSwitch: "bool", allowedPaymentMethods: [.creditCard, .paypal, .applePay])
 
-let applepayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(applePayMerchantId: "YOUR_MERCHANT_ID", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.0)])
+let billingAddress = PKContact()
+let shippingAddress = PKContact()
+let supportedNetworks: [PKPaymentNetwork] = [.visa, .masterCard]
+let requiredShippingContactFields: Set<PKContactField> = [.name, .emailAddress, .phoneNumber, .phoneticName, .postalAddress]
+let requiredBillingContactFields: Set<PKContactField> = [.name, .emailAddress, .phoneNumber, .phoneticName, .postalAddress]
+
+let applepayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(
+    applePayMerchantId: "YOUR_MERCHANT_ID",
+    supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard], countryCode: "US", currencyCode: "USD", paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.0)],
+    requiredShippingContactFields: requiredShippingContactFields,
+    requiredBillingContactFields: requiredBillingContactFields,
+    supportedNetworks: supportedNetworks,
+    billingContact: billingAddress,
+    shippingContact: shippingAddress,
+    shippingType: PKShippingType.delivery
+)
 
 let verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration, applepayConfiguration: applepayConfiguration)
 

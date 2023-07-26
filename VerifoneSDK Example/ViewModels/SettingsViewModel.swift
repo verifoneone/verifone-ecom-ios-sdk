@@ -10,6 +10,7 @@ import UIKit
 struct SettingsViewModel {
     var sections = [SettingSection]()
     var paymentStateSwitchButtons: [String: Bool] = [:]
+    var cardFormSwitchButtonStates: [String: Bool] = [:]
     var selectedEnvironment: String!
     var selectedFont: String? {
         didSet {
@@ -51,6 +52,10 @@ struct SettingsViewModel {
         if let env = selectedEnvironment {
             userDefaults.set(env, forKey: Keys.environment)
         }
+        // store card form switch button states
+        for (key, val) in cardFormSwitchButtonStates {
+            userDefaults.set(val, forKey: key)
+        }
     }
 
     mutating func loadPaymentStates() {
@@ -63,6 +68,8 @@ struct SettingsViewModel {
                 paymentStateSwitchButtons[$0.rawValue] = false
             }
         })
+        cardFormSwitchButtonStates[Keys.isCardSaveEnabled] = userDefaults.booleanValue(for: Keys.isCardSaveEnabled) && !isTokenScopeParamFieldEmpty
+        cardFormSwitchButtonStates[Keys.threedsEnabled] = userDefaults.booleanValue(for: Keys.threedsEnabled) && !isThreedsParamFieldEmpty
     }
 
     mutating func configureSections() {
@@ -75,12 +82,12 @@ struct SettingsViewModel {
             SettingCellData(type: .switchButton,
                             placeholder: "Enable card save",
                             value: "",
-                            isOn: userDefaults.booleanValue(for: Keys.isCardSaveEnabled),
+                            isOn: cardFormSwitchButtonStates[Keys.isCardSaveEnabled]!,
                             eventType: .cardParams),
             SettingCellData(type: .switchButton,
                             placeholder: "Enable 3DS",
                             value: "",
-                            isOn: userDefaults.booleanValue(for: Keys.threedsEnabled),
+                            isOn: cardFormSwitchButtonStates[Keys.threedsEnabled]!,
                             eventType: .cardParams),
             SettingCellData(type: .seperator,
                             placeholder: "",
@@ -101,8 +108,13 @@ struct SettingsViewModel {
             SettingCellData(type: .linkButton, placeholder: MerchantAppConfig.shared.getFontName(), value: "Change Font", eventType: .font)
         ]))
 
-        self.sections.append(SettingSection(header: "Stored card token", cells: [
-            SettingCellData(type: .linkButton, placeholder: "Card details", value: "Remove saved token", isOn: userDefaults.hasReuseToken(), eventType: .reuseToken)
+        self.sections.append(SettingSection(header: "Stored card tokens", cells: [
+            SettingCellData(type: .linkButton, placeholder: "Credit card",
+                            value: "Delete token", isOn: userDefaults.hasReuseToken(forKey: Keys.reuseToken),
+                            eventType: .reuseToken),
+            SettingCellData(type: .linkButton, placeholder: "Gift card",
+                            value: "Delete token", isOn: userDefaults.hasReuseToken(forKey: Keys.reuseTokenForGiftCard),
+                            eventType: .giftCardReuseToken)
         ]))
 
         self.sections.append(SettingSection(header: "Payment options and parameters", cells: [
@@ -111,6 +123,11 @@ struct SettingsViewModel {
                             value: "",
                             isOn: paymentStateSwitchButtons[AppPaymentMethodType.creditCard.rawValue]!,
                             paymentType: .creditCard),
+            SettingCellData(type: .switchButton,
+                            placeholder: "Gift card",
+                            value: "",
+                            isOn: paymentStateSwitchButtons[AppPaymentMethodType.giftCard.rawValue]!,
+                            paymentType: .giftCard),
             SettingCellData(type: .switchButton,
                             placeholder: AppPaymentMethodType.paypal.rawValue,
                             value: "",
@@ -149,6 +166,8 @@ struct SettingsViewModel {
         switch type {
         case .creditCard:
             params = Parameters.creditCard
+        case .giftCard:
+            params = Parameters.giftCard
         case .paypal:
             params = Parameters.paypal
         case .applePay:
@@ -163,6 +182,18 @@ struct SettingsViewModel {
             params = Parameters.mobilePay
         }
         return params != nil
+    }
+
+    // check if we have threeds contract id
+    var isThreedsParamFieldEmpty: Bool {
+        let params = Parameters.creditCard
+        return !(params != nil && params?.threedsContractID != nil && !params!.threedsContractID!.isEmpty)
+    }
+
+    // check if we have token scope
+    var isTokenScopeParamFieldEmpty: Bool {
+        let params = Parameters.creditCard
+        return !(params != nil && params!.tokenScope != nil && !params!.tokenScope!.isEmpty)
     }
 }
 
@@ -197,6 +228,7 @@ public enum SettingCellEvent: String {
     case cardParams
     case paypal
     case reuseToken
+    case giftCardReuseToken
     case none
 }
 

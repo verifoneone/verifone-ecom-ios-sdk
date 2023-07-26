@@ -32,6 +32,7 @@
 "paymentProductSwish" = "Swish";
 "paymentProductMobilePay" = "MobilePay";
 "paymentProductCrypto" = "Crypto";
+"paymentGiftCard" = "Gift card";
 
 "transactionIncorrectCardInformation" = "Informações de cartão incorretas";
 "transactionIncorrectCVV" = "CVV incorreto";

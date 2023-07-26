@@ -53,7 +53,7 @@ class ProductDetailsViewController: UITableViewController {
         static let buyButtonCellWithSingleButton = "BuyButtonCellWithSingleButton"
     }
 
-    func configurePaymentSDK(validReuseToken: Bool = false) {
+    func configurePaymentSDK(validReuseToken: Bool = false, validReuseTokenForGiftCard: Bool = false) {
         merchantConfig = MerchantAppConfig.shared
         configureCardFormColors()
         VerifoneSDK.defaultTheme.font = merchantConfig.getFont()
@@ -65,16 +65,31 @@ class ProductDetailsViewController: UITableViewController {
             totalAmount: "\(product.price) \(UserDefaults.standard.getCurrency(fromKey: Keys.currency))",
             showCardSaveSwitch: defaults.booleanValue(for: Keys.isCardSaveEnabled),
             allowedPaymentMethods: merchantConfig.allowedPaymentOptions,
-            reuseTokenForCardPayment: validReuseToken
+            reuseTokenForCardPayment: validReuseToken,
+            reuseTokenForGiftCardPayment: validReuseTokenForGiftCard
         )
         threedsConfiguration = VerifoneSDK.ThreedsConfiguration(environment: .staging)
+
+        let billingAddress = PKContact()
+        let shippingAddress = PKContact()
+        let supportedNetworks: [PKPaymentNetwork] = [.visa, .masterCard]
+        let requiredShippingContactFields: Set<PKContactField> = [.name, .emailAddress, .phoneNumber, .phoneticName, .postalAddress]
+        let requiredBillingContactFields: Set<PKContactField> = [.name, .emailAddress, .phoneNumber, .phoneticName, .postalAddress]
+
         applePayConfiguration = VerifoneSDK.ApplePayMerchantConfiguration(
             applePayMerchantId: "", supportedPaymentNetworks: [.amex, .discover, .visa, .masterCard],
             countryCode: "US",
             currencyCode: UserDefaults.standard.getCurrency(fromKey: Keys.currency),
-            paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.5)])
+            paymentSummaryItems: [PKPaymentSummaryItem(label: "Test Product", amount: 1.5)],
+            requiredShippingContactFields: requiredShippingContactFields,
+            requiredBillingContactFields: requiredBillingContactFields,
+            supportedNetworks: supportedNetworks,
+            billingContact: billingAddress,
+            shippingContact: shippingAddress,
+            shippingType: PKShippingType.delivery
+        )
 
-        verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration)
+        verifonePaymentForm = VerifonePaymentForm(paymentConfiguration: paymentConfiguration, applepayConfiguration: applePayConfiguration)
         verifoneThreedsManager = Verifone3DSecureManager(threedsConfiguration: threedsConfiguration)
 
         items = [
@@ -161,7 +176,14 @@ extension ProductDetailsViewController {
             cell.buyButton.accessibilityTraits.insert(UIAccessibilityTraits.notEnabled)
             cell.activityIndicator.startAnimating()
         }
-        self.configurePaymentSDK(validReuseToken: self.checkForValidReuseToken() != nil)
+        self.configurePaymentSDK(
+            validReuseToken: self.checkForValidReuseToken(
+                forKey: Keys.reuseToken,
+                isThreedsEnabled: defaults.booleanValue(for: Keys.threedsEnabled)) != nil,
+            validReuseTokenForGiftCard: self.checkForValidReuseToken(
+                forKey: Keys.reuseTokenForGiftCard,
+                isThreedsEnabled: false) != nil
+        )
         verifonePaymentForm.displayPaymentForm(from: self) { [weak self] result in
             guard let self = self else { return }
             self.didCardEncrypted(result, is3dsEnabled: self.defaults.booleanValue(for: Keys.threedsEnabled))
@@ -179,11 +201,26 @@ extension ProductDetailsViewController {
                     self.stopAnimation()
                     return
                 }
+
+                if is3dsEnabled && params.threedsContractID!.isEmpty {
+                    self.alert(title: "Missing threeds contract id")
+                    self.stopAnimation()
+                    return
+                }
+
                 if is3dsEnabled {
                     handleCCPaymentWith3DS(result: verifoneResult, params: params)
                 } else {
                     handleCCPaymentWithout3DS(result: verifoneResult, params: params)
                 }
+            case .giftCard:
+                guard let params = Parameters.giftCard else {
+                    self.alert(title: "\(missingParams) Gift card")
+                    self.stopAnimation()
+                    return
+                }
+
+                handleGiftCard(result: verifoneResult, params: params)
             case .paypal:
                 //
                 // Pay by link payment method selected.

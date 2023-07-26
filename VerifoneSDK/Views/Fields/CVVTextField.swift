@@ -3,7 +3,7 @@ import UIKit
 
 @IBDesignable
 public class CVVTextField: BaseTextField {
-    private let validLengths = 3...4
+    private var validLengths = 3...4
 
     @available(iOS, unavailable)
     public override var delegate: UITextFieldDelegate? {
@@ -19,8 +19,9 @@ public class CVVTextField: BaseTextField {
         }
     }
 
-    public override init(frame: CGRect) {
+    public required init(frame: CGRect, onlyLengthCheck: Bool = false) {
         super.init(frame: frame)
+        self.onlyLenthCheck = onlyLengthCheck
         initializeInstance()
     }
 
@@ -35,6 +36,10 @@ public class CVVTextField: BaseTextField {
     }
 
     private func initializeInstance() {
+        if onlyLenthCheck {
+            validLengths = 7...8
+        }
+
         super.keyboardType = .numberPad
         super.delegate = self
     }
@@ -61,7 +66,7 @@ extension CVVTextField: UITextFieldDelegate {
         guard range.length >= 0 else {
             return true
         }
-        let maxLength = 4
+        let maxLength = validLengths.upperBound
 
         return maxLength >= (self.text?.count ?? 0) - range.length + string.count
     }

@@ -32,6 +32,7 @@
 "paymentProductSwish" = "Swish";
 "paymentProductMobilePay" = "MobilePay";
 "paymentProductCrypto" = "Crypto";
+"paymentGiftCard" = "Gift card";
 
 "transactionIncorrectCardInformation" = "Nepareiza kartes informācija";
 "transactionIncorrectCVV" = "Nepareizs CVV";

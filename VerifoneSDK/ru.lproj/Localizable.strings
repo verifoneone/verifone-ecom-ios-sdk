@@ -32,5 +32,6 @@
 "paymentProductSwish" = "Swish";
 "paymentProductMobilePay" = "MobilePay";
 "paymentProductCrypto" = "Криптовалюта";
+"paymentGiftCard" = "Gift card";
 
 "footerText" = "Система безопасных платежей";

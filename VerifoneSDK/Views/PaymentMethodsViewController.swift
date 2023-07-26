@@ -12,6 +12,7 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
 
     var paymentFlowSession: PaymentFlowSession!
     var creditCardForm: CreditCardViewController?
+    var giftCardForm: GiftCardForm?
     var applePayService: ApplePayService?
     var allowedPaymentMethods: [VerifonePaymentMethodType] = []
     let headerView = PaymentTypeHeaderView()
@@ -95,6 +96,9 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
         case .creditCard:
             cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.creditCard.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductCard".localized()
+        case .giftCard:
+            cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.creditCard.rawValue, in: .module, compatibleWith: nil)!
+            cell.nameLabel.text = "paymentGiftCard".localized()
         case .paypal:
             cell.cardBrandImageView.image = UIImage(named: VerifonePaymentMethodType.paypal.rawValue, in: .module, compatibleWith: nil)!
             cell.nameLabel.text = "paymentProductPaypal".localized()
@@ -136,6 +140,7 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let paymentMethod = allowedPaymentMethods[indexPath.row]
         switch allowedPaymentMethods[indexPath.row] {
         case .creditCard:
             if !self.paymentFlowSession.paymentConfiguration!.reuseTokenForCardPayment {
@@ -143,7 +148,16 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
                 creditCardForm!.delegate = paymentFlowSession
                 present(creditCardForm!, animated: true)
             } else {
-                self.paymentFlowSession.delegate?.paymentAuthorizingDidSelected(self, paymentMethod: allowedPaymentMethods[indexPath.row])
+                self.paymentFlowSession.delegate?.paymentAuthorizingDidSelected(self, paymentMethod: paymentMethod)
+            }
+        case .giftCard:
+            if !self.paymentFlowSession.paymentConfiguration!.reuseTokenForGiftCardPayment {
+                giftCardForm = GiftCardForm(paymentConfiguration: paymentFlowSession!.paymentConfiguration!, theme: paymentFlowSession!.verifoneTheme)
+                giftCardForm!.delegate = paymentFlowSession
+                giftCardForm!.showingGiftCard = true
+                present(giftCardForm!, animated: true)
+            } else {
+                self.paymentFlowSession.delegate?.paymentAuthorizingDidSelected(self, paymentMethod: paymentMethod)
             }
         case .paypal:
             let webview = VFAuthorizingPaymentWebViewController()
@@ -151,7 +165,7 @@ public class PaymentMethodsViewController: UITableViewController, PanModalPresen
             webview.delegate = paymentFlowSession
             presentPanModal(webview)
         case .klarna, .swish, .vipps, .mobilePay:
-            self.paymentFlowSession.delegate?.paymentAuthorizingDidSelected(self, paymentMethod: allowedPaymentMethods[indexPath.row])
+            self.paymentFlowSession.delegate?.paymentAuthorizingDidSelected(self, paymentMethod: paymentMethod)
         case .applePay:
             applePayService = ApplePayService(applePayMerchantConfiguration: paymentFlowSession.applepayConfiguration)
             applePayService?.beginPayment(presentingController: self, completion: { [weak self] result in

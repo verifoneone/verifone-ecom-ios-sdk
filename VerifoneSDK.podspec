@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = "VerifoneSDK"
-  s.version          = "1.2.0"
+  s.version          = "1.3.0"
   s.summary          = "Accept payments through VerifoneSDK."
   s.description      = <<-DESC
                        The VerifoneSDK library will allow you to accept payments in your iOS app.
@@ -15,8 +15,6 @@ Pod::Spec.new do |s|
 
   s.platform         = :ios, "11.0"
   s.swift_version    = "5.0"
-  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
-  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   s.source_files   = "VerifoneSDK/**/*.{h,m,swift}"
   s.resources = ["VerifoneSDK/**/*.{lproj,xcassets,storyboard}"]

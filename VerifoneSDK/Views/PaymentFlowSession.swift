@@ -47,11 +47,11 @@ internal class PaymentFlowSession: NSObject {
 }
 
 extension PaymentFlowSession: CreditCardFormViewControllerDelegate {
-    func creditCardFormViewControllerDidCancel(_ controller: CreditCardViewController, callback: CallbackStatus) {
+    func creditCardFormViewControllerDidCancel(_ controller: BaseCardForm, callback: CallbackStatus) {
         delegate?.paymentFlowSessionDidCancel(controller, callBack: callback)
     }
 
-    func creditCardFormViewControllerDidCardEncrypted(_ controller: CreditCardViewController, result: VerifoneFormResult) {
+    func creditCardFormViewControllerDidCardEncrypted(_ controller: BaseCardForm, result: VerifoneFormResult) {
         delegate?.paymentFlowSessionDidCardEncrypted(controller, result: result)
     }
 }

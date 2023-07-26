@@ -21,6 +21,11 @@ struct RetrieveFieldData: ConfigFields {
                 header: "Card payment parameters",
                 cells: ConfigCell.getCardParameters(parameters: parameters))
             self.items.append(cardParams)
+        case .giftCard:
+            let cardParams = ConfigSection(
+                header: "Gift card payment parameters",
+                cells: ConfigCell.getGiftParameters(parameters: parameters))
+            self.items.append(cardParams)
         case .klarna:
             let cardParams = ConfigSection(
                 header: "Klarna parameters",

@@ -20,7 +20,7 @@ extension ControlState: Hashable {
     }
 }
 
-extension CreditCardViewController {
+extension BaseCardForm {
     func updateInputAccessoryViewWithFirstResponder(_ firstResponder: BaseTextField) {
         guard cardFormInputFields.contains(firstResponder) else { return }
 

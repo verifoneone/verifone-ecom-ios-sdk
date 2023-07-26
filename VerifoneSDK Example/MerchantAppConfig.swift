@@ -34,6 +34,7 @@ public enum Keys {
     public static var testAppScheme = "verifoneSdkTestApp://"
     public static var reuseToken = "reuseToken"
     public static var paymentOptions = "paymentOptions"
+    public static var reuseTokenForGiftCard = "reuseTokenForGiftCard"
 }
 
 public protocol MerchantAppConfigProtocol {
@@ -61,7 +62,7 @@ struct MerchantAppConfig: MerchantAppConfigProtocol {
     var userdefaults = UserDefaults.standard
     private var _font: UIFont?
     private var _allowedPaymentMethods: [AppPaymentMethodType]? = []
-    public var supportedPaymentOptions: [AppPaymentMethodType] = [.creditCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
+    public var supportedPaymentOptions: [AppPaymentMethodType] = [.creditCard, .giftCard, .paypal, .applePay, .klarna, .swish, .vipps, .mobilePay]
 
     public var font: UIFont {
         get {

@@ -31,6 +31,7 @@
 "paymentProductSwish" = "Swish";
 "paymentProductMobilePay" = "MobilePay";
 "paymentProductCrypto" = "Krüpto";
+"paymentGiftCard" = "Gift card";
 
 "transactionIncorrectCardInformation" = "Valed kaardiandmed";
 "transactionIncorrectCVV" = "Vale CVV";

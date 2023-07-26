@@ -88,6 +88,15 @@ extension ConfigCell {
                 paramType: .tokenScope, value: parameters?.tokenScope ?? "")
         ]
     }
+    // MARK: Gift Card
+    static func getGiftParameters(parameters: Parameters?) -> [ConfigCell] {
+        return [
+            ConfigCell(
+                cell: TextField(title: "Payment provider contract",
+                                placeholder: "----"),
+                paramType: .paymentProviderContract, value: parameters?.paymentProviderContract ?? "")
+        ]
+    }
     // MARK: Klarna params
     static func getKlarnaParameters(parameters: Parameters?) -> [ConfigCell] {
         return [

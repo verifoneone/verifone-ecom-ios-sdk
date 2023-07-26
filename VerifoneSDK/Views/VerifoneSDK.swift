@@ -58,23 +58,26 @@ public extension VerifoneSDK {
         public var totalAmount: String
         public var allowedPaymentMethods: [VerifonePaymentMethodType] = [.creditCard, .paypal]
         public var reuseTokenForCardPayment: Bool
+        public var reuseTokenForGiftCardPayment: Bool
 
-        public init(cardEncryptionPublicKey: String? = nil, totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifonePaymentMethodType], reuseTokenForCardPayment: Bool = false) {
+        public init(cardEncryptionPublicKey: String? = nil, totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifonePaymentMethodType], reuseTokenForCardPayment: Bool = false, reuseTokenForGiftCardPayment: Bool = false) {
             self.cardEncryptionPublicKey = cardEncryptionPublicKey
             self.paymentPanelStoreTitle = "Store"
             self.totalAmount = totalAmount
             self.showCardSaveSwitch = showCardSaveSwitch
             self.allowedPaymentMethods = allowedPaymentMethods
             self.reuseTokenForCardPayment = reuseTokenForCardPayment
+            self.reuseTokenForGiftCardPayment = reuseTokenForGiftCardPayment
         }
 
-        public init(cardEncryptionPublicKey: String? = nil, paymentPanelStoreTitle: String = "", totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifonePaymentMethodType], reuseTokenForCardPayment: Bool = false) {
+        public init(cardEncryptionPublicKey: String? = nil, paymentPanelStoreTitle: String = "", totalAmount: String, showCardSaveSwitch: Bool = false, allowedPaymentMethods: [VerifonePaymentMethodType], reuseTokenForCardPayment: Bool = false, reuseTokenForGiftCardPayment: Bool = false) {
             self.cardEncryptionPublicKey = cardEncryptionPublicKey
             self.paymentPanelStoreTitle = paymentPanelStoreTitle
             self.showCardSaveSwitch = showCardSaveSwitch
             self.totalAmount = totalAmount
             self.allowedPaymentMethods = allowedPaymentMethods
             self.reuseTokenForCardPayment = reuseTokenForCardPayment
+            self.reuseTokenForGiftCardPayment = reuseTokenForGiftCardPayment
         }
     }
 
@@ -92,17 +95,39 @@ public extension VerifoneSDK {
         public let countryCode: String
         public let currencyCode: String
         public let paymentSummaryItems: [PKPaymentSummaryItem]
+        public let merchantCapability: PKMerchantCapability
+        public let requiredShippingContactFields: Set<PKContactField>
+        public let requiredBillingContactFields: Set<PKContactField>
+        public let supportedNetworks: [PKPaymentNetwork]
+        public let shippingMethods: [PKShippingMethod]?
+        public let billingContact: PKContact?
+        public let shippingContact: PKContact?
+        public let shippingType: PKShippingType?
 
         public init(applePayMerchantId: String,
                     supportedPaymentNetworks: [PKPaymentNetwork],
                     countryCode: String,
                     currencyCode: String,
-                    paymentSummaryItems: [PKPaymentSummaryItem]) {
+                    paymentSummaryItems: [PKPaymentSummaryItem],
+                    merchantCapability: PKMerchantCapability = .capability3DS,
+                    requiredShippingContactFields: Set<PKContactField>,
+                    requiredBillingContactFields: Set<PKContactField>,
+                    supportedNetworks: [PKPaymentNetwork],
+                    shippingMethods: [PKShippingMethod]? = nil,
+                    billingContact: PKContact? = nil, shippingContact: PKContact? = nil, shippingType: PKShippingType? = nil) {
             self.applePayMerchantId = applePayMerchantId
             self.supportedPaymentNetworks = supportedPaymentNetworks
             self.countryCode = countryCode
             self.currencyCode = currencyCode
             self.paymentSummaryItems = paymentSummaryItems
+            self.merchantCapability = merchantCapability
+            self.requiredShippingContactFields = requiredShippingContactFields
+            self.requiredBillingContactFields = requiredBillingContactFields
+            self.supportedNetworks = supportedNetworks
+            self.shippingMethods = shippingMethods
+            self.billingContact = billingContact
+            self.shippingContact = shippingContact
+            self.shippingType = shippingType
         }
     }
 }

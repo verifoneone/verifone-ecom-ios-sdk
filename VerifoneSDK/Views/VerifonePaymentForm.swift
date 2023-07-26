@@ -141,7 +141,6 @@ extension VerifonePaymentForm: PaymentFlowSessionDelegate {
 
     func didReceiveResultFromAppleService(_ viewController: UIViewController, result: PKPayment) {
         debugPrint("Result from apple pay")
-
         viewController.dismiss(animated: true) {
             let vfresult = VerifoneFormResult(paymentMethodType: .applePay, paymentApplePayResult: result)
             self.completion?(.success(vfresult))

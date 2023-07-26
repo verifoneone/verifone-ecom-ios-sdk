@@ -84,8 +84,8 @@ extension UserDefaults {
         return nil
     }
 
-    func hasReuseToken() -> Bool {
-        if self.retrieve(object: ResponseReuseToken.self, fromKey: Keys.reuseToken) != nil {
+    func hasReuseToken(forKey: String) -> Bool {
+        if self.retrieve(object: ResponseReuseToken.self, fromKey: forKey) != nil {
             return true
         }
         return false

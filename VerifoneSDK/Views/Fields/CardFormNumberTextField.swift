@@ -88,18 +88,28 @@ extension CardFormNumberTextField: UITextFieldDelegate {
     }
 
     public func formattedCardNumber(_ textField: UITextField) {
-        // Get the card type based on the current text in the text field
-        let card = CardValidator.getCardType(textField.text!)
         // Get the current cursor position and the text in the text field
         guard let selectedRange = textField.selectedTextRange, let textString = textField.text else { return }
         var targetCursorPosition = textField.offset(from: textField.beginningOfDocument, to: selectedRange.start)
         // Remove all non-digit characters from the text
         let cardNumber = removeNonDigits(textString, cursorPosition: &targetCursorPosition)
-        // If the card type is set and the card number is too long, restore the previous text and cursor position
-        if card != nil && cardNumber.count > card!.cardLength.upperBound {
-            textField.text = previousTextFieldContent
-            textField.selectedTextRange = previousSelection
-            return
+
+        if onlyLenthCheck {
+            if cardNumber.count >= 20 {
+                textField.text = previousTextFieldContent
+                textField.selectedTextRange = previousSelection
+                return
+            }
+        } else {
+            // Get the card type based on the current text in the text field
+            let card = CardValidator.getCardType(textField.text!)
+
+            // If the card type is set and the card number is too long, restore the previous text and cursor position
+            if card != nil && cardNumber.count > card!.cardLength.upperBound {
+                textField.text = previousTextFieldContent
+                textField.selectedTextRange = previousSelection
+                return
+            }
         }
         // Insert spaces every four digits
         let formattedCardNumber = insertSpaces(cardNumber, cursorPosition: &targetCursorPosition)

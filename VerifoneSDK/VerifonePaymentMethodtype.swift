@@ -9,6 +9,7 @@ import Foundation
 
 public enum VerifonePaymentMethodType: String, CaseIterable {
     case creditCard = "Card"
+    case giftCard = "Gift card"
     case paypal = "Paypal"
     case applePay = "ApplePay"
     case klarna = "Klarna"

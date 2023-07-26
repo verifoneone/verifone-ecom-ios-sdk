@@ -128,6 +128,8 @@
 		99A2D9A429E0473500E02E15 /* AppErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A2D9A029E0473500E02E15 /* AppErrors.swift */; };
 		99A2D9A529E0473500E02E15 /* VerifoneApiEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A2D9A129E0473500E02E15 /* VerifoneApiEndpoint.swift */; };
 		99A2D9A729E0474300E02E15 /* ProductDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A2D9A629E0474300E02E15 /* ProductDetailsViewModel.swift */; };
+		99F10BA42A52D08800ECD75F /* GiftCardForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F10BA32A52D08800ECD75F /* GiftCardForm.swift */; };
+		99F10BA62A52DC4200ECD75F /* BaseCardForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F10BA52A52DC4200ECD75F /* BaseCardForm.swift */; };
 		99F484D829E4220000B73E59 /* ResponseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F484D729E4220000B73E59 /* ResponseError.swift */; };
 /* End PBXBuildFile section */
 
@@ -320,6 +322,8 @@
 		99A2D9A029E0473500E02E15 /* AppErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppErrors.swift; sourceTree = "<group>"; };
 		99A2D9A129E0473500E02E15 /* VerifoneApiEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifoneApiEndpoint.swift; sourceTree = "<group>"; };
 		99A2D9A629E0474300E02E15 /* ProductDetailsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductDetailsViewModel.swift; sourceTree = "<group>"; };
+		99F10BA32A52D08800ECD75F /* GiftCardForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiftCardForm.swift; sourceTree = "<group>"; };
+		99F10BA52A52DC4200ECD75F /* BaseCardForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCardForm.swift; sourceTree = "<group>"; };
 		99F484D729E4220000B73E59 /* ResponseError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -357,8 +361,10 @@
 		8E05AD38271F204800382A5A /* CreditCardForm */ = {
 			isa = PBXGroup;
 			children = (
+				99F10BA52A52DC4200ECD75F /* BaseCardForm.swift */,
 				8E05AD32271EEA2A00382A5A /* FormButton.swift */,
 				8EABEBAA274B8A3C0031BE8A /* CreditCardCodeViewController.swift */,
+				99F10BA32A52D08800ECD75F /* GiftCardForm.swift */,
 			);
 			path = CreditCardForm;
 			sourceTree = "<group>";
@@ -594,6 +600,7 @@
 				8EC67CBB26FCB56D0023B12C /* Resources */,
 				9946894D291D08C2007A67EA /* Models */,
 				9946894A291C190D007A67EA /* Extensions */,
+				991EB2BB29C9C8EA009852C0 /* ViewModels */,
 				8EC67C9F26FCB1A40023B12C /* Controllers */,
 				8EC67C9D26FCB1A40023B12C /* Network */,
 				8EC67CA226FCB1A40023B12C /* Views */,
@@ -619,7 +626,6 @@
 			isa = PBXGroup;
 			children = (
 				99A2D99329DAE7FC00E02E15 /* Settings */,
-				991EB2BB29C9C8EA009852C0 /* ViewModels */,
 				991EB2A729C32492009852C0 /* ProductDetails */,
 				99614A39292563F9003D4090 /* DropDown */,
 				8EB16D38282A57C80047EEF5 /* ConfigScreeen */,
@@ -964,7 +970,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		99614A3B29266B33003D4090 /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -988,11 +994,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99F10BA62A52DC4200ECD75F /* BaseCardForm.swift in Sources */,
 				8ECF54C8270C4ACC008856BD /* String+Utilities.swift in Sources */,
 				8EF80BF927293DB5000B70DE /* VFWebConfig.swift in Sources */,
 				8EF80BF227282AEA000B70DE /* VerifonePaymentForm.swift in Sources */,
 				99A2D99929DB066100E02E15 /* VerifonePaymentMethodtype.swift in Sources */,
 				8EB3B45C26CFEBE4006388F4 /* PaymentTypePresentable.swift in Sources */,
+				99F10BA42A52D08800ECD75F /* GiftCardForm.swift in Sources */,
 				8EB3B42526CFC27E006388F4 /* CardFormNumberTextField.swift in Sources */,
 				8EB3B44226CFDDC3006388F4 /* PanModalPresentable.swift in Sources */,
 				8EB3B44E26CFDDC3006388F4 /* DimmedView.swift in Sources */,

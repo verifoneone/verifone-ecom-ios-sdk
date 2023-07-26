@@ -1,24 +1,18 @@
 //
-//  CreditCardViewController.swift
+//  GiftCardForm.swift
 //  VerifoneSDK
 //
-//  Created by Oraz Atakishiyev on 22.11.2021.
+//  Created by Oraz Atakishiyev on 03.07.2023.
 //
 
 import UIKit
 
-public protocol CreditCardFormViewControllerDelegate: AnyObject {
-    func creditCardFormViewControllerDidCardEncrypted(_ controller: BaseCardForm, result: VerifoneFormResult)
-    func creditCardFormViewControllerDidCancel(_ controller: BaseCardForm, callback: CallbackStatus)
-}
+public class GiftCardForm: BaseCardForm {
 
-public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
-
-    public var didSaveCardStateChanged: ((_ isOn: Bool) -> Void)?
     var theme: VerifoneSDK.Theme!
+    public var didSaveCardStateChanged: ((_ isOn: Bool) -> Void)?
 
     private var result: VerifoneFormResult! = VerifoneFormResult()
-    
     private var titleCardForm: UILabel = UILabel(frame: .zero)
     private var closeButton: UIButton = UIButton(frame: .zero)
     private var verifoneLogo: UIImageView = UIImageView(image: UIImage(named: "logo", in: .module, compatibleWith: nil))
@@ -26,35 +20,32 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
     private var footerText: UILabel = UILabel(frame: .zero)
 
     private var cardFormNumberLabel: UILabel = UILabel(frame: .zero)
-    private var cardFormExpiryDateLabel: UILabel = UILabel(frame: .zero)
-    private var cvcLabel: UILabel = UILabel(frame: .zero)
+    private var pinLabel: UILabel = UILabel(frame: .zero)
 
     private var cardFormNumberTextField: CardFormNumberTextField = CardFormNumberTextField(frame: .zero)
-    private var cardFormExpiryDateTextField: CardFormExpiryDateTextField = CardFormExpiryDateTextField(frame: .zero)
-    private var cvcTextField: CVVTextField = CVVTextField(frame: .zero)
+    private var pinTextField: CVVTextField = CVVTextField(frame: .zero, onlyLengthCheck: true)
 
     private var cardNumberErrorLabel: UILabel = UILabel(frame: .zero)
-    private var cardExpiryDateErrorLabel: UILabel = UILabel(frame: .zero)
-    private var cardCVCErrorLabel: UILabel = UILabel(frame: .zero)
+    private var cardPinErrorLabel: UILabel = UILabel(frame: .zero)
 
     private var switchButtonLabel: UILabel = UILabel(frame: .zero)
     private var switchButton: UISwitch = UISwitch(frame: .zero)
     private var hBottomStackView: UIStackView   = UIStackView()
 
-    var cardBrandImageView: UIImageView! = UIImageView()
-    var cvcInfoImageView: UIImageView! = UIImageView()
     private var edgeInsets = UIEdgeInsets(top: 0, left: 15.0, bottom: 0.0, right: -15.0)
 
     var confirmButton: FormButton = FormButton(frame: .zero)
     var formFieldsAccessoryView: UIToolbar = UIToolbar()
 
-    public var paymentConfiguration: VerifoneSDK.PaymentConfiguration!
     public weak var delegate: CreditCardFormViewControllerDelegate?
+    public var paymentConfiguration: VerifoneSDK.PaymentConfiguration!
+    public var showingGiftCard: Bool = false
 
-    public init(paymentConfiguration: VerifoneSDK.PaymentConfiguration, theme: VerifoneSDK.Theme) {
+    public init(paymentConfiguration: VerifoneSDK.PaymentConfiguration, theme: VerifoneSDK.Theme, showingGiftCard: Bool = false) {
         super.init(nibName: nil, bundle: nil)
         self.paymentConfiguration = paymentConfiguration
         self.theme = theme
+        self.showingGiftCard = showingGiftCard
     }
 
     required init?(coder: NSCoder) {
@@ -85,6 +76,8 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
     public override func loadView() {
         super.loadView()
         createViews()
+        cardFormNumberTextField.onlyLenthCheck = true
+        pinTextField.onlyLenthCheck = true
         setColors()
         setupToolbar()
         view.backgroundColor = theme.primaryBackgorundColor
@@ -97,38 +90,38 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
     }
 
     var isCardInputDataValid: Bool {
-        return self.cardFormInputFields.areFieldsValid()
+        return cardFormNumberTextField.text!.count >= 19 && pinTextField.text!.count >= 4
     }
 
     private func setupToolbar() {
         formFieldsAccessoryView.barStyle = .default
         formFieldsAccessoryView.sizeToFit()
 
-        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(CreditCardViewController.doneEditing(_:)))
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(GiftCardForm.doneEditing(_:)))
         let flexibleSpaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let fixedSpaceButton = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
 
         gotoPreviousFieldBarButtonItem = UIBarButtonItem(
             image: UIImage(named: "Back", in: .module, compatibleWith: nil)!,
             style: UIBarButtonItem.Style.plain, target: self,
-            action: #selector(CreditCardViewController.gotoPreviousField(_:)))
+            action: #selector(GiftCardForm.gotoPreviousField(_:)))
         gotoNextFieldBarButtonItem.width = 50.0
         gotoNextFieldBarButtonItem = UIBarButtonItem(
             image: UIImage(named: "Next Field", in: .module, compatibleWith: nil)!,
             style: UIBarButtonItem.Style.plain, target: self,
-            action: #selector(CreditCardViewController.gotoNextField(_:)))
+            action: #selector(GiftCardForm.gotoNextField(_:)))
 
         formFieldsAccessoryView.setItems([fixedSpaceButton, gotoPreviousFieldBarButtonItem, fixedSpaceButton, gotoNextFieldBarButtonItem, flexibleSpaceButton, doneButton], animated: false)
     }
 
     private func setEventHandlers() {
         closeButton.addTarget(self, action: #selector(cancelCardForm), for: .touchUpInside)
-        confirmButton.addTarget(self, action: #selector(CreditCardViewController.encryptCard), for: .touchUpInside)
-        switchButton.addTarget(self, action: #selector(CreditCardViewController.saveCardSwitchChanged), for: .valueChanged)
+        confirmButton.addTarget(self, action: #selector(GiftCardForm.encryptGiftCard), for: .touchUpInside)
+        switchButton.addTarget(self, action: #selector(GiftCardForm.saveCardSwitchChanged), for: .valueChanged)
 
         cardFormInputFields.forEach {
-            $0.addTarget(self, action: #selector(updateCardBrand), for: .valueChanged)
-            $0.addTarget(self, action: #selector(updateCardBrand), for: .editingChanged)
+            $0.addTarget(self, action: #selector(valueChanged), for: .valueChanged)
+            $0.addTarget(self, action: #selector(valueChanged), for: .editingChanged)
             $0.addTarget(self, action: #selector(updateInputAccessoryViewFor(_:)), for: .editingDidBegin)
             $0.addTarget(self, action: #selector(validateTextFieldDataOf(_:)), for: .editingDidEnd)
         }
@@ -139,14 +132,11 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
             return
         }
         cardFormInputFields = [cardFormNumberTextField,
-                              cardFormExpiryDateTextField,
-                               cvcTextField]
+                               pinTextField]
         cardFormLabels = [cardFormNumberLabel,
-                          cardFormExpiryDateLabel,
-                          cvcLabel]
+                          pinLabel]
         cardFormErrorLabels = [cardNumberErrorLabel,
-                               cardExpiryDateErrorLabel,
-                               cardCVCErrorLabel]
+                               cardPinErrorLabel]
 
         cardFormInputFields.forEach {
             $0.inputAccessoryView = formFieldsAccessoryView
@@ -169,13 +159,7 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
             $0.textColor = theme.labelColor
         }
 
-        switchButtonLabel.textColor = theme.labelColor
         titleCardForm.textColor = theme.cardTitleColor
-
-        updateCardBrand()
-
-        cardFormNumberTextField.rightView = cardBrandImageView
-        cvcTextField.rightView = cvcInfoImageView
 
         NotificationCenter.default.addObserver(
             self,
@@ -189,6 +173,7 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
             name: NotificationKeyboardWillHideFrameNotification,
             object: nil
         )
+        valueChanged()
     }
 
     private func cancelForm() {
@@ -203,20 +188,8 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
         return true
     }
 
-    @objc private func updateCardBrand() {
+    @objc private func valueChanged() {
         confirmButton.isEnabled = isCardInputDataValid
-        let cardBrandIconName: String? = cardFormNumberTextField.cardBrand
-        var cvcInfoIconName: String?
-        if cardFormNumberTextField.cardBrand == "AMEX" {
-            cvcInfoIconName = "CVV AMEX"
-        } else if cardFormNumberTextField.cardBrand != nil {
-            cvcInfoIconName = "CVV"
-        }
-
-        cardBrandImageView.image = cardBrandIconName.flatMap { UIImage(named: $0, in: .module, compatibleWith: nil) }
-        cvcInfoImageView.image = cvcInfoIconName.flatMap { UIImage(named: $0, in: .module, compatibleWith: nil)}
-        cardFormNumberTextField.rightViewMode = cardBrandImageView.image != nil ? .always : .never
-        cvcTextField.rightViewMode = cvcInfoImageView.image != nil ? .always : .never
     }
 
     @objc private func validateField(_ textField: BaseTextField) {
@@ -227,8 +200,6 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
             try textField.validate()
             errorLabel.alpha = 0.0
         } catch {
-            errorLabel.text = validationErrorText(for: textField, error: error)
-            errorLabel.alpha = errorLabel.text != "" ? 1.0 : 0.0
         }
     }
 
@@ -236,24 +207,42 @@ public class CreditCardViewController: BaseCardForm, UITextFieldDelegate {
         switch textField {
         case cardFormNumberTextField:
             return cardNumberErrorLabel
-        case cardFormExpiryDateTextField:
-            return cardExpiryDateErrorLabel
-        case cvcTextField:
-            return cardCVCErrorLabel
+        case pinTextField:
+            return cardPinErrorLabel
         default:
             return nil
         }
     }
+
+    public var panScrollable: UIScrollView? {
+        return nil
+    }
+
+    public var longFormHeight: PanModalHeight {
+        return .maxHeight
+    }
+
+    public var anchorModalToLongForm: Bool {
+        return true
+    }
+
+    public var shouldRoundTopCorners: Bool {
+        return true
+    }
+
+    public func shouldRespond(to panModalGestureRecognizer: UIPanGestureRecognizer) -> Bool {
+        true
+    }
 }
 
-extension CreditCardViewController {
+extension GiftCardForm {
 
     @objc private func saveCardSwitchChanged() {
         result.setSaveCardState(saveCard: switchButton.isOn)
         didSaveCardStateChanged?(switchButton.isOn)
     }
 
-    @objc private func encryptCard() {
+    @objc private func encryptGiftCard() {
         doneEditing(nil)
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
@@ -261,15 +250,16 @@ extension CreditCardViewController {
 
         let iso8601String = dateFormatter.string(from: Date()) + "Z"
         let cardData = CardEncryption(publicKey: paymentConfiguration.cardEncryptionPublicKey,
-                                      cardData: EncryptedData(cardNumber: cardFormNumberTextField.text!,
-                                                              expiryMonth: cardFormExpiryDateTextField.selectedMonth ?? 0,
-                                                              expiryYear: cardFormExpiryDateTextField.selectedYear ?? 0,
-                                                              cvv: cvcTextField.text ?? "",
+                                      cardData: EncryptedData(cardNumber: cardFormNumberTextField.text!.replacingOccurrences(of: " ", with: ""),
+                                                              expiryMonth: nil,
+                                                              expiryYear: nil,
+                                                              cvv: showingGiftCard ? nil : pinTextField.text!,
                                                               captureTime: iso8601String,
-                                                              svcAccessCode: nil))
+                                                              svcAccessCode: showingGiftCard ? pinTextField.text! : nil))
         cardData.getEncryptedData { [weak self] cardEncryptionResult in
-            self?.result.cardBrand = self?.cardFormNumberTextField.cardBrand!.uppercased()
+            self?.result.cardBrand = "GIFT_CARD"
             self?.result.cardData = ""
+            self?.result.paymentMethodType = .giftCard
             switch cardEncryptionResult {
             case let .success(cardData):
                 self?.result.cardData = cardData
@@ -281,25 +271,10 @@ extension CreditCardViewController {
             }
         }
     }
-
-    private func validationErrorText(for textField: UITextField, error: Error) -> String {
-        switch (error, textField) {
-        case (VFTextFieldValidationError.emptyText, _):
-            return ""
-        case (VFTextFieldValidationError.invalidData, cardFormNumberTextField):
-            return "nrNotValid".localized(withComment: "Credit card number is invalid")
-        case (VFTextFieldValidationError.invalidData, cardFormExpiryDateTextField):
-            return "cardExpiryDateFormat".localized(withComment: "Card expiry date is invalid")
-        case (VFTextFieldValidationError.invalidData, cvcTextField):
-            return "cvvNotValid".localized(withComment: "CVV code is invalid")
-        default:
-            return ""
-        }
-    }
 }
 
 // MARK: - Fields Accessory methods
-extension CreditCardViewController {
+extension GiftCardForm {
 
     @IBAction private func validateTextFieldDataOf(_ sender: BaseTextField) {
         let duration = TimeInterval(UINavigationController.hideShowBarDuration)
@@ -339,31 +314,24 @@ extension CreditCardViewController {
 }
 
 // MARK: - Setup constraints
-extension CreditCardViewController {
+extension GiftCardForm {
     // swiftlint: disable function_body_length
     func createViews() {
-
         contentView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(contentView)
-
-        self.contentView.addSubview(cardBrandImageView)
 
         self.contentView.addSubview(titleCardForm)
         self.contentView.addSubview(closeButton)
 
         self.contentView.addSubview(cardFormNumberLabel)
-        self.contentView.addSubview(cardFormExpiryDateLabel)
-        self.contentView.addSubview(cvcLabel)
+        self.contentView.addSubview(pinLabel)
 
         self.contentView.addSubview(cardFormNumberTextField)
-        self.contentView.addSubview(cardFormExpiryDateTextField)
-        self.contentView.addSubview(cvcTextField)
+        self.contentView.addSubview(pinTextField)
 
         self.contentView.addSubview(cardNumberErrorLabel)
-        self.contentView.addSubview(cardExpiryDateErrorLabel)
-        self.contentView.addSubview(cardCVCErrorLabel)
+        self.contentView.addSubview(cardPinErrorLabel)
 
-        titleCardForm.text = "cardTitle".localized()
         closeButton.tintColor = UIColor.VF.label
         closeButton.setImage(UIImage(named: "Close", in: .module, compatibleWith: nil), for: .normal)
         verifoneLogo.contentMode = UIView.ContentMode.scaleAspectFit
@@ -372,26 +340,27 @@ extension CreditCardViewController {
         footerText.text = "footerText".localized()
         footerText.textColor = UIColor.VF.footerText
 
-        cardFormNumberLabel.text = "cardNumberLabel".localized()
-        cardFormExpiryDateLabel.text = "cardExpiryLabel".localized()
-        cvcLabel.text = "cvvLabel".localized()
-
         switchButtonLabel.text = "switchButtonText".localized(withComment: "Save details for next time")
+        cardFormNumberLabel.text = "Gift card number"
+        if showingGiftCard {
+            titleCardForm.text = "Gift card"
+            pinLabel.text = "PIN"
+        } else {
+            titleCardForm.text = "Private label card"
+            pinLabel.text = "CVV"
+        }
 
-        confirmButton.setTitle("\("submitPay".localized()) \(!self.paymentConfiguration.totalAmount.isEmpty ? "\(self.paymentConfiguration.totalAmount)" : "")", for: .normal)
+        confirmButton.setTitle("\("submitPay".localized()) ", for: .normal)
         confirmButton.cornerRadius = 3
-        cardFormExpiryDateTextField.placeholder = "expiryPlaceholder".localized()
 
         // SET LABEL COLOR
         cardFormNumberLabel.textColor = UIColor.VF.cardFormLabel
-        cardFormExpiryDateLabel.textColor = UIColor.VF.cardFormLabel
-        cvcLabel.textColor = UIColor.VF.cardFormLabel
+        pinLabel.textColor = UIColor.VF.cardFormLabel
         switchButtonLabel.textColor = UIColor.VF.cardFormLabel
 
         // SET FONT
         cardFormNumberLabel.font = UIFont(name: theme.font.familyName, size: 15)
-        cardFormExpiryDateLabel.font = UIFont(name: theme.font.familyName, size: 15)
-        cvcLabel.font = UIFont(name: theme.font.familyName, size: 15)
+        pinLabel.font = UIFont(name: theme.font.familyName, size: 15)
         footerText.font = UIFont(name: theme.font.familyName, size: 10)
 
         switchButtonLabel.font = UIFont(name: theme.font.familyName, size: 16)
@@ -399,17 +368,14 @@ extension CreditCardViewController {
         confirmButton.titleLabel?.font = UIFont(name: theme.font.familyName, size: 17)
 
         cardFormNumberTextField.font = UIFont(name: theme.font.familyName, size: 13)
-        cardFormExpiryDateTextField.font = UIFont(name: theme.font.familyName, size: 13)
-        cvcTextField.font = UIFont(name: theme.font.familyName, size: 13)
+        pinTextField.font = UIFont(name: theme.font.familyName, size: 13)
 
         cardNumberErrorLabel.font = UIFont(name: theme.font.familyName, size: 12)
-        cardExpiryDateErrorLabel.font = UIFont(name: theme.font.familyName, size: 12)
-        cardCVCErrorLabel.font = UIFont(name: theme.font.familyName, size: 12)
+        cardPinErrorLabel.font = UIFont(name: theme.font.familyName, size: 12)
+
 
         cardFormNumberTextField.textContentType = UITextContentType.creditCardNumber
-        cardFormExpiryDateTextField.autocapitalizationType = UITextAutocapitalizationType.none
-        cardFormExpiryDateTextField.keyboardType = UIKeyboardType.numberPad
-        cvcTextField.autocapitalizationType = UITextAutocapitalizationType.none
+        pinTextField.autocapitalizationType = UITextAutocapitalizationType.none
 
         contentView.translatesAutoresizingMaskIntoConstraints = false
         titleCardForm.translatesAutoresizingMaskIntoConstraints = false
@@ -419,16 +385,13 @@ extension CreditCardViewController {
         footerText.translatesAutoresizingMaskIntoConstraints = false
 
         cardFormNumberLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardFormExpiryDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        cvcLabel.translatesAutoresizingMaskIntoConstraints = false
+        pinLabel.translatesAutoresizingMaskIntoConstraints = false
 
         cardFormNumberTextField.translatesAutoresizingMaskIntoConstraints = false
-        cardFormExpiryDateTextField.translatesAutoresizingMaskIntoConstraints = false
-        cvcTextField.translatesAutoresizingMaskIntoConstraints = false
+        pinTextField.translatesAutoresizingMaskIntoConstraints = false
 
         cardNumberErrorLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardExpiryDateErrorLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardCVCErrorLabel.translatesAutoresizingMaskIntoConstraints = false
+        cardPinErrorLabel.translatesAutoresizingMaskIntoConstraints = false
         confirmButton.translatesAutoresizingMaskIntoConstraints = false
         confirmButton.backgroundColor = UIColor.VF.formButton
 
@@ -455,7 +418,7 @@ extension CreditCardViewController {
         hBottomStackView.addArrangedSubview(switchButtonLabel)
         hBottomStackView.addArrangedSubview(switchButton)
         hBottomStackView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         self.contentView.addSubview(hTopStackView)
         if paymentConfiguration.showCardSaveSwitch {
             self.contentView.addSubview(hBottomStackView)
@@ -531,42 +494,24 @@ extension CreditCardViewController {
             cardNumberErrorLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right)
         ])
 
-        // CARD FORM EXPIRE INPUT
+        // CARD FORM PIN INPUT
         NSLayoutConstraint.activate([
-            cardFormExpiryDateLabel.topAnchor.constraint(equalTo: cardFormNumberTextField.bottomAnchor, constant: 25.0),
-            cardFormExpiryDateLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
-            // CARD EXPIRE TEXTFIELD
-            cardFormExpiryDateTextField.topAnchor.constraint(equalTo: cardFormExpiryDateLabel.bottomAnchor, constant: 6.0),
-            cardFormExpiryDateTextField.heightAnchor.constraint(equalToConstant: 40.0),
-            cardFormExpiryDateTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
-            // CARD EXPIRE ERROR LABEL
-            cardExpiryDateErrorLabel.topAnchor.constraint(equalTo: cardFormExpiryDateTextField.bottomAnchor, constant: 6.0),
-            cardExpiryDateErrorLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left)
-        ])
-
-        // CARD FORM CVC INPUT
-        NSLayoutConstraint.activate([
-            cvcLabel.topAnchor.constraint(equalTo: cardFormNumberTextField.bottomAnchor, constant: 25.0),
-            cvcLabel.leadingAnchor.constraint(equalTo: cvcTextField.leadingAnchor, constant: edgeInsets.left),
-            // CARD CVC TEXTFIELD
-            cvcTextField.topAnchor.constraint(equalTo: cvcLabel.bottomAnchor, constant: 6.0),
-            cvcTextField.heightAnchor.constraint(equalToConstant: 40.0),
-            cvcTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right),
-            // CARD CVC ERROR LABEL
-            cardCVCErrorLabel.topAnchor.constraint(equalTo: cvcTextField.bottomAnchor, constant: 6.0),
-            cardCVCErrorLabel.leadingAnchor.constraint(equalTo: cvcTextField.leadingAnchor, constant: edgeInsets.left)
-        ])
-
-        // CARD FORM CVC AND EXPIRE WIDTH AND SPACE
-        NSLayoutConstraint.activate([
-            cardFormExpiryDateTextField.widthAnchor.constraint(equalTo: cvcTextField.widthAnchor, constant: 0.0),
-            cardFormExpiryDateTextField.trailingAnchor.constraint(equalTo: cvcTextField.leadingAnchor, constant: -40)
+            pinLabel.topAnchor.constraint(equalTo: cardFormNumberTextField.bottomAnchor, constant: 25.0),
+            pinLabel.leadingAnchor.constraint(equalTo: pinTextField.leadingAnchor, constant: 0.0),
+            // CARD PIN TEXTFIELD
+            pinTextField.topAnchor.constraint(equalTo: pinLabel.bottomAnchor, constant: 6.0),
+            pinTextField.heightAnchor.constraint(equalToConstant: 40.0),
+            pinTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: edgeInsets.left),
+            pinTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: edgeInsets.right),
+            // CARD PIN ERROR LABEL
+            cardPinErrorLabel.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 6.0),
+            cardPinErrorLabel.leadingAnchor.constraint(equalTo: pinTextField.leadingAnchor, constant: edgeInsets.left)
         ])
 
         // BOTTOM STACKVIEW
         if paymentConfiguration.showCardSaveSwitch {
             NSLayoutConstraint.activate([
-                hBottomStackView.topAnchor.constraint(equalTo: cvcTextField.bottomAnchor, constant: 20.0),
+                hBottomStackView.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 20.0),
                 hBottomStackView.heightAnchor.constraint(equalToConstant: 40.0),
                 confirmButton.topAnchor.constraint(equalTo: hBottomStackView.bottomAnchor, constant: 20.0),
                 hBottomStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 0.0),
@@ -574,7 +519,7 @@ extension CreditCardViewController {
             ])
         } else {
             NSLayoutConstraint.activate([
-                confirmButton.topAnchor.constraint(equalTo: cvcTextField.bottomAnchor, constant: 30.0)
+                confirmButton.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 30.0)
             ])
         }
 

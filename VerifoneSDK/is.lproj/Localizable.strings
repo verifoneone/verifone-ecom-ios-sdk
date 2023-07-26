@@ -32,6 +32,7 @@
 "paymentProductSwish" = "Swish";
 "paymentProductMobilePay" = "MobilePay";
 "paymentProductCrypto" = "Rafmynt";
+"paymentGiftCard" = "Gift card";
 
 "transactionIncorrectCardInformation" = "Rangar kortaupplýsingar";
 "transactionIncorrectCVV" = "Rangt CVV";

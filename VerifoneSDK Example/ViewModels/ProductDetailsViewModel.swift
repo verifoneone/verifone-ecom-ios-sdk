@@ -85,7 +85,7 @@ struct ProductDetailsViewModel {
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let request = RequestReuseToken(tokenScope: tokenScope,
                                         encryptedCard: encryptedCard,
-                                        publicKeyAlias: Parameters.creditCard!.publicKeyAlias!,
+                                        publicKeyAlias: params.publicKeyAlias!,
                                         tokenType: "REUSE",
                                         tokenExpiryDate: dateFormatter.string(from: nDate))
         self.clientAPI.makeRequest(route: VerifoneApiEndPoint.createReuseToken(headers: getHeaders(params: params), paramters: request.toDictConvertSnake())) { response, error in

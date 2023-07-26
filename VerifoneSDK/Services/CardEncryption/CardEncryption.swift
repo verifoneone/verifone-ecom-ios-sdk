@@ -52,10 +52,8 @@ public class CardEncryption: NSObject {
 
         let jsonCardData = String(data: json, encoding: .utf8)!
         let senderPublic = CryptoKey(fromArmored: publicKey)
-
         let senderPublicKeyRing = CryptoKeyRing(senderPublic)
         var error: NSError?
-
         let cipher = try? senderPublicKeyRing?.encrypt(CryptoNewPlainMessageFromString(jsonCardData), privateKey: nil).getArmored(&error)
         return completion(.success(cipher!.toBase64()))
     }

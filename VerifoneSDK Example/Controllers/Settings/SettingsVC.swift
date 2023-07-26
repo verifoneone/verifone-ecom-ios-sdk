@@ -144,9 +144,9 @@ class SettingsVC: UIViewController {
         self.navigationController?.pushViewController(langVC, animated: true)
     }
 
-    @objc func deleteReuseToken() {
-        defaults.set(false, forKey: Keys.reuseToken)
-        self.viewModel.sections[SettingSections.ReuseToken.rawValue].cells[0].isOn = false
+    @objc func deleteReuseToken(forKey: String, rowIndex: Int) {
+        defaults.set(false, forKey: forKey)
+        self.viewModel.sections[SettingSections.ReuseToken.rawValue].cells[rowIndex].isOn = false
         self.tableView.reloadSections(IndexSet([SettingSections.ReuseToken.rawValue]), with: .automatic)
     }
 }
@@ -207,12 +207,14 @@ extension SettingsVC: UITableViewDataSource, UITableViewDelegate {
                 case .defaultValues:
                     self?.defaultValues()
                 case .reuseToken:
-                    self?.deleteReuseToken()
+                    self?.deleteReuseToken(forKey: Keys.reuseToken, rowIndex: 0)
+                case .giftCardReuseToken:
+                    self?.deleteReuseToken(forKey: Keys.reuseTokenForGiftCard, rowIndex: 1)
                 default: break
                 }
             }
             cell.button.setTitleColor(UIColor.systemBlue, for: .normal)
-            if item.placeholder == "Card details" && !item.isOn {
+            if item.value == "Delete token" && !item.isOn {
                 cell.button.setTitleColor(.gray, for: .normal)
             }
             return cell
@@ -275,13 +277,39 @@ extension SettingsVC: UITableViewDataSource, UITableViewDelegate {
 
     @objc private func switchButtonValueChanged(sender: UISwitch) {
         self.saveBarButton.isEnabled = true
+
         if SettingSections.cardCustomization.rawValue == sender.tag/1000 {
-            if sender.tag%1000 == 0 {
-                defaults.set(sender.isOn, forKey: Keys.isCardSaveEnabled)
-            }
+            var key: String = Keys.isCardSaveEnabled
+            var error: String = ""
+
             if sender.tag%1000 == 1 {
-                defaults.set(sender.isOn, forKey: Keys.threedsEnabled)
+                if viewModel.isThreedsParamFieldEmpty {
+                    error = "Missing threeds contract id parameter to enable this feature."
+                }
+                key = Keys.threedsEnabled
+            } else {
+                if viewModel.isTokenScopeParamFieldEmpty {
+                    error = "Missing token scope parameter to enable this feature."
+                }
             }
+
+            if !error.isEmpty {
+                self.alert(title: error)
+                sender.isOn = false; return
+            }
+
+            self.viewModel.cardFormSwitchButtonStates[key] = sender.isOn
+            self.viewModel.sections[sender.tag/1000].cells[sender.tag%1000].isOn = sender.isOn
+            // the below code is to disabel card save for threeds. 3ds doesn't support card save
+            if key == Keys.threedsEnabled && sender.isOn && self.viewModel.cardFormSwitchButtonStates[Keys.isCardSaveEnabled]! {
+                self.viewModel.cardFormSwitchButtonStates[Keys.isCardSaveEnabled] = false
+                self.viewModel.sections[sender.tag/1000].cells[0].isOn = false
+            }
+            if key == Keys.isCardSaveEnabled && sender.isOn && self.viewModel.cardFormSwitchButtonStates[Keys.threedsEnabled]! {
+                self.viewModel.cardFormSwitchButtonStates[Keys.threedsEnabled] = false
+                self.viewModel.sections[sender.tag/1000].cells[1].isOn = false
+            }
+            self.tableView.reloadRows(at: [IndexPath(row: 0, section: sender.tag/1000), IndexPath(row: 1, section: sender.tag/1000)], with: .automatic)
         }
         if SettingSections.Options.rawValue == sender.tag/1000 {
             let cellModel = viewModel.sections[sender.tag/1000].cells[sender.tag%1000]
