@@ -42,8 +42,6 @@
 		8EA101FC27A93BCD0011B8CC /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8EA101FB27A93BC10011B8CC /* NotoSans-Regular.ttf */; };
 		8EABEBAB274B8A3C0031BE8A /* CreditCardCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EABEBAA274B8A3C0031BE8A /* CreditCardCodeViewController.swift */; };
 		8EB16D37282949DB0047EEF5 /* ConfigurationParamsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB16D36282949DB0047EEF5 /* ConfigurationParamsVC.swift */; };
-		8EB3B3D526CE2AC7006388F4 /* VerifoneSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EB3B3CB26CE2AC7006388F4 /* VerifoneSDK.framework */; };
-		8EB3B3DA26CE2AC7006388F4 /* VerifoneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B3D926CE2AC7006388F4 /* VerifoneTests.swift */; };
 		8EB3B3DC26CE2AC7006388F4 /* VerifoneSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 8EB3B3CE26CE2AC7006388F4 /* VerifoneSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8EB3B41626CF8E05006388F4 /* CVVTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B41526CF8E05006388F4 /* CVVTextField.swift */; };
 		8EB3B41D26CF93B0006388F4 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3B41C26CF93B0006388F4 /* Extensions.swift */; };
@@ -116,6 +114,8 @@
 		9946895A291D4881007A67EA /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99468959291D4881007A67EA /* Parameters.swift */; };
 		9946895C291D4B13007A67EA /* UserDefaults+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946895B291D4B13007A67EA /* UserDefaults+Extensions.swift */; };
 		99468960291D6B94007A67EA /* ParameterByPaymentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9946895F291D6B94007A67EA /* ParameterByPaymentType.swift */; };
+		995285B52A71920B00D4CC22 /* VerifoneSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995285B42A71920B00D4CC22 /* VerifoneSDKTests.swift */; };
+		995285B62A71920B00D4CC22 /* VerifoneSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EB3B3CB26CE2AC7006388F4 /* VerifoneSDK.framework */; platformFilter = ios; };
 		99614A362923D54A003D4090 /* DropDownVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99614A352923D54A003D4090 /* DropDownVC.swift */; };
 		99614A382923FC4D003D4090 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99614A372923FC4D003D4090 /* UIColor+Extensions.swift */; };
 		99A2D99229DAE75B00E02E15 /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A2D99129DAE75B00E02E15 /* SettingsVC.swift */; };
@@ -134,14 +134,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		8EB3B3D626CE2AC7006388F4 /* PBXContainerItemProxy */ = {
+		8EC67CB326FCB3480023B12C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8EB3B3C226CE2AC6006388F4 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8EB3B3CA26CE2AC7006388F4;
-			remoteInfo = Verifone;
+			remoteInfo = VerifoneSDK;
 		};
-		8EC67CB326FCB3480023B12C /* PBXContainerItemProxy */ = {
+		995285B72A71920B00D4CC22 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8EB3B3C226CE2AC6006388F4 /* Project object */;
 			proxyType = 1;
@@ -205,9 +205,6 @@
 		8EB3B3CB26CE2AC7006388F4 /* VerifoneSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VerifoneSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EB3B3CE26CE2AC7006388F4 /* VerifoneSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VerifoneSDK.h; sourceTree = "<group>"; };
 		8EB3B3CF26CE2AC7006388F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8EB3B3D426CE2AC7006388F4 /* VerifoneSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VerifoneSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		8EB3B3D926CE2AC7006388F4 /* VerifoneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifoneTests.swift; sourceTree = "<group>"; };
-		8EB3B3DB26CE2AC7006388F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8EB3B41526CF8E05006388F4 /* CVVTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVVTextField.swift; sourceTree = "<group>"; };
 		8EB3B41C26CF93B0006388F4 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		8EB3B41E26CF946C006388F4 /* CardFormExpiryDateTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardFormExpiryDateTextField.swift; sourceTree = "<group>"; };
@@ -310,6 +307,8 @@
 		99468959291D4881007A67EA /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		9946895B291D4B13007A67EA /* UserDefaults+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Extensions.swift"; sourceTree = "<group>"; };
 		9946895F291D6B94007A67EA /* ParameterByPaymentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterByPaymentType.swift; sourceTree = "<group>"; };
+		995285B22A71920B00D4CC22 /* VerifoneSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VerifoneSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		995285B42A71920B00D4CC22 /* VerifoneSDKTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifoneSDKTests.swift; sourceTree = "<group>"; };
 		99614A352923D54A003D4090 /* DropDownVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownVC.swift; sourceTree = "<group>"; };
 		99614A372923FC4D003D4090 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99A2D99129DAE75B00E02E15 /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
@@ -337,14 +336,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8EB3B3D126CE2AC7006388F4 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8EB3B3D526CE2AC7006388F4 /* VerifoneSDK.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8EC67C8626FCB1560023B12C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -352,6 +343,14 @@
 				8E4FCC242816D8470049CBFD /* KlarnaMobileSDK in Frameworks */,
 				8EC67CB126FCB3470023B12C /* VerifoneSDK.framework in Frameworks */,
 				8E4DD4E2273E66EB0021AC90 /* CardinalMobile.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		995285AF2A71920B00D4CC22 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				995285B62A71920B00D4CC22 /* VerifoneSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,7 +416,7 @@
 			isa = PBXGroup;
 			children = (
 				8EB3B3CD26CE2AC7006388F4 /* VerifoneSDK */,
-				8EB3B3D826CE2AC7006388F4 /* VerifoneSDKTests */,
+				995285B32A71920B00D4CC22 /* VerifoneSDKTests */,
 				8EC67C8A26FCB1560023B12C /* VerifoneSDK Example */,
 				8EB3B3CC26CE2AC7006388F4 /* Products */,
 				8EC67CB026FCB3470023B12C /* Frameworks */,
@@ -428,8 +427,8 @@
 			isa = PBXGroup;
 			children = (
 				8EB3B3CB26CE2AC7006388F4 /* VerifoneSDK.framework */,
-				8EB3B3D426CE2AC7006388F4 /* VerifoneSDKTests.xctest */,
 				8EC67C8926FCB1560023B12C /* VerifoneSDK Example.app */,
+				995285B22A71920B00D4CC22 /* VerifoneSDKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -451,15 +450,6 @@
 				99A2D99829DB066100E02E15 /* VerifonePaymentMethodtype.swift */,
 			);
 			path = VerifoneSDK;
-			sourceTree = "<group>";
-		};
-		8EB3B3D826CE2AC7006388F4 /* VerifoneSDKTests */ = {
-			isa = PBXGroup;
-			children = (
-				8EB3B3D926CE2AC7006388F4 /* VerifoneTests.swift */,
-				8EB3B3DB26CE2AC7006388F4 /* Info.plist */,
-			);
-			path = VerifoneSDKTests;
 			sourceTree = "<group>";
 		};
 		8EB3B3E526CF8254006388F4 /* Views */ = {
@@ -776,6 +766,14 @@
 			path = Cells;
 			sourceTree = "<group>";
 		};
+		995285B32A71920B00D4CC22 /* VerifoneSDKTests */ = {
+			isa = PBXGroup;
+			children = (
+				995285B42A71920B00D4CC22 /* VerifoneSDKTests.swift */,
+			);
+			path = VerifoneSDKTests;
+			sourceTree = "<group>";
+		};
 		99614A39292563F9003D4090 /* DropDown */ = {
 			isa = PBXGroup;
 			children = (
@@ -833,24 +831,6 @@
 			productReference = 8EB3B3CB26CE2AC7006388F4 /* VerifoneSDK.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		8EB3B3D326CE2AC7006388F4 /* VerifoneSDKTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 8EB3B3E226CE2AC7006388F4 /* Build configuration list for PBXNativeTarget "VerifoneSDKTests" */;
-			buildPhases = (
-				8EB3B3D026CE2AC7006388F4 /* Sources */,
-				8EB3B3D126CE2AC7006388F4 /* Frameworks */,
-				8EB3B3D226CE2AC7006388F4 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				8EB3B3D726CE2AC7006388F4 /* PBXTargetDependency */,
-			);
-			name = VerifoneSDKTests;
-			productName = VerifoneTests;
-			productReference = 8EB3B3D426CE2AC7006388F4 /* VerifoneSDKTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		8EC67C8826FCB1560023B12C /* VerifoneSDK Example */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8EC67C9A26FCB1600023B12C /* Build configuration list for PBXNativeTarget "VerifoneSDK Example" */;
@@ -874,24 +854,42 @@
 			productReference = 8EC67C8926FCB1560023B12C /* VerifoneSDK Example.app */;
 			productType = "com.apple.product-type.application";
 		};
+		995285B12A71920B00D4CC22 /* VerifoneSDKTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 995285B92A71920B00D4CC22 /* Build configuration list for PBXNativeTarget "VerifoneSDKTests" */;
+			buildPhases = (
+				995285AE2A71920B00D4CC22 /* Sources */,
+				995285AF2A71920B00D4CC22 /* Frameworks */,
+				995285B02A71920B00D4CC22 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				995285B82A71920B00D4CC22 /* PBXTargetDependency */,
+			);
+			name = VerifoneSDKTests;
+			productName = VerifoneSDKTests;
+			productReference = 995285B22A71920B00D4CC22 /* VerifoneSDKTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		8EB3B3C226CE2AC6006388F4 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1300;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1300;
 				TargetAttributes = {
 					8EB3B3CA26CE2AC7006388F4 = {
 						CreatedOnToolsVersion = 12.5;
 						LastSwiftMigration = 1300;
 					};
-					8EB3B3D326CE2AC7006388F4 = {
-						CreatedOnToolsVersion = 12.5;
-					};
 					8EC67C8826FCB1560023B12C = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					995285B12A71920B00D4CC22 = {
+						CreatedOnToolsVersion = 14.3.1;
 					};
 				};
 			};
@@ -929,8 +927,8 @@
 			projectRoot = "";
 			targets = (
 				8EB3B3CA26CE2AC7006388F4 /* VerifoneSDK */,
-				8EB3B3D326CE2AC7006388F4 /* VerifoneSDKTests */,
 				8EC67C8826FCB1560023B12C /* VerifoneSDK Example */,
+				995285B12A71920B00D4CC22 /* VerifoneSDKTests */,
 			);
 		};
 /* End PBXProject section */
@@ -946,13 +944,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8EB3B3D226CE2AC7006388F4 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8EC67C8726FCB1560023B12C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -962,6 +953,13 @@
 				8EE2137A2788565D000B3D41 /* Localizable.strings in Resources */,
 				8EC67C9526FCB1600023B12C /* Assets.xcassets in Resources */,
 				8EC67C9326FCB1560023B12C /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		995285B02A71920B00D4CC22 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1046,14 +1044,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8EB3B3D026CE2AC7006388F4 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8EB3B3DA26CE2AC7006388F4 /* VerifoneTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8EC67C8526FCB1560023B12C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1118,18 +1108,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		995285AE2A71920B00D4CC22 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				995285B52A71920B00D4CC22 /* VerifoneSDKTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		8EB3B3D726CE2AC7006388F4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8EB3B3CA26CE2AC7006388F4 /* VerifoneSDK */;
-			targetProxy = 8EB3B3D626CE2AC7006388F4 /* PBXContainerItemProxy */;
-		};
 		8EC67CB426FCB3480023B12C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8EB3B3CA26CE2AC7006388F4 /* VerifoneSDK */;
 			targetProxy = 8EC67CB326FCB3480023B12C /* PBXContainerItemProxy */;
+		};
+		995285B82A71920B00D4CC22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 8EB3B3CA26CE2AC7006388F4 /* VerifoneSDK */;
+			targetProxy = 995285B72A71920B00D4CC22 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1402,44 +1401,6 @@
 			};
 			name = Release;
 		};
-		8EB3B3E326CE2AC7006388F4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 683U48NZTT;
-				INFOPLIST_FILE = VerifoneTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.verifone.sdk.VerifoneTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		8EB3B3E426CE2AC7006388F4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 683U48NZTT;
-				INFOPLIST_FILE = VerifoneTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.verifone.sdk.VerifoneTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		8EC67C9B26FCB1600023B12C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1488,6 +1449,40 @@
 			};
 			name = Release;
 		};
+		995285BA2A71920B00D4CC22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.verifoneone.VerifoneSDKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		995285BB2A71920B00D4CC22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.verifoneone.VerifoneSDKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1509,20 +1504,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8EB3B3E226CE2AC7006388F4 /* Build configuration list for PBXNativeTarget "VerifoneSDKTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8EB3B3E326CE2AC7006388F4 /* Debug */,
-				8EB3B3E426CE2AC7006388F4 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		8EC67C9A26FCB1600023B12C /* Build configuration list for PBXNativeTarget "VerifoneSDK Example" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8EC67C9B26FCB1600023B12C /* Debug */,
 				8EC67C9C26FCB1600023B12C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		995285B92A71920B00D4CC22 /* Build configuration list for PBXNativeTarget "VerifoneSDKTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				995285BA2A71920B00D4CC22 /* Debug */,
+				995285BB2A71920B00D4CC22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

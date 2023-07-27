@@ -55,6 +55,11 @@ public class CardEncryption: NSObject {
         let senderPublicKeyRing = CryptoKeyRing(senderPublic)
         var error: NSError?
         let cipher = try? senderPublicKeyRing?.encrypt(CryptoNewPlainMessageFromString(jsonCardData), privateKey: nil).getArmored(&error)
-        return completion(.success(cipher!.toBase64()))
+        guard let cipher = cipher?.toBase64() else {
+            debugPrint("Invalid public key")
+            completion(.failure(VerifoneError.invalidPublicKey))
+            return
+        }
+        return completion(.success(cipher))
     }
 }

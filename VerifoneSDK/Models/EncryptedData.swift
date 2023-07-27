@@ -15,7 +15,7 @@ public struct EncryptedData: Codable {
     let captureTime: String
     let svcAccessCode: String?
 
-    public init(cardNumber: String, expiryMonth: Int?, expiryYear: Int?, cvv: String?, captureTime: String, svcAccessCode: String?) {
+    public init(cardNumber: String, expiryMonth: Int? = nil, expiryYear: Int? = nil, cvv: String? = nil, captureTime: String, svcAccessCode: String? = nil) {
         self.cardNumber = cardNumber
         self.expiryMonth = expiryMonth
         self.expiryYear = expiryYear
