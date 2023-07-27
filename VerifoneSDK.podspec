@@ -1,17 +1,17 @@
 Pod::Spec.new do |s|
 
   s.name             = "VerifoneSDK"
-  s.version          = "1.3.0"
+  s.version          = "0.1.0"
   s.summary          = "Accept payments through VerifoneSDK."
   s.description      = <<-DESC
                        The VerifoneSDK library will allow you to accept payments in your iOS app.
   DESC
-  s.homepage         = "https://www.verifone.cloud/"
+  s.homepage         = "https://www.verifone.com/"
   # s.documentation_url = ""
   # s.screenshots      = ""
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = "Verifone"
-  s.source           = { :git => "https://github.com/verifoneone/verifone-ecom-ios-sdk.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://gitlab.avangate.local/connectors/ios-verifone-sdk.git", :tag => s.version.to_s }
 
   s.platform         = :ios, "12.0"
   s.swift_version    = "5.0"
