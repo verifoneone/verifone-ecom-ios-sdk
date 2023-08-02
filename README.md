@@ -312,6 +312,31 @@ let cardData = CardEncryption(publicKey: "YOUR_PUBLIC_ENCRYPTION_KEY", cardData:
 
 ```
 
+##### Gift Card Encryption
+
+```swift
+
+let dateFormatter = DateFormatter()
+dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+let iso8601String = dateFormatter.string(from: Date()) + "Z"
+
+let encryptedData = EncryptedData(cardNumber: "4111111111111111111",
+                                    captureTime: iso8601String,
+                                    svcAccessCode: "1234")
+
+let cardData = CardEncryption(publicKey: publicKey, cardData: encryptedData)
+cardData.getEncryptedData { cardEncryptionResult in
+    switch cardEncryptionResult {
+    case let .success(cardEncryptionResult):
+        print(cardEncryptionResult)
+    case let .failure(error):
+        print(error)
+    }
+}
+
+```
+
 
 ### Customization
 
