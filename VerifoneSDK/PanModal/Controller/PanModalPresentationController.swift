@@ -351,11 +351,12 @@ private extension PanModalPresentationController {
             addDragIndicatorView(to: presentedView)
         }
 
+        setNeedsLayoutUpdate()
+
         if presentable.shouldRoundTopCorners {
             addRoundedCorners(to: presentedView)
         }
 
-        setNeedsLayoutUpdate()
         adjustPanContainerBackgroundColor()
     }
 

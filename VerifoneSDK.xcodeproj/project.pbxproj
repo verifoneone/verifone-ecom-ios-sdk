@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -180,7 +180,7 @@
 		8E0F670326F49D010058C582 /* RequestJwt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestJwt.swift; sourceTree = "<group>"; };
 		8E0F670926F49D010058C582 /* Verifone3DSecureManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Verifone3DSecureManager.swift; sourceTree = "<group>"; };
 		8E0F670A26F49D010058C582 /* ValidateResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidateResponse.swift; sourceTree = "<group>"; };
-		8E0F671E26F49D5A0058C582 /* CardinalMobile.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CardinalMobile.xcframework; path = "Frameworks/Cardinal/2.2.5-2/CardinalMobile.xcframework"; sourceTree = "<group>"; };
+		8E0F671E26F49D5A0058C582 /* CardinalMobile.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:H7M4G5NDNU:CardinalCommerce Corp"; lastKnownFileType = wrapper.xcframework; name = CardinalMobile.xcframework; path = "Frameworks/Cardinal/2.2.6-2/CardinalMobile.xcframework"; sourceTree = "<group>"; };
 		8E0F672826F7A9E10058C582 /* Gopenpgp.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Gopenpgp.xcframework; path = Frameworks/Gopenpgp/1.0/Gopenpgp.xcframework; sourceTree = "<group>"; };
 		8E0F672B26F7AAA10058C582 /* EncryptedData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EncryptedData.swift; sourceTree = "<group>"; };
 		8E0F672D26F7AB690058C582 /* CardEncryption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEncryption.swift; sourceTree = "<group>"; };

@@ -72,6 +72,7 @@ public class Verifone3DSecureManager {
             config.deploymentEnvironment = .staging
         }
 
+        config.cardinalDatacenter = Visa  // Route to Visa DC
         config.uiType = .both
         config.renderType = [CardinalSessionRenderTypeOTP,
                              CardinalSessionRenderTypeHTML]

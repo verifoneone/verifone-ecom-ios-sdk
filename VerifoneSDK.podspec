@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.source_files   = "VerifoneSDK/**/*.{h,swift}"
   s.resource_bundles = { 'VerifoneSDK' => ["VerifoneSDK/**/*.{xcassets}"] }
   s.public_header_files = "VerifoneSDK/*.{h}"
-  s.vendored_frameworks = ['Frameworks/Cardinal/2.2.5-2/CardinalMobile.xcframework', 'Frameworks/Gopenpgp/1.0/Gopenpgp.xcframework']
+  s.vendored_frameworks = ['Frameworks/Cardinal/2.2.6-2/CardinalMobile.xcframework', 'Frameworks/Gopenpgp/1.0/Gopenpgp.xcframework']
   s.header_dir = "VerifoneSDK"
   s.requires_arc = true
 end
